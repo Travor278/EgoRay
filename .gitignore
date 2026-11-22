@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+data/
+weights/
+preds/
+proposals/
+runs/
+scores/
+*.pt
+*.pth
+*.npz
+*.jsonl.gz
+demo.png
+/third_party/
