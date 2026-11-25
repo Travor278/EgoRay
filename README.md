@@ -1,10 +1,28 @@
 <div align="center">
 <h1>Who Is Ego? Scaling Cross-View Camera Wearer Identification and Segmentation beyond Humans</h1>
 
-<em>Anonymous submission</em>
+<p>
+  <strong>Yifan Jin</strong><sup>1*</sup>,
+  <strong>Zheng Zhang</strong><sup>2*</sup>,
+  <strong>Tianwen Qian</strong><sup>3</sup>,
+  <strong>Dong Wang</strong><sup>4</sup>,
+  <strong>Bo Zhao</strong><sup>5</sup>,
+  <strong>Yanwei Fu</strong><sup>2,6</sup>,
+  <strong>Yuqian Fu</strong><sup>7&dagger;</sup>
+</p>
+<p>
+  <sup>1</sup>Central South University &nbsp;&middot;&nbsp;
+  <sup>2</sup>Fudan University &nbsp;&middot;&nbsp;
+  <sup>3</sup>East China Normal University &nbsp;&middot;&nbsp;
+  <sup>4</sup>Shanghai AI Laboratory &nbsp;&middot;&nbsp;
+  <sup>5</sup>Shanghai Jiao Tong University &nbsp;&middot;&nbsp;
+  <sup>6</sup>Shanghai Innovation Institute &nbsp;&middot;&nbsp;
+  <sup>7</sup>KAUST
+</p>
+<p><sub><sup>*</sup>Equal contribution. &nbsp; <sup>&dagger;</sup>Corresponding author.</sub></p>
 
 <p>
-  <a href="#"><img src="https://img.shields.io/badge/Paper-coming_soon-b31b1b.svg"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b.svg"></a>
   <a href="#"><img src="https://img.shields.io/badge/Project_Page-coming_soon-green"></a>
   <a href="#"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Data-FindEgo--1M-yellow"></a>
   <a href="#"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Model-EgoRay-yellow"></a>
@@ -21,7 +39,30 @@
 
 ## Demo
 
-Coming soon.
+EgoRay lifts an exo–ego image pair into a shared 3D point cloud, estimates both camera poses, and casts the epipole ray from the exo camera through the predicted ego camera to rank candidate masks in 3D.
+
+<p align="center">
+  <img src="assets/demo_egohumans.gif" width="96%" alt="EgoRay 3D demo on real humans (EgoHumans)">
+  <br>
+  <sub>Real humans (EgoHumans): 0.07° epipole angular offset across 4 candidates.</sub>
+</p>
+<p align="center">
+  <img src="assets/demo_indoor.gif" width="96%" alt="EgoRay 3D demo on indoor humans (FindEgo-1M)">
+  <br>
+  <sub>Indoor multi-person scene (FindEgo-1M): 3D room & wearer point cloud, 0.16° angular offset.</sub>
+</p>
+<p align="center">
+  <img src="assets/demo_underwater.gif" width="96%" alt="EgoRay 3D demo beyond humans (underwater sea turtles)">
+  <br>
+  <sub>Beyond humans (FindEgo-1M underwater): camera-carrying sea turtle identified at 0.07° angular offset.</sub>
+</p>
+
+Run the interactive 3D viewer (`gr.Model3D` point cloud, camera frustums, and EgoRay epipole ray, modeled on VGGT-Ω's Gradio demo) or export `.glb` scenes and animations from the command line:
+
+```bash
+pip install -r requirements_demo.txt
+python tools/demo_gradio.py --ckpt weights/vggt_omega_1b_512.pt --adapter weights/egoray/lora.pt
+```
 
 ## Overview
 
@@ -79,14 +120,14 @@ Weights:
 
 ## Usage
 
-**One pair.** Candidates come from an instance-id mask of the exo image (or a JSON list of boxes):
+**One pair.** Candidates come from an instance-id mask of the exo image (or a JSON list of boxes). Pass `--glb` to export an interactive 3D point cloud with camera frustums and the EgoRay epipole ray, or `--anim` to render a 3D walkthrough animation (`.gif` or `.mp4`):
 
 ```bash
 python tools/demo.py --exo exo.jpg --ego ego.jpg --mask exo_instances.png \
-    --ckpt weights/vggt_omega_1b_512.pt --out demo.png
+    --ckpt weights/vggt_omega_1b_512.pt --out demo.png --glb scene.glb --anim demo_3d.gif
 ```
 
-Add `--adapter weights/egoray/lora.pt` for EgoRay, and `--boxes boxes.json` instead of `--mask` for boxes.
+Add `--adapter weights/egoray/lora.pt` for EgoRay, and `--boxes boxes.json` instead of `--mask` for boxes. For an interactive browser demo with `gr.Model3D`, run `tools/demo_gradio.py`.
 
 **Evaluation.** Predict both input orders once, then score Tracks A and C:
 
@@ -137,4 +178,11 @@ The code is released under the [MIT License](LICENSE). The data, the model weigh
 
 ## Citation
 
-Coming soon.
+```bibtex
+@article{jin2026whoego,
+  title   = {Who Is Ego? Scaling Cross-View Camera Wearer Identification and Segmentation beyond Humans},
+  author  = {Jin, Yifan and Zhang, Zheng and Qian, Tianwen and Wang, Dong and Zhao, Bo and Fu, Yanwei and Fu, Yuqian},
+  journal = {arXiv preprint},
+  year    = {2026}
+}
+```

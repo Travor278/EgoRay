@@ -13,6 +13,7 @@ from egoray.data import canvas_regions, image_regions, prep, read_image, read_ma
 from egoray.geometry import front, project, to_image
 from egoray.model import Predictor
 from egoray.readout import fuse, pose, side
+from egoray.vis3d import build_glb, render_animation, unproject_scene
 
 
 def records(pred, x, meta, hw, regs, stride=4):
@@ -61,6 +62,14 @@ def main():
     ap.add_argument("--adapter")
     ap.add_argument("--rank", type=int, default=64)
     ap.add_argument("--out", default="demo.png")
+    ap.add_argument("--glb")
+    ap.add_argument("--anim")
+    ap.add_argument("--still")
+    ap.add_argument("--conf-thres", type=float, default=25.0)
+    ap.add_argument("--max-points", type=int, default=160000)
+    ap.add_argument("--frames", type=int, default=72)
+    ap.add_argument("--fps", type=int, default=16)
+    ap.add_argument("--no-ego-pts", action="store_true")
     a = ap.parse_args()
     exo, ego = read_image(".", a.exo), read_image(".", a.ego)
     if a.mask:
@@ -78,7 +87,13 @@ def main():
         ap.error(f"candidates without pixels: {lost}")
     x, meta = prep([exo, ego])
     regs_c = canvas_regions(q, ".", meta[0])
-    rec = records(Predictor(a.ckpt, a.adapter, a.rank)(x[None]), x, meta, [exo.shape[:2], ego.shape[:2]], regs_c)
+    need_3d = bool(a.glb or a.anim or a.still)
+    model = Predictor(a.ckpt, a.adapter, a.rank)
+    if need_3d:
+        pred, geo = model.predict_3d(x[None])
+    else:
+        pred, geo = model(x[None]), None
+    rec = records(pred, x, meta, [exo.shape[:2], ego.shape[:2]], regs_c)
     canvas = rec["xe"]["canvas"]
     f = fuse(side(rec["xe"], 0, "xe", q["cands"], regs, canvas), side(rec["ex"], 0, "ex", q["cands"], regs, canvas))
     wearer = q["cands"][int(np.argmin(f["score"]))]
@@ -86,6 +101,16 @@ def main():
     uv_exo = to_image(project(front(f["ex"]), g["K"]), g["t"])
     uv_ego = to_image(project(f["eg"], g["K_ego"]), g["t_ego"])
     draw(exo, ego, q, regs, wearer, uv_exo, uv_ego).save(a.out)
+    if need_3d:
+        scene = unproject_scene(x, meta, [exo.shape[:2], ego.shape[:2]], geo, regs_c, q["cands"], wearer,
+                                conf_thres=a.conf_thres, max_points=a.max_points, include_ego=not a.no_ego_pts)
+        if a.glb:
+            build_glb(scene, a.glb)
+        if a.anim:
+            render_animation(scene, exo, ego, q, regs, f, uv_exo, uv_ego, a.anim, frames=a.frames, fps=a.fps, still_path=a.still)
+        elif a.still:
+            render_animation(scene, exo, ego, q, regs, f, uv_exo, uv_ego, a.still + ".tmp.gif", frames=4, fps=4, still_path=a.still)
+            Path(a.still + ".tmp.gif").unlink(missing_ok=True)
     print(json.dumps(dict(wearer=wearer, candidates={str(i): dict(angular_offset=round(float(t), 2), score=round(float(s), 4)) for i, t, s in zip(q["cands"], f["angle"], f["score"])},
                           ego_in_exo=np.round(uv_exo, 1).tolist(), exo_in_ego=np.round(uv_ego, 1).tolist(), behind=bool(np.dot(f["ex"], [0, 0, 1]) < 0)), indent=1))
 

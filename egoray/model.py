@@ -52,6 +52,28 @@ class Predictor:
             out[order] = (ext, intr, d[..., 0] if d.ndim == 4 else d)
         return out
 
+    @torch.inference_mode()
+    def predict_3d(self, x):
+        x = x.to(self.device)
+        out, geo = {}, None
+        for order in ("xe", "ex"):
+            inp = x if order == "xe" else x.flip(1)
+            with torch.autocast("cuda", dtype=torch.bfloat16):
+                pred = self.model(inp)
+            ext, intr = decode(pred["pose_enc"].float(), inp.shape[-2:])
+            dep = pred["depth"].float()
+            dep = dep[..., 0] if dep.ndim == 5 else dep
+            out[order] = (ext, intr, dep[:, 0 if order == "xe" else 1])
+            if order == "xe":
+                conf = pred.get("depth_conf")
+                if conf is not None:
+                    conf = conf.float()
+                    conf = conf[..., 0] if conf.ndim == 5 else conf
+                else:
+                    conf = torch.ones_like(dep)
+                geo = dict(ext=ext[0].cpu().numpy(), intr=intr[0].cpu().numpy(), depth=dep[0].cpu().numpy(), conf=conf[0].cpu().numpy())
+        return out, geo
+
 
 class EgoRayNet(nn.Module):
     def __init__(self, ckpt, rank=64, tau_a=0.05, tau_m=0.1):
