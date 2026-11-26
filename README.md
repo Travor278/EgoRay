@@ -44,17 +44,22 @@ EgoRay lifts an exo–ego image pair into a shared 3D point cloud, estimates bot
 <p align="center">
   <img src="assets/demo_egohumans.gif" width="96%" alt="EgoRay 3D demo on real humans (EgoHumans)">
   <br>
-  <sub>Real humans (EgoHumans): 0.07° epipole angular offset across 4 candidates.</sub>
+  <sub>Real humans (EgoHumans, 12-view dense 3D): 0.07° epipole angular offset; wearer in green, other candidates marked with red dots.</sub>
 </p>
 <p align="center">
   <img src="assets/demo_indoor.gif" width="96%" alt="EgoRay 3D demo on indoor humans (FindEgo-1M)">
   <br>
-  <sub>Indoor multi-person scene (FindEgo-1M): 3D room & wearer point cloud, 0.16° angular offset.</sub>
+  <sub>Indoor multi-person scene (FindEgo-1M, 7-view dense 3D): 0.16° angular offset across 3 candidates.</sub>
+</p>
+<p align="center">
+  <img src="assets/demo_wild.gif" width="96%" alt="EgoRay 3D demo on wild animals (FindEgo-1M)">
+  <br>
+  <sub>Beyond humans (FindEgo-1M wild animals, 12-view dense 3D): 3D depth resolves foreground occluder (#5) from the camera-carrying lion (#2) at 0.06° angular offset.</sub>
 </p>
 <p align="center">
   <img src="assets/demo_underwater.gif" width="96%" alt="EgoRay 3D demo beyond humans (underwater sea turtles)">
   <br>
-  <sub>Beyond humans (FindEgo-1M underwater): camera-carrying sea turtle identified at 0.07° angular offset.</sub>
+  <sub>Beyond humans (FindEgo-1M underwater): camera-carrying sea turtle (#1) identified among 5 candidates at 0.07° angular offset.</sub>
 </p>
 
 Run the interactive 3D viewer (`gr.Model3D` point cloud, camera frustums, and EgoRay epipole ray, modeled on VGGT-Ω's Gradio demo) or export `.glb` scenes and animations from the command line:
