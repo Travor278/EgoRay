@@ -22,7 +22,7 @@
 <p><sub><sup>*</sup>Equal contribution. &nbsp; <sup>&dagger;</sup>Corresponding author.</sub></p>
 
 <p>
-  <a href="#"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b.svg"></a>
+  <a href="https://arxiv.org/abs/2611.34489"><img src="https://img.shields.io/badge/arXiv-2611.34489-b31b1b.svg"></a>
   <a href="#"><img src="https://img.shields.io/badge/Project_Page-coming_soon-green"></a>
   <a href="https://huggingface.co/datasets/Travor278/FindEgo-1M"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Data-FindEgo--1M-yellow"></a>
   <a href="https://huggingface.co/Travor278/EgoRay"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Model-EgoRay-yellow"></a>
@@ -193,7 +193,7 @@ The code is released under the [MIT License](LICENSE). The data, the model weigh
 @article{jin2026whoego,
   title   = {Who Is Ego? Scaling Cross-View Camera Wearer Identification and Segmentation beyond Humans},
   author  = {Jin, Yifan and Zhang, Zheng and Qian, Tianwen and Wang, Dong and Zhao, Bo and Fu, Yanwei and Fu, Yuqian},
-  journal = {arXiv preprint},
+  journal = {arXiv preprint arXiv:2611.34489},
   year    = {2026}
 }
 ```
