@@ -24,8 +24,8 @@
 <p>
   <a href="#"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b.svg"></a>
   <a href="#"><img src="https://img.shields.io/badge/Project_Page-coming_soon-green"></a>
-  <a href="#"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Data-FindEgo--1M-yellow"></a>
-  <a href="#"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Model-EgoRay-yellow"></a>
+  <a href="https://huggingface.co/datasets/Travor278/FindEgo-1M"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Data-FindEgo--1M-yellow"></a>
+  <a href="https://huggingface.co/Travor278/EgoRay"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Model-EgoRay-yellow"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue"></a>
 </p>
 
@@ -78,7 +78,13 @@ A first-person (ego) image shows what a camera sees, but not who or what carries
 
 ## FindEgo-1M
 
-1.16M real and simulated ego–exo pairs, 12 wearer types, 17 domains, and 111 test settings at four levels of generalization (L0–L3). Download links will be added here.
+1.16M real and simulated ego–exo pairs, 12 wearer types, 17 domains, and 111 test settings at four levels of generalization (L0–L3). The data are on Hugging Face at [Travor278/FindEgo-1M](https://huggingface.co/datasets/Travor278/FindEgo-1M) (gated, non-commercial research use). To get the queries and lists:
+
+```bash
+hf download Travor278/FindEgo-1M --repo-type dataset --include "queries/*" "lists/*" --local-dir data
+```
+
+Simulated images are packed per scene under `simulated/<domain>/<set>/`; the dataset card lists the layout. Images of the real source datasets are not redistributed; get them from the datasets listed in the paper.
 
 Each set is a gzip JSON-lines file of queries, `queries/<set>.jsonl.gz`, with key lists `lists/<set>.{train,dev,test,gold}.txt`:
 
@@ -116,7 +122,12 @@ Weights:
 |---|---|---|
 | VGGT-Ω | `facebook/VGGT-Omega` | `weights/vggt_omega_1b_512.pt` |
 | SAM 3 (Track B) | `facebook/sam3`, `pip install sam3` | `weights/sam3.pt` |
-| EgoRay adapters | coming soon | `weights/egoray/lora.pt` |
+| EgoRay adapters | [`Travor278/EgoRay`](https://huggingface.co/Travor278/EgoRay) | `weights/egoray/lora.pt` |
+
+```bash
+hf download Travor278/EgoRay ego_f_s0_lora.pt --local-dir weights/egoray
+mv weights/egoray/ego_f_s0_lora.pt weights/egoray/lora.pt
+```
 
 ## Usage
 
