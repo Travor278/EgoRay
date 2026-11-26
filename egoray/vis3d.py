@@ -107,29 +107,32 @@ def unproject_scene(x, meta, hw, geo, regs_c, cands, wearer, conf_thres=20.0, ed
         vid = np.zeros((0,), np.uint8)
     if max_points and len(pts) > max_points:
         rng = np.random.default_rng(0)
-        w_idx = np.flatnonzero(cid == int(wearer))
-        o_idx = np.flatnonzero(cid != int(wearer))
-        keep_w = w_idx if len(w_idx) <= max_points // 3 else rng.choice(w_idx, max_points // 3, replace=False)
-        rem = max_points - len(keep_w)
-        keep_o = o_idx if len(o_idx) <= rem else rng.choice(o_idx, rem, replace=False)
-        sel = np.sort(np.concatenate([keep_w, keep_o]))
+        c_idx = np.flatnonzero(cid >= 0)
+        b_idx = np.flatnonzero(cid < 0)
+        keep_c = c_idx if len(c_idx) <= max_points // 2 else rng.choice(c_idx, max_points // 2, replace=False)
+        rem = max_points - len(keep_c)
+        keep_b = b_idx if len(b_idx) <= rem else rng.choice(b_idx, rem, replace=False)
+        sel = np.sort(np.concatenate([keep_c, keep_b]))
         pts, rgb, cid, vid = pts[sel], rgb[sel], cid[sel], vid[sel]
-    w_pts = pts[cid == int(wearer)]
-    if len(w_pts) >= 5:
-        wearer_pt = np.median(w_pts, axis=0).astype(np.float64)
-    elif int(wearer) in regs_c and len(regs_c[int(wearer)][0]):
-        ys, xs = regs_c[int(wearer)]
-        ok = (ys >= 0) & (ys < H) & (xs >= 0) & (xs < W)
-        ys, xs = ys[ok], xs[ok]
-        z_med = float(np.median(dep[0][ys, xs])) if len(ys) else float(np.linalg.norm(c_ego))
-        K0 = intr[0]
-        wearer_pt = np.array([(float(np.median(xs)) - K0[0, 2]) / K0[0, 0] * z_med,
-                              (float(np.median(ys)) - K0[1, 2]) / K0[1, 1] * z_med, z_med], np.float64)
-    else:
-        wearer_pt = c_ego.copy()
+    cand_pts = {}
+    K0 = intr[0]
+    for c_val in cands:
+        c_int = int(c_val)
+        c_pts = pts[cid == c_int]
+        if len(c_pts) >= 5:
+            cand_pts[c_int] = np.median(c_pts, axis=0).astype(np.float64)
+        elif c_int in regs_c and len(regs_c[c_int][0]):
+            ys, xs = regs_c[c_int]
+            ok_c = (ys >= 0) & (ys < H) & (xs >= 0) & (xs < W)
+            ys, xs = ys[ok_c], xs[ok_c]
+            if len(ys):
+                z_med = float(np.median(dep[0][ys, xs]))
+                cand_pts[c_int] = np.array([(float(np.median(xs)) - K0[0, 2]) / K0[0, 0] * z_med,
+                                            (float(np.median(ys)) - K0[1, 2]) / K0[1, 1] * z_med, z_med], np.float64)
+    wearer_pt = cand_pts.get(int(wearer), c_ego.copy())
     return dict(pts=pts, rgb=rgb, cand=cid, view=vid, c_ego=c_ego.astype(np.float64), R_ego=R_ego.astype(np.float64),
                 K_exo=intr[0].astype(np.float64), K_ego=intr[1].astype(np.float64), canvas=(H, W),
-                wearer=int(wearer), wearer_pt=wearer_pt, cands=[int(c) for c in cands])
+                wearer=int(wearer), wearer_pt=wearer_pt, cand_pts=cand_pts, cands=[int(c) for c in cands])
 
 
 def colorize_points(rgb, cand, wearer, strength=1.0):
@@ -227,6 +230,14 @@ def build_glb(scene_data, out_path=None, highlight=True, show_cameras=True, show
             hit.apply_translation(wearer_pt)
             hit.visual.vertex_colors = np.tile(np.asarray((*COL_WEARER, 255), np.uint8), (len(hit.vertices), 1))
             sc.add_geometry(hit, node_name="wearer_marker")
+    if highlight:
+        for c_id, c_pt in scene_data.get("cand_pts", {}).items():
+            if int(c_id) == int(scene_data["wearer"]):
+                continue
+            mk = trimesh.creation.icosphere(subdivisions=2, radius=rad * 2.2)
+            mk.apply_translation(c_pt)
+            mk.visual.vertex_colors = np.tile(np.asarray((*COL_OTHER, 255), np.uint8), (len(mk.vertices), 1))
+            sc.add_geometry(mk, node_name=f"candidate_{int(c_id)}")
     center = np.median(pts, axis=0) if len(pts) else np.zeros(3)
     T_align = np.eye(4)
     T_align[:3, :3] = np.diag([1.0, -1.0, -1.0])
@@ -450,6 +461,20 @@ def _render_viewport(scene, R_cam, t_cam, vp_w, vp_h, ss, mask_alpha, ego_alpha,
                                R_cam, t_cam, f, f, cx, cy, COL_EGO, alpha=ego_alpha, thickness=max(2, int(round(2 * ss))))
         if pos is not None and ego_alpha > 0.45:
             labels.append((int(round(pos[0] / ss)), int(round(pos[1] / ss)), "Ego Cam", COL_EGO, (10, -24)))
+    if mask_alpha > 0.08:
+        cand_pts = scene.get("cand_pts", {})
+        dot_r = max(4, int(round(5.0 * ss * min(1.0, mask_alpha * 1.4))))
+        ring_r = max(7, int(round(9.0 * ss * min(1.0, mask_alpha * 1.4))))
+        for c_id in scene.get("cands", []):
+            c_int = int(c_id)
+            if c_int == int(scene["wearer"]) or c_int not in cand_pts:
+                continue
+            pt_o = cand_pts[c_int]
+            if mask_alpha > 0.35:
+                _draw_dot_3d(buf, zbuf, pt_o, R_cam, t_cam, f, f, cx, cy, COL_OTHER, radius=ring_r, ring=True, xray=True)
+            pos_o = _draw_dot_3d(buf, zbuf, pt_o, R_cam, t_cam, f, f, cx, cy, COL_OTHER, radius=dot_r, xray=True)
+            if pos_o is not None and mask_alpha > 0.45:
+                labels.append((int(round(pos_o[0] / ss)), int(round(pos_o[1] / ss)), f"#{c_int}", COL_OTHER, (10, -8)))
     if ray_prog > 0.01 and np.linalg.norm(scene["c_ego"]) > 1e-4:
         c_ego = scene["c_ego"]
         w_pt = scene["wearer_pt"]
@@ -549,8 +574,9 @@ def _compose_frame(vp, labels, exo_im, ego_im, scene, scores, phase_txt, bar_alp
                 dr.text((cx_leg + 13, py + 6), name, fill=COL_MUTED, font=f_tiny)
                 cx_leg += 72
     placed = []
-    for lx_i, ly_i, txt, col, (ox, oy) in labels:
-        tw = max(56, len(txt) * 7 + 12)
+    ordered_labels = sorted(labels, key=lambda x: 1 if x[2].startswith("#") else 0)
+    for lx_i, ly_i, txt, col, (ox, oy) in ordered_labels:
+        tw = max(32 if txt.startswith("#") else 56, len(txt) * 7 + 12)
         tx = int(np.clip(vp_x + lx_i + ox, vp_x + 8, vp_x + vp.shape[1] - tw - 8))
         ty = int(np.clip(vp_y + ly_i + oy, vp_y + 42, vp_y + vp.shape[0] - 24))
         for px0, py0, px1, py1 in placed:
@@ -562,7 +588,7 @@ def _compose_frame(vp, labels, exo_im, ego_im, scene, scores, phase_txt, bar_alp
     return np.asarray(im)
 
 
-def render_animation(scene, exo, ego, q, regs, scores, uv_exo, uv_ego, out_path, width=960, height=480, frames=72, fps=16, ss=1.5, still_path=None):
+def render_animation(scene, exo, ego, q, regs, scores, uv_exo, uv_ego, out_path, width=960, height=480, frames=135, fps=15, ss=1.5, still_path=None):
     pad = max(8, int(round(min(width, height) * 0.021)))
     left_w = max(210, int(round(width * 0.31)))
     hdr_h = max(20, int(round(height * 0.044)))
@@ -585,34 +611,34 @@ def render_animation(scene, exo, ego, q, regs, scores, uv_exo, uv_ego, out_path,
         u = k / max(frames, 1)
         if u < 0.22:
             p = _ease(u / 0.22)
-            az = base_az + math.radians(28.0) * p
-            el = base_el + math.radians(15.0) * p
+            az = base_az + math.radians(15.0) * p
+            el = base_el + math.radians(11.0) * p
             rad = float(np.linalg.norm(focus)) * (1.0 - p) + orbit_r * p
             exo_cam_a, ego_a, mask_a, ray_p, bar_a = p, 0.0, 0.0, 0.0, 0.0
             phase_txt = "1/4  3D Scene Reconstruction"
         elif u < 0.44:
             p = _ease((u - 0.22) / 0.22)
-            az = base_az + math.radians(28.0 + 22.0 * p)
-            el = base_el + math.radians(15.0 + 7.0 * p)
+            az = base_az + math.radians(15.0 + 9.0 * p)
+            el = base_el + math.radians(11.0 + 5.0 * p)
             rad = orbit_r
-            exo_cam_a, ego_a, mask_a, ray_p, bar_a = 1.0, p, 0.0, 0.0, 0.0
+            exo_cam_a, ego_a, mask_a, ray_p, bar_a = 1.0, p, _ease(max(0.0, (p - 0.65) / 0.35)) * 0.5, 0.0, 0.0
             phase_txt = "2/4  Exo + Ego Relative Pose"
-        elif u < 0.78:
-            p = _ease((u - 0.44) / 0.34)
-            az = base_az + math.radians(50.0 - 88.0 * p)
-            el = base_el + math.radians(22.0 - 4.0 * p)
-            rad = orbit_r * (1.0 - 0.06 * math.sin(math.pi * p))
+        elif u < 0.84:
+            p = _ease((u - 0.44) / 0.40)
+            az = base_az + math.radians(24.0 - 42.0 * p)
+            el = base_el + math.radians(16.0 - 3.0 * p)
+            rad = orbit_r * (1.0 - 0.04 * math.sin(math.pi * p))
             exo_cam_a, ego_a = 1.0, 1.0
-            mask_a = _ease(min(1.0, p * 2.4))
-            ray_p = _ease(min(1.0, max(0.0, (p - 0.10) / 0.55)))
-            bar_a = _ease(min(1.0, max(0.0, (p - 0.25) / 0.45)))
+            mask_a = 0.5 + 0.5 * _ease(min(1.0, p * 3.0))
+            ray_p = _ease(min(1.0, max(0.0, (p - 0.08) / 0.48)))
+            bar_a = _ease(min(1.0, max(0.0, (p - 0.22) / 0.40)))
             phase_txt = f"3/4  EgoRay Epipole -> Wearer #{scene['wearer']}"
         else:
-            p = _ease((u - 0.78) / 0.22)
-            az = base_az + math.radians(-38.0 * (1.0 - p))
-            el = base_el + math.radians(18.0 * (1.0 - p))
+            p = _ease((u - 0.84) / 0.16)
+            az = base_az + math.radians(-18.0 * (1.0 - p))
+            el = base_el + math.radians(13.0 * (1.0 - p))
             rad = orbit_r * (1.0 - p) + float(np.linalg.norm(focus)) * p
-            fade = 1.0 - _ease(max(0.0, (p - 0.55) / 0.45))
+            fade = 1.0 - _ease(max(0.0, (p - 0.50) / 0.50))
             exo_cam_a, ego_a, mask_a, ray_p, bar_a = fade, fade, fade, fade, fade
             phase_txt = f"4/4  Wearer #{scene['wearer']} Identified"
         el = float(np.clip(el, math.radians(-25.0), math.radians(48.0)))

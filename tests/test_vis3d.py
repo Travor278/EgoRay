@@ -58,6 +58,7 @@ def test_unproject_and_animation():
     assert len(sc["pts"]) > 1000 and len(sc["pts"]) <= 12000
     assert np.allclose(sc["c_ego"], [0.8, 0.0, 3.2], atol=1e-4)
     assert (sc["cand"] == 1).sum() > 100 and (sc["cand"] == 2).sum() > 100
+    assert 1 in sc["cand_pts"] and 2 in sc["cand_pts"]
     cols = vis3d.colorize_points(sc["rgb"], sc["cand"], 1, strength=1.0)
     assert cols.shape == sc["rgb"].shape and cols.dtype == np.uint8
     q = dict(cands=[1, 2])

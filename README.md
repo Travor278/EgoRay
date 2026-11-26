@@ -23,7 +23,7 @@
 
 <p>
   <a href="https://arxiv.org/abs/2611.34489"><img src="https://img.shields.io/badge/arXiv-2611.34489-b31b1b.svg"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Project_Page-coming_soon-green"></a>
+  <a href="https://huggingface.co/spaces/Travor278/FindEgo-1M"><img src="https://img.shields.io/badge/Project_Page-Interactive_3D-10b981"></a>
   <a href="https://huggingface.co/datasets/Travor278/FindEgo-1M"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Data-FindEgo--1M-yellow"></a>
   <a href="https://huggingface.co/Travor278/EgoRay"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Model-EgoRay-yellow"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue"></a>
