@@ -1,5 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { LineSegments2 } from "three/addons/lines/LineSegments2.js";
+import { LineSegmentsGeometry } from "three/addons/lines/LineSegmentsGeometry.js";
+import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 
 const COL_EXO = 0x0284c7;
 const COL_EGO = 0xd97706;
@@ -31,62 +34,49 @@ function makeCircleSpriteTexture() {
   return tex;
 }
 
-function makeTube(a, b, radius, colorHex, opacity = 1.0) {
-  const va = new THREE.Vector3(...a);
-  const vb = new THREE.Vector3(...b);
-  const dir = new THREE.Vector3().subVectors(vb, va);
-  const len = dir.length();
-  if (len < 1e-5) return null;
-  const geom = new THREE.CylinderGeometry(radius, radius, len, 12, 1, false);
-  const mat = new THREE.MeshBasicMaterial({
-    color: colorHex,
-    transparent: opacity < 1.0,
-    opacity,
-    depthWrite: opacity >= 0.99,
-  });
-  const mesh = new THREE.Mesh(geom, mat);
-  mesh.position.copy(va).addScaledVector(dir, 0.5);
-  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
-  return mesh;
+// Marker sprite: filled dot with a white rim, or a hollow ring.
+function makeMarkerTexture(fill, ring = false) {
+  const size = 128;
+  const c = document.createElement("canvas");
+  c.width = size;
+  c.height = size;
+  const ctx = c.getContext("2d");
+  const r = size * 0.5;
+  ctx.beginPath();
+  if (ring) {
+    ctx.arc(r, r, r * 0.8, 0, Math.PI * 2);
+    ctx.lineWidth = size * 0.1;
+    ctx.strokeStyle = fill;
+    ctx.stroke();
+  } else {
+    ctx.arc(r, r, r * 0.82, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(r, r, r * 0.6, 0, Math.PI * 2);
+    ctx.fillStyle = fill;
+    ctx.fill();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.needsUpdate = true;
+  return tex;
 }
 
-function makeFrustumGroup(camSpec, radius, colorHex) {
-  const g = new THREE.Group();
-  const o = camSpec.origin;
-  const cs = camSpec.corners;
-  const tip = camSpec.tip;
-  const segs = [
-    [o, cs[0]], [o, cs[1]], [o, cs[2]], [o, cs[3]],
-    [cs[0], cs[1]], [cs[1], cs[2]], [cs[2], cs[3]], [cs[3], cs[0]],
-    [[0.5 * (cs[0][0] + cs[1][0]), 0.5 * (cs[0][1] + cs[1][1]), 0.5 * (cs[0][2] + cs[1][2])], tip],
-  ];
-  for (const [a, b] of segs) {
-    const t = makeTube(a, b, radius, colorHex);
-    if (t) g.add(t);
-  }
-  const sp = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * 2.1, 16, 16),
-    new THREE.MeshBasicMaterial({ color: colorHex })
-  );
-  sp.position.set(...o);
-  g.add(sp);
-
-  // Subtle translucent lens plane inside frustum
-  const planeGeom = new THREE.BufferGeometry();
-  const verts = new Float32Array([
-    ...cs[0], ...cs[1], ...cs[2],
-    ...cs[0], ...cs[2], ...cs[3],
-  ]);
-  planeGeom.setAttribute("position", new THREE.BufferAttribute(verts, 3));
-  const planeMat = new THREE.MeshBasicMaterial({
-    color: colorHex,
+function makeMarker(pos, tex, sizePx, opacity = 1.0) {
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  const mat = new THREE.PointsMaterial({
+    size: sizePx,
+    sizeAttenuation: false,
+    map: tex,
     transparent: true,
-    opacity: 0.12,
-    side: THREE.DoubleSide,
+    opacity,
+    depthTest: false,
     depthWrite: false,
   });
-  g.add(new THREE.Mesh(planeGeom, planeMat));
-  return g;
+  const pts = new THREE.Points(geom, mat);
+  pts.renderOrder = 20;
+  return pts;
 }
 
 export class EgoRay3DViewer {
@@ -103,8 +93,7 @@ export class EgoRay3DViewer {
       ray: true,
       includeEgo: true,
       autoOrbit: true,
-      darkBg: false,
-      pointSize: 3.8,
+      pointSize: 3.6,
     };
     this.currentMeta = null;
     this.rawScene = null;
@@ -115,13 +104,12 @@ export class EgoRay3DViewer {
     this.rayGroup = null;
     this.otherDotsGroup = null;
     this.wearerGroup = null;
-    this.wearerRing = null;
-    this.wearerRing2 = null;
+    this.wearerPulse = null;
     this.rayPulse = null;
     this.rayPulse2 = null;
     this.inspectGroup = null;
     this.highlightedId = null;
-    this.candMeshes = new Map();
+    this.lineMats = new Set();
     this.pins = [];
     this.loadSeq = 0;
     this._fly = null;
@@ -138,7 +126,7 @@ export class EgoRay3DViewer {
     this.controls.rotateSpeed = 0.65;
     this.controls.zoomSpeed = 0.85;
     this.controls.autoRotate = true;
-    this.controls.autoRotateSpeed = 0.50;
+    this.controls.autoRotateSpeed = 0.45;
     this.controls.addEventListener("start", () => {
       this._userInteracting = true;
       this._fly = null;
@@ -174,6 +162,54 @@ export class EgoRay3DViewer {
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h, true);
+    for (const m of this.lineMats) m.resolution.set(w, h);
+  }
+
+  // Screen-space lines: constant pixel width at any zoom, plus a faint copy that shows through the cloud.
+  _lines(positions, color, width, opacity = 1.0, xray = 0.32) {
+    const g = new THREE.Group();
+    const geom = new LineSegmentsGeometry().setPositions(positions);
+    const w = Math.max(10, this.hostEl.clientWidth);
+    const h = Math.max(10, this.hostEl.clientHeight);
+    const solid = new LineMaterial({ color, linewidth: width, transparent: opacity < 1, opacity });
+    solid.resolution.set(w, h);
+    this.lineMats.add(solid);
+    g.add(new LineSegments2(geom, solid));
+    if (xray > 0) {
+      const ghost = new LineMaterial({ color, linewidth: width, transparent: true, opacity: xray, depthTest: false, depthWrite: false });
+      ghost.resolution.set(w, h);
+      this.lineMats.add(ghost);
+      const l = new LineSegments2(geom, ghost);
+      l.renderOrder = 10;
+      g.add(l);
+    }
+    return g;
+  }
+
+  _frustum(camSpec, color) {
+    const o = camSpec.origin;
+    const cs = camSpec.corners;
+    const tip = camSpec.tip;
+    const mid = [0.5 * (cs[0][0] + cs[1][0]), 0.5 * (cs[0][1] + cs[1][1]), 0.5 * (cs[0][2] + cs[1][2])];
+    const segs = [
+      o, cs[0], o, cs[1], o, cs[2], o, cs[3],
+      cs[0], cs[1], cs[1], cs[2], cs[2], cs[3], cs[3], cs[0],
+      mid, tip,
+    ];
+    const g = this._lines(segs.flat(), color, 1.6, 1.0, 0.3);
+
+    const planeGeom = new THREE.BufferGeometry();
+    planeGeom.setAttribute("position", new THREE.BufferAttribute(new Float32Array([
+      ...cs[0], ...cs[1], ...cs[2],
+      ...cs[0], ...cs[2], ...cs[3],
+    ]), 3));
+    g.add(new THREE.Mesh(planeGeom, new THREE.MeshBasicMaterial({
+      color, transparent: true, opacity: 0.1, side: THREE.DoubleSide, depthWrite: false,
+    })));
+    const tex = makeMarkerTexture(color === COL_EXO ? "#0284c7" : "#d97706");
+    this._textures.push(tex);
+    g.add(makeMarker(o, tex, 11));
+    return g;
   }
 
   setOption(key, value) {
@@ -182,10 +218,7 @@ export class EgoRay3DViewer {
       this.controls.autoRotate = Boolean(value);
     }
     if (key === "pointSize" && this.pointsObj) {
-      this.pointsObj.material.size = Number(value) * 1.18;
-    }
-    if (key === "darkBg") {
-      this._rebuildGrid();
+      this.pointsObj.material.size = Number(value) * 1.24;
     }
     if (key === "tint" || key === "includeEgo") {
       this._rebuildPointCloud();
@@ -193,7 +226,7 @@ export class EgoRay3DViewer {
     this._syncVisibility();
   }
 
-  _startFlyTo(targetPos, targetLook = new THREE.Vector3(0, 0, 0), duration = 0.65) {
+  _startFlyTo(targetPos, targetLook = new THREE.Vector3(0, 0, 0), duration = 0.7) {
     this._fly = {
       startPos: this.camera.position.clone(),
       endPos: targetPos.clone(),
@@ -243,7 +276,10 @@ export class EgoRay3DViewer {
       this.sceneGroup.remove(this.inspectGroup);
       this.inspectGroup.traverse((o) => {
         if (o.geometry) o.geometry.dispose();
-        if (o.material) o.material.dispose();
+        if (o.material) {
+          this.lineMats.delete(o.material);
+          o.material.dispose();
+        }
       });
       this.inspectGroup = null;
     }
@@ -254,45 +290,18 @@ export class EgoRay3DViewer {
     if (candId === null || !this.currentMeta || !this.sceneGroup) return;
     const c = (this.currentMeta.candidates || []).find((x) => x.id === candId && x.pos);
     if (!c) return;
-    const grp = new THREE.Group();
-    const rad = Math.max(this.currentMeta.cam_d * 0.044, 0.0085);
     const col = c.is_wearer ? COL_WEARER : COL_INSPECT;
-
-    // Dashed inspection line from Exo Cam to inspected candidate
-    const va = new THREE.Vector3(...this.currentMeta.exo_cam.origin);
-    const vb = new THREE.Vector3(...c.pos);
-    const lineGeom = new THREE.BufferGeometry().setFromPoints([va, vb]);
-    const lineMat = new THREE.LineDashedMaterial({
-      color: col,
-      dashSize: rad * 5.0,
-      gapSize: rad * 3.0,
-      transparent: true,
-      opacity: 0.92,
-    });
-    const line = new THREE.Line(lineGeom, lineMat);
-    line.computeLineDistances();
-    grp.add(line);
-
-    // Highlight halo sphere on candidate
-    const halo = new THREE.Mesh(
-      new THREE.SphereGeometry(rad * 5.8, 18, 18),
-      new THREE.MeshBasicMaterial({
-        color: col,
-        transparent: true,
-        opacity: 0.32,
-        depthWrite: false,
-      })
-    );
-    halo.position.set(...c.pos);
-    grp.add(halo);
-
+    const grp = this._lines([...this.currentMeta.exo_cam.origin, ...c.pos], col, 1.4, 0.9, 0.5);
+    const tex = makeMarkerTexture(c.is_wearer ? "#10b981" : "#f43f5e", true);
+    this._textures.push(tex);
+    grp.add(makeMarker(c.pos, tex, 30));
     this.inspectGroup = grp;
     this.sceneGroup.add(grp);
   }
 
   async loadScene(tag) {
     const token = ++this.loadSeq;
-    this.statusEl.textContent = "Loading dense 3D point cloud…";
+    this.statusEl.textContent = "Loading 3D point cloud…";
     this.statusEl.classList.remove("hidden");
 
     try {
@@ -342,7 +351,6 @@ export class EgoRay3DViewer {
   _clearCurrent() {
     this._fly = null;
     this.highlightedId = null;
-    this.candMeshes.clear();
     if (this.sceneGroup) {
       this.scene.remove(this.sceneGroup);
       this.sceneGroup.traverse((obj) => {
@@ -351,14 +359,16 @@ export class EgoRay3DViewer {
       });
       this.sceneGroup = null;
     }
+    for (const t of this._textures || []) t.dispose();
+    this._textures = [];
+    this.lineMats.clear();
     this.gridObj = null;
     this.pointsObj = null;
     this.camGroup = null;
     this.rayGroup = null;
     this.otherDotsGroup = null;
     this.wearerGroup = null;
-    this.wearerRing = null;
-    this.wearerRing2 = null;
+    this.wearerPulse = null;
     this.rayPulse = null;
     this.rayPulse2 = null;
     this.inspectGroup = null;
@@ -375,9 +385,7 @@ export class EgoRay3DViewer {
       this.gridObj = null;
     }
     const gSize = Math.max(this.currentMeta.orbit_r * 1.45, 2.5);
-    const c1 = this.state.darkBg ? 0x2a364c : 0xcbd5e1;
-    const c2 = this.state.darkBg ? 0x1e2738 : 0xe2e8f0;
-    this.gridObj = new THREE.GridHelper(gSize, 14, c1, c2);
+    this.gridObj = new THREE.GridHelper(gSize, 14, 0xd5dde8, 0xe8edf3);
     this.gridObj.position.y = this.currentMeta.y_floor;
     this.sceneGroup.add(this.gridObj);
   }
@@ -395,27 +403,21 @@ export class EgoRay3DViewer {
     this._rebuildGrid();
     this._rebuildPointCloud();
 
-    const rad = Math.max(meta.cam_d * 0.044, 0.0085);
-    const camRad = rad * 0.34;
-
     this.camGroup = new THREE.Group();
-    this.camGroup.add(makeFrustumGroup(meta.exo_cam, camRad, COL_EXO));
-    this.camGroup.add(makeFrustumGroup(meta.ego_cam, camRad, COL_EGO));
+    this.camGroup.add(this._frustum(meta.exo_cam, COL_EXO));
+    this.camGroup.add(this._frustum(meta.ego_cam, COL_EGO));
     root.add(this.camGroup);
 
     this.rayGroup = new THREE.Group();
-    const outerBeam = makeTube(meta.ray.start, meta.ray.end, rad * 2.4, COL_RAY, 0.28);
-    const coreBeam = makeTube(meta.ray.start, meta.ray.end, rad * 1.05, COL_EGO, 0.96);
-    if (outerBeam) this.rayGroup.add(outerBeam);
-    if (coreBeam) this.rayGroup.add(coreBeam);
-    this.rayPulse = new THREE.Mesh(
-      new THREE.SphereGeometry(rad * 2.6, 14, 14),
-      new THREE.MeshBasicMaterial({ color: 0xfbbf24 })
-    );
-    this.rayPulse2 = new THREE.Mesh(
-      new THREE.SphereGeometry(rad * 2.2, 14, 14),
-      new THREE.MeshBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.85 })
-    );
+    const rs = meta.ray.start;
+    const re = meta.ray.end;
+    this.rayGroup.add(this._lines([...rs, ...re], COL_RAY, 7, 0.16, 0));
+    this.rayGroup.add(this._lines([...rs, ...re], COL_EGO, 2.2, 1.0, 0.55));
+    const goldTex = makeMarkerTexture("#f59e0b");
+    const greenTex = makeMarkerTexture("#10b981");
+    this._textures.push(goldTex, greenTex);
+    this.rayPulse = makeMarker(rs, goldTex, 10);
+    this.rayPulse2 = makeMarker(rs, greenTex, 8, 0.9);
     this.rayGroup.add(this.rayPulse);
     this.rayGroup.add(this.rayPulse2);
     root.add(this.rayGroup);
@@ -423,60 +425,21 @@ export class EgoRay3DViewer {
     this.wearerGroup = new THREE.Group();
     const wCand = meta.candidates.find((c) => c.is_wearer && c.pos);
     if (wCand) {
-      const wDot = new THREE.Mesh(
-        new THREE.SphereGeometry(rad * 3.1, 18, 18),
-        new THREE.MeshBasicMaterial({ color: COL_WEARER })
-      );
-      wDot.position.set(...wCand.pos);
-      this.wearerGroup.add(wDot);
-      this.candMeshes.set(wCand.id, wDot);
-
-      const ringGeom = new THREE.RingGeometry(rad * 4.2, rad * 5.6, 36);
-      const ringMat = new THREE.MeshBasicMaterial({
-        color: COL_WEARER,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.92,
-      });
-      this.wearerRing = new THREE.Mesh(ringGeom, ringMat);
-      this.wearerRing.position.set(...wCand.pos);
-      this.wearerGroup.add(this.wearerRing);
-
-      const ring2Geom = new THREE.RingGeometry(rad * 5.8, rad * 6.8, 36);
-      const ring2Mat = new THREE.MeshBasicMaterial({
-        color: 0x10b981,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.45,
-      });
-      this.wearerRing2 = new THREE.Mesh(ring2Geom, ring2Mat);
-      this.wearerRing2.position.set(...wCand.pos);
-      this.wearerGroup.add(this.wearerRing2);
+      const wTex = makeMarkerTexture("#059669");
+      const ringTex = makeMarkerTexture("#10b981", true);
+      this._textures.push(wTex, ringTex);
+      this.wearerGroup.add(makeMarker(wCand.pos, wTex, 15));
+      this.wearerPulse = makeMarker(wCand.pos, ringTex, 26, 0.8);
+      this.wearerGroup.add(this.wearerPulse);
     }
     root.add(this.wearerGroup);
 
     this.otherDotsGroup = new THREE.Group();
+    const redTex = makeMarkerTexture("#dc2626");
+    this._textures.push(redTex);
     for (const c of meta.candidates) {
       if (c.is_wearer || !c.pos) continue;
-      const rDot = new THREE.Mesh(
-        new THREE.SphereGeometry(rad * 2.8, 16, 16),
-        new THREE.MeshBasicMaterial({ color: COL_OTHER })
-      );
-      rDot.position.set(...c.pos);
-      this.otherDotsGroup.add(rDot);
-      this.candMeshes.set(c.id, rDot);
-
-      const rHalo = new THREE.Mesh(
-        new THREE.SphereGeometry(rad * 4.3, 16, 16),
-        new THREE.MeshBasicMaterial({
-          color: COL_OTHER,
-          transparent: true,
-          opacity: 0.24,
-          depthWrite: false,
-        })
-      );
-      rHalo.position.set(...c.pos);
-      this.otherDotsGroup.add(rHalo);
+      this.otherDotsGroup.add(makeMarker(c.pos, redTex, 12));
     }
     root.add(this.otherDotsGroup);
 
@@ -499,8 +462,8 @@ export class EgoRay3DViewer {
       this.labelsEl.appendChild(el);
       this.pins.push({ pos: new THREE.Vector3(...pos), el, groupKey, candId });
     };
-    addPin(meta.exo_cam.origin, "Exo Cam", "exo", "cameras");
-    addPin(meta.ego_cam.origin, "Ego Cam", "ego", "cameras");
+    addPin(meta.exo_cam.origin, "Exo cam", "exo", "cameras");
+    addPin(meta.ego_cam.origin, "Ego cam", "ego", "cameras");
     if (wCand) {
       addPin(wCand.pos, `Wearer #${wCand.id}`, "wearer", "ray", wCand.id);
     }
@@ -636,27 +599,22 @@ export class EgoRay3DViewer {
       if (raw >= 1.0) this._fly = null;
     }
 
-    if (this.wearerRing) {
-      this.wearerRing.lookAt(this.camera.position);
-      const s = 1.0 + 0.18 * Math.sin(t * 2.6);
-      this.wearerRing.scale.set(s, s, 1);
-    }
-    if (this.wearerRing2) {
-      this.wearerRing2.lookAt(this.camera.position);
-      const phase = (t * 0.65) % 1.0;
-      const s2 = 0.85 + phase * 1.15;
-      this.wearerRing2.scale.set(s2, s2, 1);
-      this.wearerRing2.material.opacity = 0.55 * (1.0 - phase);
+    if (this.wearerPulse) {
+      const phase = (t * 0.6) % 1.0;
+      this.wearerPulse.material.size = 18 + phase * 26;
+      this.wearerPulse.material.opacity = 0.85 * (1.0 - phase);
     }
     if (this.rayPulse && this.currentMeta && this.state.ray) {
       const s = this.currentMeta.ray.start;
       const e = this.currentMeta.ray.end;
-      const u1 = (t * 0.36) % 1.0;
+      const u1 = (t * 0.32) % 1.0;
       const u2 = (u1 + 0.5) % 1.0;
-      this.rayPulse.position.set(s[0] + (e[0] - s[0]) * u1, s[1] + (e[1] - s[1]) * u1, s[2] + (e[2] - s[2]) * u1);
-      if (this.rayPulse2) {
-        this.rayPulse2.position.set(s[0] + (e[0] - s[0]) * u2, s[1] + (e[1] - s[1]) * u2, s[2] + (e[2] - s[2]) * u2);
-      }
+      const p1 = this.rayPulse.geometry.attributes.position;
+      p1.setXYZ(0, s[0] + (e[0] - s[0]) * u1, s[1] + (e[1] - s[1]) * u1, s[2] + (e[2] - s[2]) * u1);
+      p1.needsUpdate = true;
+      const p2 = this.rayPulse2.geometry.attributes.position;
+      p2.setXYZ(0, s[0] + (e[0] - s[0]) * u2, s[1] + (e[1] - s[1]) * u2, s[2] + (e[2] - s[2]) * u2);
+      p2.needsUpdate = true;
     }
     this.controls.autoRotate = Boolean(this.state.autoOrbit) && !this._userInteracting && !this._fly;
     this.controls.update();

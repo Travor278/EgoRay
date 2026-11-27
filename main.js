@@ -1,78 +1,45 @@
-import { EgoRay3DViewer } from "./viewer3d.js";
-
 const DEFAULT_SCENES = [
-  {
-    tag: "egohumans",
-    title: "Real Humans · Outdoor Tagging",
-    short: "Real Humans",
-    badge: "Real · L2",
-    group: "humans",
-    isReal: true,
-    n_views: 12,
-    note: "EgoHumans real multi-person tagging · 4 candidates · 0.07° epipole error",
-  },
-  {
-    tag: "wild_animals",
-    title: "Wild Animals · Lions Occlusion",
-    short: "Wild Lions",
-    badge: "Unseen Wearer · L3",
-    group: "nature",
-    isReal: false,
-    n_views: 12,
-    note: "FindEgo-1M collar camera on lions · 5 candidates · 3D depth resolves collinear occluder #5 · 0.06° error",
-  },
-  {
-    tag: "indoor_humans",
-    title: "Indoor Multi-Person",
-    short: "Indoor Humans",
-    badge: "Simulated · L1",
-    group: "humans",
-    isReal: false,
-    n_views: 7,
-    note: "FindEgo-1M indoor room · 3 candidates · 0.16° epipole error",
-  },
-  {
-    tag: "robot_vacuum",
-    title: "Robot Vacuums",
-    short: "Robot Vacuums",
-    badge: "Unseen Wearer · L3",
-    group: "robots",
-    isReal: false,
-    n_views: 7,
-    note: "FindEgo-1M floor-level robot vacuum · 3 candidates · 0.20° epipole error",
-  },
-  {
-    tag: "outdoor_humans",
-    title: "Outdoor Forest",
-    short: "Outdoor Forest",
-    badge: "Simulated · L1",
-    group: "humans",
-    isReal: false,
-    n_views: 11,
-    note: "FindEgo-1M outdoor forest · 4 candidates · 0.05° epipole error",
-  },
-  {
-    tag: "underwater",
-    title: "Underwater Sea Turtles",
-    short: "Sea Turtles",
-    badge: "Unseen Wearer · L3",
-    group: "nature",
-    isReal: false,
-    n_views: 2,
-    note: "FindEgo-1M underwater coral reef · 5 sea turtles · 0.07° epipole error",
-  },
+  { tag: "egohumans", title: "Real Humans · Outdoor Tagging", short: "Real Humans", badge: "Real · L2", isReal: true },
+  { tag: "wild_animals", title: "Wild Animals · Lions", short: "Wild Lions", badge: "Unseen Wearer · L3", isReal: false },
+  { tag: "indoor_humans", title: "Indoor Multi-Person", short: "Indoor Humans", badge: "Simulated · L1", isReal: false },
+  { tag: "robot_vacuum", title: "Robot Vacuums", short: "Robot Vacuums", badge: "Unseen Wearer · L3", isReal: false },
+  { tag: "outdoor_humans", title: "Outdoor Forest", short: "Outdoor Forest", badge: "Simulated · L1", isReal: false },
+  { tag: "underwater", title: "Underwater Sea Turtles", short: "Sea Turtles", badge: "Unseen Wearer · L3", isReal: false },
 ];
+
+// Short names for the scene strip and the 3D HUD.
+const SCENE_INFO = {
+  egohumans: { label: "Humans", name: "EgoHumans", lvl: "L2" },
+  v2xreal: { label: "Vehicles", name: "V2X-Real", lvl: "L3" },
+  droid: { label: "Robot arm", name: "DROID", lvl: "L3" },
+  egohumans_fencing: { label: "Fencing", name: "EgoHumans · fencing", lvl: "L2" },
+  aloha: { label: "Dual arms", name: "ALOHA", lvl: "L3" },
+  wild_animals: { label: "Lions", name: "Lions", lvl: "L3" },
+  indoor_humans: { label: "Indoor", name: "Indoor room", lvl: "L1" },
+  robot_vacuum: { label: "Vacuums", name: "Robot vacuums", lvl: "L3" },
+  outdoor_humans: { label: "Forest", name: "Forest", lvl: "L1" },
+  underwater: { label: "Sea turtles", name: "Sea turtles", lvl: "L3" },
+};
 
 let SCENES = [...DEFAULT_SCENES];
 
+const $ = (id) => document.getElementById(id);
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const easeOut = (x) => 1 - Math.pow(1 - clamp(x), 3);
+const easeInOut = (x) => {
+  const c = clamp(x);
+  return c < 0.5 ? 4 * c * c * c : 1 - Math.pow(-2 * c + 2, 3) / 2;
+};
+const sceneInfo = (sc) => SCENE_INFO[sc.tag] || { label: sc.short, name: sc.title, lvl: "" };
+
 /* ============================================================
-   1. LIGHTBOX HELPER
+   LIGHTBOX
 ============================================================ */
 const lightbox = {
-  el: document.getElementById("lightbox"),
-  img: document.getElementById("lightboxImg"),
-  title: document.getElementById("lightboxTitle"),
-  sub: document.getElementById("lightboxSub"),
+  el: $("lightbox"),
+  img: $("lightboxImg"),
+  title: $("lightboxTitle"),
+  sub: $("lightboxSub"),
   open(src, title, sub = "") {
     if (!this.el) return;
     this.img.src = src;
@@ -89,7 +56,7 @@ const lightbox = {
 };
 
 function initLightbox() {
-  const closeBtn = document.getElementById("lightboxClose");
+  const closeBtn = $("lightboxClose");
   if (closeBtn) closeBtn.addEventListener("click", () => lightbox.close());
   if (lightbox.el) {
     lightbox.el.addEventListener("click", (e) => {
@@ -111,48 +78,20 @@ function initLightbox() {
 }
 
 /* ============================================================
-   2. TEASER & INTERACTIVE 3D (DYNAMIC MULTI-SCENARIO)
+   3D DEMO
 ============================================================ */
-function buildFilterBar(container, onFilter) {
-  if (!container) return;
-  const defs = [
-    { key: "all", label: "All Scenes", fn: () => true },
-    { key: "real", label: "Real-World", fn: (s) => s.isReal },
-    { key: "robots", label: "Robots, Vehicles & Air", fn: (s) => s.group === "robots" },
-    { key: "humans", label: "Humans & Sports", fn: (s) => s.group === "humans" },
-    { key: "nature", label: "Animals & Underwater", fn: (s) => s.group === "nature" },
-  ];
-  container.innerHTML = "";
-  const btns = [];
-  for (const d of defs) {
-    const cnt = SCENES.filter(d.fn).length;
-    if (cnt === 0 && d.key !== "all") continue;
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = `filter-pill${d.key === "all" ? " active" : ""}`;
-    b.innerHTML = `${d.label} <span class="cnt">${cnt}</span>`;
-    b.addEventListener("click", () => {
-      btns.forEach((x) => x.classList.toggle("active", x === b));
-      onFilter(d.fn);
-    });
-    container.appendChild(b);
-    btns.push(b);
-  }
-}
-
-function buildThumbDock(container, onSelect) {
+function buildSceneStrip(container, onSelect) {
   container.innerHTML = "";
   return SCENES.map((sc, idx) => {
+    const info = sceneInfo(sc);
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "thumb-btn";
-    btn.dataset.index = String(idx);
+    btn.className = "scene-btn";
     btn.setAttribute("aria-label", `Show ${sc.title}`);
     btn.setAttribute("aria-pressed", "false");
     btn.innerHTML = `
-      <img src="./assets/cards/${sc.tag}_exo_ann.jpg" alt="${sc.title}" loading="lazy">
-      <span class="thumb-tag ${sc.isReal ? "real" : ""}">${sc.isReal ? "REAL" : "SIM"}</span>
-      <span class="thumb-label">${sc.short}</span>
+      <span class="scene-thumb"><img src="./assets/cards/${sc.tag}_exo_raw.jpg" alt="" loading="lazy">${sc.isReal ? '<i class="real-tag">REAL</i>' : ""}</span>
+      <span class="scene-name">${info.label}</span>
     `;
     btn.addEventListener("click", () => onSelect(idx));
     container.appendChild(btn);
@@ -160,111 +99,29 @@ function buildThumbDock(container, onSelect) {
   });
 }
 
-function initTeaser() {
-  const video = document.getElementById("teaserVideo");
-  const titleEl = document.getElementById("teaserTitle");
-  const badgeEl = document.getElementById("teaserBadge");
-  const viewsEl = document.getElementById("teaserViews");
-  const dock = document.getElementById("teaserThumbs");
-  const filters = document.getElementById("teaserFilters");
-  if (!video || !dock) return;
+async function initDemo() {
+  const host = $("i3dCanvasHost");
+  const labels = $("i3dLabelsLayer");
+  const status = $("i3dStatus");
+  const stageWrap = $("i3dStageWrap");
+  const strip = $("i3dThumbs");
+  const exoImg = $("i3dExoImg");
+  const egoImg = $("i3dEgoImg");
+  const readoutList = $("i3dReadoutList");
+  const sceneTitle = $("i3dSceneTitle");
+  const overlayBtn = $("btn2DOverlay");
+  if (!host || !strip) return;
 
-  let activeIdx = 0;
-  const SPEEDS = [0.55, 0.75, 1.0];
-  let speedIdx = 0;
-  const speedBtn = document.getElementById("teaserSpeedToggle");
-
-  const applySpeed = () => {
-    video.playbackRate = SPEEDS[speedIdx];
-    if (speedBtn) speedBtn.textContent = `${SPEEDS[speedIdx]}×`;
-  };
-  video.addEventListener("loadedmetadata", applySpeed);
-  video.addEventListener("play", applySpeed);
-  if (speedBtn) {
-    speedBtn.addEventListener("click", () => {
-      speedIdx = (speedIdx + 1) % SPEEDS.length;
-      applySpeed();
+  const rows = new Map();
+  let viewer = null;
+  try {
+    const { EgoRay3DViewer } = await import("./viewer3d.js");
+    viewer = new EgoRay3DViewer(host, labels, status, (candId) => {
+      rows.forEach((el, id) => el.classList.toggle("active-hi", candId !== null && id === candId));
     });
+  } catch (_) {
+    viewer = null;
   }
-
-  const buttons = buildThumbDock(dock, (idx) => select(idx));
-
-  buildFilterBar(filters, (pred) => {
-    let firstVisible = -1;
-    buttons.forEach((b, i) => {
-      const show = pred(SCENES[i]);
-      b.classList.toggle("hidden", !show);
-      if (show && firstVisible === -1) firstVisible = i;
-    });
-    if (firstVisible !== -1 && !pred(SCENES[activeIdx])) {
-      select(firstVisible);
-    }
-  });
-
-  function select(idx) {
-    activeIdx = (idx + SCENES.length) % SCENES.length;
-    const sc = SCENES[activeIdx];
-    video.pause();
-    video.poster = `./assets/cards/${sc.tag}_poster.jpg`;
-    video.src = `./assets/videos/${sc.tag}.mp4`;
-    video.load();
-    applySpeed();
-    const p = video.play();
-    if (p && typeof p.catch === "function") p.catch(() => {});
-    if (titleEl) titleEl.textContent = sc.note;
-    if (badgeEl) badgeEl.textContent = sc.badge;
-    if (viewsEl) {
-      viewsEl.textContent = sc.n_views > 2 ? `${sc.n_views}-View Dense 3D` : "EgoRay 3D";
-    }
-    buttons.forEach((b, i) => {
-      const on = i === activeIdx;
-      b.classList.toggle("active", on);
-      b.setAttribute("aria-pressed", String(on));
-    });
-  }
-
-  const prevBtn = document.getElementById("teaserPrev");
-  const nextBtn = document.getElementById("teaserNext");
-  const playBtn = document.getElementById("teaserPlayToggle");
-
-  if (prevBtn) prevBtn.addEventListener("click", () => select(activeIdx - 1));
-  if (nextBtn) nextBtn.addEventListener("click", () => select(activeIdx + 1));
-  if (playBtn) {
-    playBtn.addEventListener("click", () => {
-      if (video.paused) {
-        video.play().catch(() => {});
-        playBtn.textContent = "Pause";
-      } else {
-        video.pause();
-        playBtn.textContent = "Play";
-      }
-    });
-  }
-
-  select(0);
-}
-
-function initInteractive3D() {
-  const host = document.getElementById("i3dCanvasHost");
-  const labels = document.getElementById("i3dLabelsLayer");
-  const status = document.getElementById("i3dStatus");
-  const stageWrap = document.getElementById("i3dStageWrap");
-  const dock = document.getElementById("i3dThumbs");
-  const filters = document.getElementById("i3dFilters");
-  const exoImg = document.getElementById("i3dExoImg");
-  const egoImg = document.getElementById("i3dEgoImg");
-  const readoutList = document.getElementById("i3dReadoutList");
-  const sceneTitle = document.getElementById("i3dSceneTitle");
-  const overlayBtn = document.getElementById("btn2DOverlay");
-
-  if (!host || !dock) return;
-
-  let activeRowMap = new Map();
-  const viewer = new EgoRay3DViewer(host, labels, status, (candId) => {
-    activeRowMap.forEach((el, id) => {
-      el.classList.toggle("active-hi", candId !== null && id === candId);
-    });
-  });
 
   let activeIdx = 0;
   let show2DAnn = true;
@@ -274,114 +131,109 @@ function initInteractive3D() {
     const suf = show2DAnn ? "ann" : "raw";
     exoImg.src = `./assets/cards/${sc.tag}_exo_${suf}.jpg`;
     egoImg.src = `./assets/cards/${sc.tag}_ego_${suf}.jpg`;
-    if (overlayBtn) overlayBtn.textContent = show2DAnn ? "Masks: On" : "Masks: Off";
   }
 
   function renderReadout(meta) {
     readoutList.innerHTML = "";
-    activeRowMap.clear();
-    const cands = meta.candidates || [];
+    rows.clear();
+    const cands = (meta.candidates || []).slice(0, 4);
     const maxScore = Math.max(1.0, ...cands.map((c) => (Number.isFinite(c.score) ? c.score : 0)));
-    for (const c of cands.slice(0, 6)) {
-      const pct = Math.max(6, Math.min(100, (c.score / maxScore) * 100));
+    for (const c of cands) {
+      const pct = Math.max(4, Math.min(100, (c.score / maxScore) * 100));
       const row = document.createElement("div");
       row.className = `i3d-row ${c.is_wearer ? "wearer" : "other"}`;
       row.innerHTML = `
-        <span class="cid">#${c.id}${c.is_wearer ? "*" : ""}</span>
+        <span class="cid">#${c.id}</span>
         <div class="i3d-bar-track"><div class="i3d-bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
         <span class="val">${c.angle.toFixed(1)}° · ${c.score.toFixed(2)}</span>
       `;
-      row.addEventListener("mouseenter", () => {
-        row.classList.add("active-hi");
-        viewer.highlightCandidate(c.id);
-      });
-      row.addEventListener("mouseleave", () => {
-        row.classList.remove("active-hi");
-        viewer.highlightCandidate(null);
-      });
+      if (viewer) {
+        row.addEventListener("mouseenter", () => {
+          row.classList.add("active-hi");
+          viewer.highlightCandidate(c.id);
+        });
+        row.addEventListener("mouseleave", () => {
+          row.classList.remove("active-hi");
+          viewer.highlightCandidate(null);
+        });
+      }
       readoutList.appendChild(row);
-      activeRowMap.set(c.id, row);
+      rows.set(c.id, row);
     }
   }
 
-  const buttons = buildThumbDock(dock, (idx) => select(idx));
-
-  buildFilterBar(filters, (pred) => {
-    let firstVisible = -1;
-    buttons.forEach((b, i) => {
-      const show = pred(SCENES[i]);
-      b.classList.toggle("hidden", !show);
-      if (show && firstVisible === -1) firstVisible = i;
-    });
-    if (firstVisible !== -1 && !pred(SCENES[activeIdx])) {
-      select(firstVisible);
-    }
-  });
+  const buttons = buildSceneStrip(strip, (idx) => select(idx));
 
   async function select(idx) {
     activeIdx = (idx + SCENES.length) % SCENES.length;
     const sc = SCENES[activeIdx];
-    if (sceneTitle) sceneTitle.textContent = `${sc.title}  ·  ${sc.badge}`;
+    const info = sceneInfo(sc);
+    if (sceneTitle) {
+      sceneTitle.innerHTML = `${info.name}<span>${sc.isReal ? "Real" : "Sim"}${info.lvl ? " · " + info.lvl : ""}</span>`;
+    }
     update2DImages();
     buttons.forEach((b, i) => {
       const on = i === activeIdx;
       b.classList.toggle("active", on);
       b.setAttribute("aria-pressed", String(on));
     });
-    const meta = await viewer.loadScene(sc.tag);
-    if (meta) renderReadout(meta);
+    document.querySelectorAll(".i3d-preset-btn").forEach((b) => b.classList.toggle("active", b.dataset.preset === "default"));
+    if (viewer) {
+      const meta = await viewer.loadScene(sc.tag);
+      if (meta) renderReadout(meta);
+    } else {
+      host.innerHTML = `<img class="s3-fallback" src="./assets/cards/${sc.tag}_poster.jpg" alt="">`;
+      status.classList.add("hidden");
+      try {
+        const meta = await (await fetch(`./assets/scenes/${sc.tag}.json`)).json();
+        renderReadout(meta);
+      } catch (_) {}
+    }
   }
 
   if (overlayBtn) {
     overlayBtn.addEventListener("click", () => {
       show2DAnn = !show2DAnn;
+      overlayBtn.classList.toggle("on", show2DAnn);
+      overlayBtn.setAttribute("aria-pressed", String(show2DAnn));
       update2DImages();
     });
   }
 
   document.querySelectorAll(".i3d-preset-btn").forEach((btn) => {
-    btn.addEventListener("click", () => viewer.flyToPreset(btn.dataset.preset));
+    btn.addEventListener("click", () => {
+      if (!viewer) return;
+      document.querySelectorAll(".i3d-preset-btn").forEach((b) => b.classList.toggle("active", b === btn));
+      viewer.flyToPreset(btn.dataset.preset);
+    });
   });
 
-  const toggleDefs = [
-    { id: "togRedDots", key: "redDots", activeCls: "on-red" },
-    { id: "togTint", key: "tint", activeCls: "on-green" },
-    { id: "togRay", key: "ray", activeCls: "on" },
-    { id: "togCams", key: "cameras", activeCls: "on" },
-    { id: "togEgoPts", key: "includeEgo", activeCls: "on" },
-    { id: "togOrbit", key: "autoOrbit", activeCls: "on" },
-  ];
-  for (const def of toggleDefs) {
-    const el = document.getElementById(def.id);
+  for (const def of [
+    { id: "togRay", key: "ray" },
+    { id: "togCams", key: "cameras" },
+    { id: "togOrbit", key: "autoOrbit" },
+  ]) {
+    const el = $(def.id);
     if (!el) continue;
     el.addEventListener("click", () => {
+      if (!viewer) return;
       const next = !viewer.state[def.key];
       viewer.setOption(def.key, next);
-      el.classList.toggle(def.activeCls, next);
+      el.classList.toggle("on", next);
       el.setAttribute("aria-pressed", String(next));
     });
   }
 
-  const darkBtn = document.getElementById("togDarkBg");
-  if (darkBtn && stageWrap) {
-    darkBtn.addEventListener("click", () => {
-      const next = !viewer.state.darkBg;
-      viewer.setOption("darkBg", next);
-      stageWrap.classList.toggle("dark-canvas", next);
-      darkBtn.classList.toggle("on", next);
-      darkBtn.setAttribute("aria-pressed", String(next));
+  const resetBtn = $("btnResetView");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      if (!viewer) return;
+      document.querySelectorAll(".i3d-preset-btn").forEach((b) => b.classList.toggle("active", b.dataset.preset === "default"));
+      viewer.resetCamera();
     });
   }
 
-  const ptSlider = document.getElementById("sliderPtSize");
-  if (ptSlider) {
-    ptSlider.addEventListener("input", () => viewer.setOption("pointSize", Number(ptSlider.value)));
-  }
-
-  const resetBtn = document.getElementById("btnResetView");
-  if (resetBtn) resetBtn.addEventListener("click", () => viewer.resetCamera());
-
-  const fsBtn = document.getElementById("btnFullscreen");
+  const fsBtn = $("btnFullscreen");
   if (fsBtn && stageWrap) {
     fsBtn.addEventListener("click", () => {
       if (!document.fullscreenElement) {
@@ -396,49 +248,30 @@ function initInteractive3D() {
 }
 
 /* ============================================================
-   3. 5-ACT SLOW-PLAYING ANIMATED METHOD THEATER + LIVE 3D CLOUD (ACT B)
+   METHOD WALKTHROUGH (A)-(E)
 ============================================================ */
 const THEATER_ACTS = [
-  {
-    num: "ACT 01 / 05",
-    name: "(A) VGGT-Ω",
-    dot: "#0284c7",
-    dur: 7.5,
-    caption: "VGGT-Ω predicts camera pose (R̂, t̂, K̂) and dense exo depth D in 0.4s.",
-  },
-  {
-    num: "ACT 02 / 05",
-    name: "(B) 3D Readout",
-    dot: "#059669",
-    dur: 9.5,
-    caption: "Training-free 3D readout casts ê_exo into the point cloud and ranks candidates by θᵢ and d_u.",
-  },
-  {
-    num: "ACT 03 / 05",
-    name: "(C) Three Tracks",
-    dot: "#10b981",
-    dur: 7.5,
-    caption: "One geometric readout answers Track A (ID), Track B (Seg + Absence), and Track C (Mutual Loc).",
-  },
-  {
-    num: "ACT 04 / 05",
-    name: "(D) Pose-Supervised Training",
-    dot: "#7c3aed",
-    dur: 8.2,
-    caption: "Rank-64 LoRA aligns (R̂, t̂, f̂) on human pairs and transfers zero-shot to unseen L3 wearers.",
-  },
-  {
-    num: "ACT 05 / 05",
-    name: "(E) Label-Free TTA",
-    dot: "#d97706",
-    dur: 8.0,
-    caption: "Test-time adaptation pulls stray epipoles onto unlabeled candidates while anchoring rotation and focal length.",
-  },
+  { dur: 8.5, caption: "VGGT-Ω turns the image pair into both camera poses and an exo depth map." },
+  { dur: 10.0, caption: "Training-free readout: cast the epipole ray into 3D and score each candidate by angle and distance." },
+  { dur: 7.0, caption: "The lowest score answers all three tracks." },
+  { dur: 8.5, caption: "LoRA adapters learn from pose labels and transfer zero-shot to unseen wearers." },
+  { dur: 8.0, caption: "At test time, unlabeled queries pull the epipole onto a candidate; a frozen copy anchors the pose." },
 ];
 
+function loadMathImage(name) {
+  const img = new Image();
+  img.src = `./assets/math/${name}.svg`;
+  return img;
+}
+
 function createActBPointCloud(canvas) {
-  let state = { loaded: false, pts: null, rgb: null, cand: null, meta: null };
-  // Load real EgoHumans 200k-pt scene and subsample cleanly for silky 60fps dynamic rendering
+  let state = { loaded: false };
+  const mathImgs = {
+    e: loadMathImage("e_exo"),
+    phi: loadMathImage("phi_u"),
+    d: loadMathImage("d_u"),
+    c: loadMathImage("c_hat"),
+  };
   (async () => {
     try {
       const [mRes, bRes] = await Promise.all([
@@ -455,13 +288,12 @@ function createActBPointCloud(canvas) {
       const mn = meta.pos_quant.min;
       const sc = meta.pos_quant.scale;
 
-      // Keep 100% of candidate points + strided scene points (~34,000 dense crisp splats)
       const idxs = [];
       for (let i = 0; i < n; i++) {
         const y = mn[1] + (qpos[i * 3 + 1] + 32768) * sc[1];
         const z = mn[2] + (qpos[i * 3 + 2] + 32768) * sc[2];
         if (y > 1.45 || z < -2.3 || z > 2.6) continue;
-        if (candAll[i] >= 0 || i % 5 === 0) idxs.push(i);
+        if (candAll[i] >= 0 || i % 4 === 0) idxs.push(i);
       }
       const m = idxs.length;
       const pts = new Float32Array(m * 3);
@@ -471,39 +303,33 @@ function createActBPointCloud(canvas) {
       for (let k = 0; k < m; k++) {
         const i = idxs[k];
         const i3 = i * 3, k3 = k * 3;
-        pts[k3]     = mn[0] + (qpos[i3] + 32768) * sc[0];
+        pts[k3] = mn[0] + (qpos[i3] + 32768) * sc[0];
         pts[k3 + 1] = mn[1] + (qpos[i3 + 1] + 32768) * sc[1];
         pts[k3 + 2] = mn[2] + (qpos[i3 + 2] + 32768) * sc[2];
         let r = rgbAll[i3], g = rgbAll[i3 + 1], b = rgbAll[i3 + 2];
         const cid = candAll[i];
         cand[k] = cid;
         if (cid === wId) {
-          r = r * 0.30 + 16 * 0.70; g = g * 0.30 + 185 * 0.70; b = b * 0.30 + 129 * 0.70;
+          r = r * 0.3 + 16 * 0.7; g = g * 0.3 + 185 * 0.7; b = b * 0.3 + 129 * 0.7;
         } else if (cid >= 0) {
           r = r * 0.42 + 225 * 0.58; g = g * 0.42 + 45 * 0.58; b = b * 0.42 + 45 * 0.58;
         } else {
-          r = r * 0.68 + 245 * 0.32; g = g * 0.68 + 248 * 0.32; b = b * 0.68 + 252 * 0.32;
+          r = r * 0.7 + 246 * 0.3; g = g * 0.7 + 248 * 0.3; b = b * 0.7 + 251 * 0.3;
         }
         const ri = Math.min(255, r | 0), gi = Math.min(255, g | 0), bi = Math.min(255, b | 0);
-        // Little-endian ABGR for Uint32Array ImageData
         col32[k] = (255 << 24) | (bi << 16) | (gi << 8) | ri;
       }
-      state = {
-        loaded: true, pts, col32, cand, meta, count: m,
-        imgBuf: null, buf32: null, zBuf: null, bg32: null, lastW: 0, lastH: 0,
-      };
+      state = { loaded: true, pts, col32, cand, meta, count: m, imgBuf: null, buf32: null, zBuf: null, bg32: null, lastW: 0, lastH: 0 };
     } catch (_) {}
   })();
 
   const ctx = canvas ? canvas.getContext("2d") : null;
-  const clamp = (x) => Math.max(0, Math.min(1, x));
-  const easeOut = (x) => 1 - Math.pow(1 - clamp(x), 3);
 
   function render(p, globalTime) {
     if (!ctx) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const cssW = Math.max(320, canvas.clientWidth || 720);
-    const cssH = Math.max(240, canvas.clientHeight || 430);
+    const cssW = Math.max(300, canvas.clientWidth || 720);
+    const cssH = Math.max(220, canvas.clientHeight || 430);
     const pw = Math.round(cssW * dpr), ph = Math.round(cssH * dpr);
     if (canvas.width !== pw || canvas.height !== ph) {
       canvas.width = pw;
@@ -512,42 +338,41 @@ function createActBPointCloud(canvas) {
 
     if (!state.loaded) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = "#f4f7fb";
+      ctx.fillStyle = "#f6f8fb";
       ctx.fillRect(0, 0, cssW, cssH);
-      ctx.fillStyle = "#64748b";
-      ctx.font = '600 14px "Inter Variable", Inter, sans-serif';
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = '500 13px "Inter Variable", Inter, sans-serif';
       ctx.textAlign = "center";
-      ctx.fillText("Loading live 3D EgoHumans point cloud…", cssW * 0.5, cssH * 0.5);
+      ctx.fillText("Loading point cloud…", cssW * 0.5, cssH * 0.5);
       return;
     }
 
-    // Allocate reusable ImageData + Z-buffer once per resize (100x faster than fillStyle strings!)
     if (state.lastW !== pw || state.lastH !== ph) {
       state.imgBuf = ctx.createImageData(pw, ph);
       state.buf32 = new Uint32Array(state.imgBuf.data.buffer);
       state.zBuf = new Float32Array(pw * ph);
       state.bg32 = new Uint32Array(pw * ph);
       for (let y = 0; y < ph; y++) {
-        const dy = (y - ph * 0.42) / (ph * 0.65);
+        const dy = (y - ph * 0.42) / (ph * 0.7);
         for (let x = 0; x < pw; x++) {
-          const dx = (x - pw * 0.5) / (pw * 0.65);
+          const dx = (x - pw * 0.5) / (pw * 0.7);
           const t = Math.min(1, Math.hypot(dx, dy));
-          const r = (255 * (1 - t) + 236 * t) | 0;
-          const g = (255 * (1 - t) + 242 * t) | 0;
+          const r = (255 * (1 - t) + 240 * t) | 0;
+          const g = (255 * (1 - t) + 244 * t) | 0;
           const b = (255 * (1 - t) + 249 * t) | 0;
           state.bg32[y * pw + x] = (255 << 24) | (b << 16) | (g << 8) | r;
         }
       }
-      state.lastW = pw; state.lastH = ph;
+      state.lastW = pw;
+      state.lastH = ph;
     }
 
     const { pts, col32, cand, meta, count, imgBuf, buf32, zBuf, bg32 } = state;
     buf32.set(bg32);
     zBuf.fill(1e9);
 
-    // Slow continuous cinematic orbit around EgoHumans 3D scene
-    const az = 0.24 + 0.36 * Math.sin(globalTime * 0.42);
-    const el = 0.46 + 0.06 * Math.sin(globalTime * 0.31 + 0.7);
+    const az = 0.24 + 0.34 * Math.sin(globalTime * 0.38);
+    const el = 0.46 + 0.06 * Math.sin(globalTime * 0.29 + 0.7);
     const R = 4.55;
     const tx = 0.32, ty = -0.06, tz = 0.32;
     const ex = tx + R * Math.cos(el) * Math.sin(az);
@@ -555,17 +380,17 @@ function createActBPointCloud(canvas) {
     const ez = tz + R * Math.cos(el) * Math.cos(az);
 
     let fx = tx - ex, fy = ty - ey, fz = tz - ez;
-    const fLen = Math.hypot(fx, fy, fz); fx /= fLen; fy /= fLen; fz /= fLen;
+    const fLen = Math.hypot(fx, fy, fz);
+    fx /= fLen; fy /= fLen; fz /= fLen;
     let rx = -fz, ry = 0, rz = fx;
-    const rLen = Math.hypot(rx, rz); rx /= rLen; rz /= rLen;
+    const rLen = Math.hypot(rx, rz);
+    rx /= rLen; rz /= rLen;
     const ux = ry * fz - rz * fy;
     const uy = rz * fx - rx * fz;
     const uz = rx * fy - ry * fx;
 
     const flP = (ph * 0.5) / Math.tan((42 * Math.PI) / 360);
     const cxP = pw * 0.5, cyP = ph * 0.52;
-
-    // Z-buffered dense 3x3 / 5x5 direct pixel splatting (< 1.5ms for 34,000 points!)
     const splatBase = dpr >= 1.5 ? 2 : 1;
     for (let i = 0; i < count; i++) {
       const i3 = i * 3;
@@ -596,38 +421,36 @@ function createActBPointCloud(canvas) {
 
     const fl = (cssH * 0.5) / Math.tan((42 * Math.PI) / 360);
     const cx0 = cssW * 0.5, cy0 = cssH * 0.52;
-    const proj1 = (pt) => {
+    const proj = (pt) => {
       const dx = pt[0] - ex, dy = pt[1] - ey, dz = pt[2] - ez;
       const z = dx * fx + dy * fy + dz * fz;
       if (z <= 0.1) return null;
       return [cx0 + ((dx * rx + dy * ry + dz * rz) / z) * fl, cy0 - ((dx * ux + dy * uy + dz * uz) / z) * fl, z];
     };
 
-    // Subtle floor perspective grid overlay
     const yf = meta.y_floor;
-    ctx.strokeStyle = "rgba(148, 163, 184, 0.22)";
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.2)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (let k = -4; k <= 4; k++) {
       const o = k * 0.52;
-      const a1 = proj1([-2.08, yf, o]), b1 = proj1([2.08, yf, o]);
+      const a1 = proj([-2.08, yf, o]), b1 = proj([2.08, yf, o]);
       if (a1 && b1) { ctx.moveTo(a1[0], a1[1]); ctx.lineTo(b1[0], b1[1]); }
-      const a2 = proj1([o, yf, -2.08]), b2 = proj1([o, yf, 2.08]);
+      const a2 = proj([o, yf, -2.08]), b2 = proj([o, yf, 2.08]);
       if (a2 && b2) { ctx.moveTo(a2[0], a2[1]); ctx.lineTo(b2[0], b2[1]); }
     }
     ctx.stroke();
 
-    // Animated Camera Frustums
     const drawFrustum = (cam, col, alpha) => {
       if (alpha <= 0.01) return null;
-      const po = proj1(cam.origin);
-      const pcs = cam.corners.map(proj1);
-      const ptip = proj1(cam.tip);
+      const po = proj(cam.origin);
+      const pcs = cam.corners.map(proj);
+      const ptip = proj(cam.tip);
       if (!po || pcs.some((c) => !c)) return null;
       ctx.save();
       ctx.globalAlpha = alpha;
       ctx.strokeStyle = col;
-      ctx.lineWidth = 2.6;
+      ctx.lineWidth = 1.5;
       ctx.lineJoin = "round";
       ctx.beginPath();
       for (const pc of pcs) { ctx.moveTo(po[0], po[1]); ctx.lineTo(pc[0], pc[1]); }
@@ -639,354 +462,369 @@ function createActBPointCloud(canvas) {
       }
       ctx.stroke();
       ctx.fillStyle = col;
-      ctx.beginPath(); ctx.arc(po[0], po[1], 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(po[0], po[1], 3.5, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
       return po;
     };
 
-    const drawPill = (x, y, text, color, bgCol = "rgba(255,255,255,0.94)", dx = 12, dy = -12) => {
+    const tag = (x, y, text, color, dx = 10, dy = -10) => {
       ctx.save();
-      ctx.font = '700 12.5px "JetBrains Mono Variable", "JetBrains Mono", monospace';
+      ctx.font = '600 11.5px "Inter Variable", Inter, sans-serif';
       const tw = ctx.measureText(text).width;
-      const px = Math.max(10, Math.min(cssW - tw - 22, x + dx));
-      const py = Math.max(46, Math.min(cssH - 26, y + dy));
-      const w = tw + 14, h = 23, r = 7;
-      ctx.fillStyle = bgCol;
+      const w = tw + 14, h = 21;
+      const bx = Math.max(6, Math.min(cssW - w - 6, x + dx));
+      const by = Math.max(40, Math.min(cssH - h - 6, y + dy - h * 0.5));
+      ctx.fillStyle = "rgba(255,255,255,0.94)";
       ctx.strokeStyle = color;
-      ctx.lineWidth = 1.6;
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.roundRect(px, py - h * 0.5, w, h, r);
-      ctx.fill(); ctx.stroke();
+      ctx.roundRect(bx, by, w, h, 6);
+      ctx.fill();
+      ctx.stroke();
       ctx.fillStyle = color;
       ctx.textBaseline = "middle";
-      ctx.fillText(text, px + 7, py + 0.5);
+      ctx.fillText(text, bx + 7, by + h * 0.5 + 0.5);
       ctx.restore();
     };
 
-    const pExo = drawFrustum(meta.exo_cam, "#0284c7", easeOut(p / 0.10));
+    const mathTag = (x, y, img, color, hPx, dx = 10, dy = -10, alpha = 1) => {
+      if (!img.complete || !img.naturalWidth) return;
+      const iw = (img.naturalWidth / img.naturalHeight) * hPx;
+      const w = iw + 12, h = hPx + 8;
+      const bx = Math.max(6, Math.min(cssW - w - 6, x + dx));
+      const by = Math.max(40, Math.min(cssH - h - 6, y + dy - h * 0.5));
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(bx, by, w, h, 6);
+      ctx.fill();
+      ctx.stroke();
+      ctx.drawImage(img, bx + 6, by + 4, iw, hPx);
+      ctx.restore();
+    };
+
+    const pExo = drawFrustum(meta.exo_cam, "#0284c7", easeOut(p / 0.1));
     const pEgo = drawFrustum(meta.ego_cam, "#d97706", easeOut((p - 0.04) / 0.12));
 
-    // Phase 2 (p >= 0.10): Cast Epipole Ray ê_exo from Exo -> Ego
-    const rayProg = easeOut((p - 0.10) / 0.22);
+    const rayProg = easeOut((p - 0.1) / 0.22);
     const rs = meta.ray.start, re = meta.ray.end;
     if (rayProg > 0.01) {
       const curE = [rs[0] + (re[0] - rs[0]) * rayProg, rs[1] + (re[1] - rs[1]) * rayProg, rs[2] + (re[2] - rs[2]) * rayProg];
-      const ps = proj1(rs), pe = proj1(curE);
+      const ps = proj(rs), pe = proj(curE);
       if (ps && pe) {
         ctx.save();
-        ctx.strokeStyle = "rgba(16, 185, 129, 0.24)";
-        ctx.lineWidth = 10; ctx.lineCap = "round";
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "rgba(16, 185, 129, 0.18)";
+        ctx.lineWidth = 7;
         ctx.beginPath(); ctx.moveTo(ps[0], ps[1]); ctx.lineTo(pe[0], pe[1]); ctx.stroke();
         ctx.strokeStyle = "#059669";
-        ctx.lineWidth = 3.2;
+        ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(ps[0], ps[1]); ctx.lineTo(pe[0], pe[1]); ctx.stroke();
-        // Animated traveling pulse along ray
-        const up = ((globalTime * 0.65) % 1.0) * rayProg;
-        const pp = proj1([rs[0] + (re[0] - rs[0]) * up, rs[1] + (re[1] - rs[1]) * up, rs[2] + (re[2] - rs[2]) * up]);
+        const up = ((globalTime * 0.55) % 1.0) * rayProg;
+        const pp = proj([rs[0] + (re[0] - rs[0]) * up, rs[1] + (re[1] - rs[1]) * up, rs[2] + (re[2] - rs[2]) * up]);
         if (pp) {
           ctx.fillStyle = "#fbbf24";
-          ctx.beginPath(); ctx.arc(pp[0], pp[1], 5.5, 0, Math.PI * 2); ctx.fill();
-          ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.8; ctx.stroke();
+          ctx.beginPath(); ctx.arc(pp[0], pp[1], 4, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke();
         }
         ctx.restore();
-        if (rayProg > 0.65) {
-          drawPill((ps[0] + pe[0]) * 0.5, (ps[1] + pe[1]) * 0.5, "ê_exo", "#059669", "rgba(236,253,245,0.95)", -54, 4);
+        if (rayProg > 0.6) {
+          mathTag((ps[0] + pe[0]) * 0.5, (ps[1] + pe[1]) * 0.5, mathImgs.e, "#059669", 15, -56, 6, clamp((rayProg - 0.6) / 0.3));
         }
       }
     }
 
-    // Phase 3 (p >= 0.26): Measure angular offsets φ_u + 3D distance d_u
     const measProg = easeOut((p - 0.26) / 0.22);
     const cands = meta.candidates || [];
     if (measProg > 0.01 && pExo) {
       ctx.save();
       ctx.globalAlpha = measProg;
-      ctx.setLineDash([6, 5]);
-      ctx.strokeStyle = "rgba(100, 116, 139, 0.72)";
-      ctx.lineWidth = 1.6;
+      ctx.setLineDash([4, 5]);
+      ctx.strokeStyle = "rgba(100, 116, 139, 0.6)";
+      ctx.lineWidth = 1.2;
       for (const c of cands) {
         if (c.is_wearer || !c.pos) continue;
-        const pc = proj1(c.pos);
+        const pc = proj(c.pos);
         if (pc) { ctx.beginPath(); ctx.moveTo(pExo[0], pExo[1]); ctx.lineTo(pc[0], pc[1]); ctx.stroke(); }
       }
       ctx.setLineDash([]);
-      // Pink angle arc φ_u to candidate #1
       const c1 = cands.find((c) => c.id === 1 && c.pos);
       if (c1 && pEgo) {
-        const pc1 = proj1(c1.pos);
+        const pc1 = proj(c1.pos);
         if (pc1) {
           const a0 = Math.atan2(pEgo[1] - pExo[1], pEgo[0] - pExo[0]);
           const a1 = Math.atan2(pc1[1] - pExo[1], pc1[0] - pExo[0]);
           let da = a1 - a0;
           if (da > Math.PI) da -= Math.PI * 2;
           if (da < -Math.PI) da += Math.PI * 2;
-          const R_arc = 78;
-          ctx.strokeStyle = "#be185d"; ctx.lineWidth = 2.6;
+          const R_arc = 74;
+          ctx.strokeStyle = "#be185d";
+          ctx.lineWidth = 1.8;
           ctx.beginPath();
           ctx.arc(pExo[0], pExo[1], R_arc, a0, a0 + da * measProg, da < 0);
           ctx.stroke();
           if (measProg > 0.7) {
             const am = a0 + da * 0.5;
-            drawPill(pExo[0] + (R_arc + 18) * Math.cos(am), pExo[1] + (R_arc + 18) * Math.sin(am), "φ_u", "#be185d", "rgba(253,242,248,0.95)", -14, -4);
+            mathTag(pExo[0] + (R_arc + 16) * Math.cos(am), pExo[1] + (R_arc + 16) * Math.sin(am), mathImgs.phi, "#be185d", 13, -14, -2);
           }
         }
       }
-      // Teal 3D distance segment d_u between #3 and Ego Cam ĉ
       const c3 = cands.find((c) => c.id === 3 && c.pos);
       if (c3 && pEgo) {
-        const pc3 = proj1(c3.pos);
+        const pc3 = proj(c3.pos);
         if (pc3) {
-          ctx.strokeStyle = "#0d9488"; ctx.lineWidth = 3;
+          ctx.strokeStyle = "#0d9488";
+          ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.moveTo(pEgo[0], pEgo[1]);
           ctx.lineTo(pEgo[0] + (pc3[0] - pEgo[0]) * measProg, pEgo[1] + (pc3[1] - pEgo[1]) * measProg);
           ctx.stroke();
           if (measProg > 0.7) {
-            drawPill((pEgo[0] + pc3[0]) * 0.5, (pEgo[1] + pc3[1]) * 0.5, "d_u", "#0f766e", "rgba(240,253,250,0.95)", -10, -22);
+            mathTag((pEgo[0] + pc3[0]) * 0.5, (pEgo[1] + pc3[1]) * 0.5, mathImgs.d, "#0d9488", 15, -8, -22);
           }
         }
       }
       ctx.restore();
     }
 
-    // Candidate dots & Phase 4 Lock-On Ring on Wearer #4
-    const lockProg = easeOut((p - 0.42) / 0.16);
+    const lockProg = easeOut((p - 0.44) / 0.16);
     for (const c of cands) {
       if (!c.pos) continue;
-      const pc = proj1(c.pos);
+      const pc = proj(c.pos);
       if (!pc) continue;
       if (c.is_wearer) {
         if (lockProg > 0.01) {
-          const pulseR = 16 + 7 * Math.sin(globalTime * 4.2);
+          const pulseR = 14 + 5 * Math.sin(globalTime * 3.6);
           ctx.save();
           ctx.globalAlpha = lockProg;
-          ctx.strokeStyle = "#10b981"; ctx.lineWidth = 2.6;
+          ctx.strokeStyle = "#10b981";
+          ctx.lineWidth = 1.8;
           ctx.beginPath(); ctx.arc(pc[0], pc[1], pulseR, 0, Math.PI * 2); ctx.stroke();
           ctx.restore();
         }
         ctx.fillStyle = "#059669";
-        ctx.beginPath(); ctx.arc(pc[0], pc[1], 8.5, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2.2; ctx.stroke();
-        if (lockProg > 0.3) {
-          drawPill(pc[0], pc[1], "Wearer #4", "#047857", "rgba(236,253,245,0.96)", -96, -8);
-        }
+        ctx.beginPath(); ctx.arc(pc[0], pc[1], 6.5, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2; ctx.stroke();
+        if (lockProg > 0.3) tag(pc[0], pc[1], "wearer #4", "#047857", -88, -6);
       } else if (measProg > 0.1) {
         ctx.save();
         ctx.globalAlpha = measProg;
         ctx.fillStyle = "#dc2626";
-        ctx.beginPath(); ctx.arc(pc[0], pc[1], 6.5, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.8; ctx.stroke();
-        drawPill(pc[0], pc[1], `#${c.id}`, "#dc2626", "rgba(255,255,255,0.94)", 10, -8);
+        ctx.beginPath(); ctx.arc(pc[0], pc[1], 5, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke();
+        tag(pc[0], pc[1], `#${c.id}`, "#dc2626", 9, -8);
         ctx.restore();
       }
     }
-    if (pExo) drawPill(pExo[0], pExo[1], "Exo Cam", "#0284c7", "rgba(240,249,255,0.95)", 14, 10);
-    if (pEgo && p > 0.14) drawPill(pEgo[0], pEgo[1], "Ego Cam ĉ", "#b45309", "rgba(255,251,235,0.95)", -14, -30);
+    if (pExo) tag(pExo[0], pExo[1], "exo", "#0284c7", 12, 12);
+    if (pEgo && p > 0.14) mathTag(pEgo[0], pEgo[1], mathImgs.c, "#b45309", 15, -12, -26);
   }
 
   return { render };
 }
 
+function pointOnPath(path, u) {
+  if (!path || !path.getTotalLength) return null;
+  const L = path.getTotalLength();
+  return path.getPointAtLength(clamp(u) * L);
+}
+
 function initMethodExplorer() {
-  const shell = document.getElementById("methodTheater");
+  const shell = $("methodTheater");
   const acts = Array.from(document.querySelectorAll("#theaterStage .theater-act"));
   const steps = Array.from(document.querySelectorAll("#theaterStepper .th-step"));
   const fills = steps.map((s) => s.querySelector(".th-fill"));
-  const numEl = document.getElementById("theaterActNum");
-  const nameEl = document.getElementById("theaterActName");
-  const dotEl = document.getElementById("theaterDot");
-  const capEl = document.getElementById("theaterCaption");
-  const playBtn = document.getElementById("thPlayPause");
-  const prevBtn = document.getElementById("thPrev");
-  const nextBtn = document.getElementById("thNext");
-  const actBCanvas = document.getElementById("actBPointCanvas");
-  const actBPhaseLbl = document.getElementById("actBPhaseLbl");
+  const capEl = $("theaterCaption");
+  const playBtn = $("thPlayPause");
+  const playIcon = $("thPlayIcon");
   if (!shell || !acts.length) return;
 
-  const actBCloud = createActBPointCloud(actBCanvas);
-  const clamp = (x) => Math.max(0, Math.min(1, x));
-  const easeOut = (x) => 1 - Math.pow(1 - clamp(x), 3);
-  const easeInOut = (x) => { const c = clamp(x); return c < 0.5 ? 2 * c * c : 1 - Math.pow(-2 * c + 2, 2) / 2; };
+  const actB = createActBPointCloud($("actBPointCanvas"));
+  const actBPhase = $("actBPhaseLbl");
+  const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Cached animated DOM handles
-  const sparkIn1 = document.getElementById("actASparkIn1");
-  const sparkIn2 = document.getElementById("actASparkIn2");
-  const sparkOut1 = document.getElementById("actASparkOut1");
-  const sparkOut2 = document.getElementById("actASparkOut2");
-  const aLayers = [0, 1, 2, 3].map((i) => document.getElementById(`actALayer${i}`));
-  const aDepthClip = document.getElementById("actADepthReveal");
-  const aDepthScan = document.getElementById("actADepthScan");
-  const aEgoFrust = document.getElementById("actAEgoFrustum");
-  const aCamHead = document.getElementById("actACamHead");
-  const aDepthHead = document.getElementById("actADepthHead");
+  // (A)
+  const aIn = $("aIn");
+  const aTokens = $("aTokens");
+  const aCols = [0, 1, 2, 3].map((i) => $(`aCol${i}`));
+  const aLora = $("aLora");
+  const aDots = [0, 1, 2, 3].map((i) => $(`aDot${i}`));
+  const aWires = Array.from(document.querySelectorAll('#theaterStage [data-act="0"] path.wire'));
+  const aFrExo = $("aFrExo");
+  const aFrEgo = $("aFrEgo");
+  const aArc = $("aArc");
+  const aLabels = [$("aRt"), $("aFexo"), $("aFego")];
+  const aDepthReveal = $("aDepthReveal");
+  const aDepthScan = $("aDepthScan");
 
-  const bBars = Array.from(document.querySelectorAll("#actBScoreTable .actb-bar-f"));
-  const bWinRow = document.getElementById("actBWinRow");
-  const cCards = [0, 1, 2].map((i) => document.getElementById(`actCCard${i}`));
+  // (B)
+  const bBars = Array.from(document.querySelectorAll("#actBScoreTable .actb-bar i"));
+  const bWin = $("actBWinRow");
 
-  const dPredFrust = document.getElementById("actDPredFrustum");
-  const dPredRay = document.getElementById("actDPredRay");
-  const dErrText = document.getElementById("actDErrReadout");
-  const dGradSpark = document.getElementById("actDGradSpark");
-  const dLoraCard = document.getElementById("actDLoraCard");
-  const dLosses = [0, 1, 2].map((i) => document.getElementById(`actDLoss${i}`));
+  // (C)
+  const cCards = [0, 1, 2].map((i) => $(`actCCard${i}`));
 
-  const eTraj = document.getElementById("actETraj");
-  const eMarker = document.getElementById("actEMarker");
-  const eTarget = document.getElementById("actETargetMask");
+  // (D)
+  const dPred = $("dPred");
+  const dPredRay = $("dPredRay");
+  const dPredLbl = $("dPredLbl");
+  const dErr = $("dErr");
+  const dLosses = [0, 1, 2].map((i) => $(`dLoss${i}`));
+  const dGradPath = $("dGradPath");
+  const dGradDot = $("dGradDot");
+  const dLora = $("dLora");
+  const dWearers = Array.from(document.querySelectorAll("#dTransfer .d-wearer"));
+
+  // (E)
+  const eTrail = $("eTrail");
+  const eMarker = $("eMarker");
+  const eCards = [$("eCard0"), $("eCard1")];
+  const eGain = $("eGain");
+  const eWearer = $("eWearer");
 
   let activeAct = 0;
   let elapsed = 0;
   let globalT = 0;
-  let playing = true;
+  let playing = !reduced;
   let inView = true;
 
-  function setAct(idx, resetTime = true) {
+  const op = (el, v) => { if (el) el.style.opacity = v.toFixed(3); };
+  const moveDot = (dot, path, u, vis) => {
+    if (!dot) return;
+    const pt = pointOnPath(path, u);
+    if (pt) { dot.setAttribute("cx", pt.x.toFixed(1)); dot.setAttribute("cy", pt.y.toFixed(1)); }
+    dot.style.opacity = vis.toFixed(3);
+  };
+
+  function setAct(idx) {
     activeAct = (idx + THEATER_ACTS.length) % THEATER_ACTS.length;
-    if (resetTime) elapsed = 0;
-    const info = THEATER_ACTS[activeAct];
+    elapsed = 0;
     shell.dataset.activeAct = String(activeAct);
-    if (numEl) numEl.textContent = info.num;
-    if (nameEl) nameEl.textContent = info.name;
-    if (dotEl) dotEl.style.background = info.dot;
-    if (capEl) capEl.textContent = info.caption;
+    if (capEl) capEl.textContent = THEATER_ACTS[activeAct].caption;
     acts.forEach((a, i) => a.classList.toggle("active", i === activeAct));
     steps.forEach((s, i) => {
       s.classList.toggle("active", i === activeAct);
       s.classList.toggle("done", i < activeAct);
       if (fills[i]) fills[i].style.width = i < activeAct ? "100%" : "0%";
     });
+    renderAct(reduced ? 1 : 0);
   }
 
-  function animateActA(p) {
-    // 1. Sparks from Input -> Tokens (0.04 -> 0.26)
-    const uIn = clamp((p - 0.04) / 0.22);
-    const inVis = p >= 0.04 && p <= 0.30 ? Math.sin(uIn * Math.PI) : 0;
-    if (sparkIn1) { sparkIn1.setAttribute("cx", (202 + 64 * easeOut(uIn)).toFixed(1)); sparkIn1.setAttribute("opacity", inVis.toFixed(2)); }
-    if (sparkIn2) { sparkIn2.setAttribute("cx", (202 + 64 * easeOut(uIn)).toFixed(1)); sparkIn2.setAttribute("opacity", inVis.toFixed(2)); }
-
-    // 2. Sweep across Frame / Global Transformer layers (0.20 -> 0.56)
-    aLayers.forEach((g, i) => {
+  function animateA(p) {
+    op(aIn, 0.25 + 0.75 * easeOut(p / 0.1));
+    const inU = (p - 0.06) / 0.2;
+    moveDot(aDots[0], aWires[0], easeInOut(inU), inU > 0 && inU < 1 ? Math.sin(clamp(inU) * Math.PI) : 0);
+    moveDot(aDots[1], aWires[1], easeInOut(inU - 0.08), inU > 0.08 && inU < 1.08 ? Math.sin(clamp(inU - 0.08) * Math.PI) : 0);
+    op(aTokens, 0.3 + 0.7 * easeOut((p - 0.14) / 0.12));
+    aCols.forEach((g, i) => {
       if (!g) return;
-      const center = 0.24 + i * 0.095;
-      const dist = Math.abs(p - center);
-      const glow = dist < 0.09 ? 1 - dist / 0.09 : 0;
-      g.style.filter = glow > 0.05 ? `drop-shadow(0 0 ${(glow * 8).toFixed(1)}px rgba(2,132,199,${(glow * 0.45).toFixed(2)}))` : "";
+      const center = 0.32 + i * 0.085;
+      g.classList.toggle("hot", Math.abs(p - center) < 0.05);
+      g.classList.toggle("seen", p > center);
     });
-
-    // 3. Sparks to Camera Head + Depth Head (0.50 -> 0.72)
-    const uOut = clamp((p - 0.50) / 0.20);
-    const outVis = p >= 0.50 && p <= 0.74 ? Math.sin(uOut * Math.PI) : 0;
-    if (sparkOut1) { sparkOut1.setAttribute("cx", (686 + 72 * easeOut(uOut)).toFixed(1)); sparkOut1.setAttribute("opacity", outVis.toFixed(2)); }
-    if (sparkOut2) { sparkOut2.setAttribute("cx", (686 + 72 * easeOut(uOut)).toFixed(1)); sparkOut2.setAttribute("opacity", outVis.toFixed(2)); }
-
-    // 4. Camera Head gentle rotation + Depth Viridis scanline reveal (0.56 -> 0.90)
-    const uHead = easeOut((p - 0.54) / 0.30);
-    if (aEgoFrust) {
-      const ang = -14 * (1 - uHead) + 3 * Math.sin(p * Math.PI * 4);
-      aEgoFrust.setAttribute("transform", `translate(152, 26) rotate(${ang.toFixed(1)})`);
+    if (aLora) aLora.classList.toggle("hot", (p > 0.36 && p < 0.44) || (p > 0.53 && p < 0.61));
+    const outU = (p - 0.62) / 0.16;
+    const outVis = outU > 0 && outU < 1 ? Math.sin(clamp(outU) * Math.PI) : 0;
+    moveDot(aDots[2], aWires[4], easeInOut(outU), outVis);
+    moveDot(aDots[3], aWires[5], easeInOut(outU), outVis);
+    const head = easeOut((p - 0.7) / 0.12);
+    op(aFrExo, 0.22 + 0.78 * head);
+    op(aFrEgo, 0.22 + 0.78 * easeOut((p - 0.74) / 0.12));
+    op(aArc, 0.15 + 0.85 * easeOut((p - 0.78) / 0.1));
+    aLabels.forEach((l) => op(l, 0.2 + 0.8 * easeOut((p - 0.8) / 0.1)));
+    const dw = 326 * easeInOut((p - 0.72) / 0.2);
+    if (aDepthReveal) aDepthReveal.setAttribute("width", Math.max(0.01, dw).toFixed(1));
+    if (aDepthScan) {
+      aDepthScan.setAttribute("x1", (764 + dw).toFixed(1));
+      aDepthScan.setAttribute("x2", (764 + dw).toFixed(1));
+      aDepthScan.setAttribute("opacity", dw > 2 && dw < 324 ? "0.95" : "0");
     }
-    if (aDepthClip && aDepthScan) {
-      const dw = 292 * Math.max(0.08, uHead);
-      aDepthClip.setAttribute("width", dw.toFixed(1));
-      aDepthScan.setAttribute("x1", (784 + dw).toFixed(1));
-      aDepthScan.setAttribute("x2", (784 + dw).toFixed(1));
-      aDepthScan.setAttribute("opacity", uHead < 0.98 && p > 0.52 ? "0.95" : "0");
-    }
-    if (aCamHead) aCamHead.style.opacity = (0.52 + 0.48 * easeOut((p - 0.48) / 0.18)).toFixed(2);
-    if (aDepthHead) aDepthHead.style.opacity = (0.52 + 0.48 * easeOut((p - 0.52) / 0.18)).toFixed(2);
   }
 
-  function animateActB(p) {
-    actBCloud.render(p, globalT);
-    if (actBPhaseLbl) {
-      actBPhaseLbl.textContent =
-        p < 0.22 ? "1. Camera Pose (R̂, t̂, K̂)" :
-        p < 0.46 ? "2. Epipole Ray ê_exo" :
-        p < 0.68 ? "3. Score φ_u & d_u" :
-                   "4. Wearer #4 (0.1° · 0.06)";
+  function animateB(p) {
+    actB.render(p, globalT);
+    if (actBPhase) {
+      actBPhase.textContent =
+        p < 0.24 ? "camera poses" :
+        p < 0.46 ? "epipole ray" :
+        p < 0.68 ? "angle & distance" :
+                   "wearer found";
     }
-    const barU = easeOut((p - 0.18) / 0.30);
-    bBars.forEach((b) => {
-      const target = Number(b.dataset.w || 20);
-      b.style.width = `${(target * barU).toFixed(1)}%`;
-    });
-    if (bWinRow) bWinRow.classList.toggle("locked", p >= 0.44);
+    const barU = easeOut((p - 0.2) / 0.3);
+    bBars.forEach((b) => { b.style.width = `${(Number(b.dataset.w || 20) * barU).toFixed(1)}%`; });
+    if (bWin) bWin.classList.toggle("locked", p >= 0.46);
   }
 
-  function animateActC(p) {
-    const starts = [0.05, 0.30, 0.55];
+  function animateC(p) {
+    const starts = [0.04, 0.3, 0.56];
     cCards.forEach((c, i) => {
       if (!c) return;
-      const on = p >= starts[i];
-      const focus = p >= starts[i] && (i === 2 || p < starts[i + 1]);
-      c.classList.toggle("shown", on);
-      c.classList.toggle("spotlight", focus);
+      c.classList.toggle("shown", p >= starts[i]);
+      c.classList.toggle("spotlight", p >= starts[i] && (i === 2 || p < starts[i + 1]));
     });
   }
 
-  function animateActD(p) {
-    // Smooth convergence of predicted Ego frustum (612, 96, -22deg) -> GT (672, 136, 0deg)
-    const conv = easeInOut((p - 0.14) / 0.58);
-    const px = 612 + (672 - 612) * conv;
-    const py = 96 + (136 - 96) * conv;
-    const rot = -22 * (1 - conv);
-    if (dPredFrust) dPredFrust.setAttribute("transform", `translate(${px.toFixed(1)}, ${py.toFixed(1)}) rotate(${rot.toFixed(1)})`);
+  function animateD(p) {
+    const conv = easeInOut((p - 0.12) / 0.6);
+    const px = 668 + 48 * conv;
+    const py = 96 + 64 * conv;
+    if (dPred) dPred.setAttribute("transform", `translate(${px.toFixed(1)} ${py.toFixed(1)}) rotate(${(-24 * (1 - conv)).toFixed(1)})`);
     if (dPredRay) { dPredRay.setAttribute("x2", px.toFixed(1)); dPredRay.setAttribute("y2", py.toFixed(1)); }
-    if (dErrText) {
-      const err = (18.4 * Math.pow(1 - conv, 2.2) + 0.18).toFixed(1);
-      dErrText.textContent = `err: ${err}°`;
-      dErrText.setAttribute("fill", conv > 0.8 ? "#059669" : "#d97706");
+    if (dPredLbl) {
+      dPredLbl.setAttribute("x", (px - 108).toFixed(1));
+      dPredLbl.setAttribute("y", (py - 40).toFixed(1));
+      op(dPredLbl, 1 - clamp((conv - 0.7) / 0.25));
     }
-    // Sequential highlight on 3 loss terms
-    dLosses.forEach((el, i) => {
-      if (!el) return;
-      const active = p >= 0.18 + i * 0.16;
-      el.style.opacity = active ? "1" : "0.45";
-    });
-    // Backprop spark traveling from Loss back into Rank-64 LoRA
-    if (dGradSpark && dLoraCard) {
-      const gU = (p * 2.4) % 1.0;
-      const gx = 336 - 50 * gU;
-      const gy = 320 - 18 * gU;
-      dGradSpark.setAttribute("cx", gx.toFixed(1));
-      dGradSpark.setAttribute("cy", gy.toFixed(1));
-      dGradSpark.setAttribute("opacity", p > 0.22 ? Math.sin(gU * Math.PI).toFixed(2) : "0");
-      dLoraCard.setAttribute("stroke-width", p > 0.45 ? "3.2" : "2.4");
+    if (dErr) {
+      dErr.textContent = `${(18.4 * Math.pow(1 - conv, 2) + 0.2).toFixed(1)}°`;
+      dErr.classList.toggle("ok", conv > 0.85);
     }
+    dLosses.forEach((el, i) => el && el.classList.toggle("on", p >= 0.16 + i * 0.12));
+    const gU = (p * 3) % 1;
+    moveDot(dGradDot, dGradPath, gU, p > 0.22 && p < 0.86 ? Math.sin(gU * Math.PI) : 0);
+    if (dLora) dLora.classList.toggle("hot", p > 0.22 && p < 0.86 && gU > 0.8);
+    dWearers.forEach((g, i) => op(g, 0.28 + 0.72 * easeOut((p - 0.62 - i * 0.05) / 0.08)));
   }
 
-  function animateActE(p) {
-    // Pull epipole smoothly along quadratic Bezier M(132,134) Q(210,144) (258,226)
-    const u = easeInOut((p - 0.16) / 0.56);
-    if (eTraj) eTraj.setAttribute("stroke-dashoffset", (220 * (1 - u)).toFixed(1));
-    if (eMarker) {
-      const t = u, mt = 1 - t;
-      const x = mt * mt * 132 + 2 * mt * t * 210 + t * t * 258;
-      const y = mt * mt * 134 + 2 * mt * t * 144 + t * t * 226;
-      eMarker.setAttribute("transform", `translate(${x.toFixed(1)}, ${y.toFixed(1)})`);
-    }
-    if (eTarget) {
-      eTarget.setAttribute("stroke-width", u > 0.9 ? "3.6" : "2.4");
-    }
+  function animateE(p) {
+    const u = easeInOut((p - 0.12) / 0.56);
+    const pt = pointOnPath(eTrail, u);
+    if (pt && eMarker) eMarker.setAttribute("transform", `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
+    if (eWearer) eWearer.classList.toggle("hit", u > 0.97);
+    if (eCards[0]) eCards[0].classList.toggle("on", p > 0.1 && p < 0.62);
+    if (eCards[1]) eCards[1].classList.toggle("on", p > 0.4 && p < 0.92);
+    if (eGain) eGain.textContent = `+${(5.5 * easeOut((p - 0.56) / 0.24)).toFixed(1)}`;
   }
 
-  steps.forEach((s, i) => s.addEventListener("click", () => setAct(i, true)));
-  if (prevBtn) prevBtn.addEventListener("click", () => setAct(activeAct - 1, true));
-  if (nextBtn) nextBtn.addEventListener("click", () => setAct(activeAct + 1, true));
-  if (playBtn) {
-    playBtn.addEventListener("click", () => {
-      playing = !playing;
-      playBtn.textContent = playing ? "Pause" : "Play";
-    });
+  function renderAct(p) {
+    if (activeAct === 0) animateA(p);
+    else if (activeAct === 1) animateB(p);
+    else if (activeAct === 2) animateC(p);
+    else if (activeAct === 3) animateD(p);
+    else animateE(p);
   }
+
+  const setPlaying = (v) => {
+    playing = v;
+    if (playIcon) playIcon.setAttribute("href", playing ? "#i-pause" : "#i-play");
+    if (playBtn) playBtn.setAttribute("aria-label", playing ? "Pause" : "Play");
+  };
+
+  steps.forEach((s, i) => s.addEventListener("click", () => setAct(i)));
+  $("thPrev")?.addEventListener("click", () => setAct(activeAct - 1));
+  $("thNext")?.addEventListener("click", () => setAct(activeAct + 1));
+  playBtn?.addEventListener("click", () => setPlaying(!playing));
 
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver((es) => { inView = es.some((e) => e.isIntersecting); }, { threshold: 0.05 });
     io.observe(shell);
   }
 
-  setAct(0, true);
+  setPlaying(playing);
+  setAct(0);
   let last = performance.now();
   function frame(now) {
     requestAnimationFrame(frame);
@@ -998,148 +836,122 @@ function initMethodExplorer() {
     if (playing) {
       elapsed += dt;
       if (elapsed >= dur) {
-        setAct(activeAct + 1, true);
+        setAct(activeAct + 1);
+        return;
       }
     }
-    const p = clamp(elapsed / dur);
-    if (fills[activeAct]) fills[activeAct].style.width = `${(p * 100).toFixed(2)}%`;
-
-    if (activeAct === 0) animateActA(p);
-    else if (activeAct === 1) animateActB(p);
-    else if (activeAct === 2) animateActC(p);
-    else if (activeAct === 3) animateActD(p);
-    else if (activeAct === 4) animateActE(p);
+    const p = reduced ? 1 : clamp(elapsed / dur);
+    if (fills[activeAct]) fills[activeAct].style.width = `${(clamp(elapsed / dur) * 100).toFixed(2)}%`;
+    renderAct(p);
   }
   requestAnimationFrame(frame);
 }
 
 /* ============================================================
-   4. CONCRETE REAL-SCENE 2D VS 3D DEPTH DISAMBIGUATION (WILD LIONS)
+   WHY DEPTH MATTERS (lion herd, numbers from the scene file)
 ============================================================ */
-function initOcclusionLab() {
-  const scoreList = document.getElementById("labScoreList");
-  const verdictEl = document.getElementById("labVerdict");
-  const banner = document.getElementById("depthModeBanner");
-  const bannerText = document.getElementById("depthBannerText");
-  const btnAngle = document.getElementById("labModeAngle");
-  const btnEgoRay = document.getElementById("labModeEgoRay");
-  if (!scoreList || !btnAngle || !btnEgoRay) return;
+async function initDepthCase() {
+  const list = $("labScoreList");
+  const verdict = $("labVerdict");
+  const img = $("caseImg");
+  const cap = $("caseCap");
+  const btnAngle = $("labModeAngle");
+  const btnDepth = $("labModeEgoRay");
+  if (!list || !btnAngle || !btnDepth) return;
 
-  let mode = "egoray"; // "angle" | "egoray"
-  const cands = [
-    { id: "Wearer #2", role: "Collar-cam lion (true wearer)", ang: 0.1, d3: 0.18, s: 0.19, isW: true },
-    { id: "Occluder #5", role: "Foreground lion on same ray", ang: 1.1, d3: 0.79, s: 0.85, isW: false, isOcc: true },
-    { id: "Lion #4", role: "Left background lion", ang: 11.4, d3: 0.62, s: 1.21, isW: false },
-    { id: "Lion #1", role: "Center-left lion", ang: 14.8, d3: 0.58, s: 1.35, isW: false },
-  ];
+  let cands = [];
+  try {
+    const meta = await (await fetch("./assets/scenes/wild_animals.json")).json();
+    cands = (meta.candidates || []).slice().sort((a, b) => a.score - b.score).slice(0, 4);
+  } catch (_) {
+    return;
+  }
+  const wearer = cands.find((c) => c.is_wearer);
+  const rival = cands.find((c) => !c.is_wearer);
+  let mode = "depth";
 
   function render() {
-    const is3D = mode === "egoray";
-    scoreList.innerHTML = cands.map((c) => {
-      const isHighlight = is3D ? c.isW : c.isOcc;
-      const cls = is3D ? (c.isW ? "pick-ok" : "") : (c.isOcc ? "pick-warn" : (c.isW ? "pick-tie" : ""));
-      const badge = is3D
-        ? (c.isW ? "PICKED ✓" : "REJECTED")
-        : (c.isOcc ? "COLLINEAR TIE (~1°)" : (c.isW ? "FRAGILE TIE" : "OFF RAY"));
-      const pct = is3D ? Math.min(100, (c.s / 1.4) * 100) : Math.min(100, (c.ang / 16) * 100);
-      const col = c.isW ? "#059669" : (c.isOcc ? "#dc2626" : "#94a3b8");
+    const depth = mode === "depth";
+    const key = depth ? "score" : "angle";
+    const maxV = Math.max(...cands.map((c) => c[key])) * 1.05;
+    list.innerHTML = cands.map((c) => {
+      const cls = c.is_wearer ? "wear" : c === rival ? "rival" : "";
+      const v = depth ? c.score.toFixed(2) : `${c.angle.toFixed(2)}°`;
+      const pct = Math.max(3, (c[key] / maxV) * 100);
       return `
-        <div class="lab-sc-item ${cls}">
-          <div class="lab-sc-top">
-            <div><span>${c.id}</span> <small class="lab-sc-role">&middot; ${c.role}</small></div>
-            <span class="lab-sc-badge">${badge}</span>
-          </div>
-          <div class="lab-sc-metrics">
-            <span>&theta; = <strong>${c.ang.toFixed(1)}&deg;</strong></span>
-            <span>d/&#8214;c&#770;&#8214; = <strong>${c.d3.toFixed(2)}</strong></span>
-            <span>${is3D ? `score s = <strong>${c.s.toFixed(2)}</strong>` : `2D angle = <strong>${c.ang.toFixed(1)}&deg;</strong>`}</span>
-          </div>
-          <div class="lab-sc-track"><div class="lab-sc-fill" style="width:${Math.max(4, pct).toFixed(1)}%;background:${col};"></div></div>
-        </div>
-      `;
+        <div class="case-row ${cls}">
+          <span class="case-id">#${c.id}${c.is_wearer ? " · wearer" : ""}</span>
+          <span class="case-bar"><i style="width:${pct.toFixed(1)}%"></i></span>
+          <span class="case-val">${v}</span>
+        </div>`;
     }).join("");
-
-    if (is3D) {
-      if (banner) banner.className = "depth-mode-banner ok";
-      if (bannerText) bannerText.textContent = "EgoRay (Angle + 3D Depth) → Locks onto Wearer #2 (score 0.19 vs. #5 score 0.85)";
-      if (verdictEl) {
-        verdictEl.className = "lab-verdict ok";
-        verdictEl.innerHTML = `<span><strong>Clean 3D Separation (+0.66 margin):</strong> Foreground lion #5 sits 0.79 baseline lengths away from the ego camera, while true wearer #2 sits right at ĉ.</span>`;
-      }
-    } else {
-      if (banner) banner.className = "depth-mode-banner warn";
-      if (bannerText) bannerText.textContent = "2D Angle Only → Foreground lion #5 (1.1°) and Wearer #2 (0.1°) collapse onto nearly the same ray!";
-      if (verdictEl) {
-        verdictEl.className = "lab-verdict warn";
-        verdictEl.innerHTML = `<span><strong>Fragile 1.0° Margin in 2D:</strong> Without 3D depth, a tiny epipole jitter or foreground step flips the prediction onto occluder #5.</span>`;
-      }
+    if (img) {
+      img.src = depth ? "./assets/cards/wild_animals_side.jpg" : "./assets/cards/wild_animals_exo_ann.jpg";
     }
+    if (cap) {
+      cap.textContent = depth
+        ? `In 3D, lion #${rival.id} is far from the ego camera.`
+        : `In the image, lion #${rival.id} sits on almost the same ray.`;
+    }
+    if (verdict) {
+      const gap = depth ? (rival.score - wearer.score).toFixed(2) : `${(rival.angle - wearer.angle).toFixed(1)}°`;
+      verdict.className = `case-note ${depth ? "ok" : "warn"}`;
+      verdict.innerHTML = depth
+        ? `Score gap to #${rival.id}: <b>${gap}</b>, a clear margin.`
+        : `Angle gap to #${rival.id}: <b>${gap}</b>, easily flipped by pose error.`;
+    }
+    btnAngle.classList.toggle("active", !depth);
+    btnDepth.classList.toggle("active", depth);
   }
 
-  btnAngle.addEventListener("click", () => {
-    mode = "angle";
-    btnAngle.classList.add("active");
-    btnEgoRay.classList.remove("active", "green");
-    render();
-  });
-  btnEgoRay.addEventListener("click", () => {
-    mode = "egoray";
-    btnEgoRay.classList.add("active", "green");
-    btnAngle.classList.remove("active");
-    render();
-  });
+  btnAngle.addEventListener("click", () => { mode = "angle"; render(); });
+  btnDepth.addEventListener("click", () => { mode = "depth"; render(); });
   render();
 }
 
 /* ============================================================
-   5. FINDEGO-1M DATASET MOSAIC & LENS FILMSTRIP
+   FINDEGO-1M
 ============================================================ */
 const DATASET_ITEMS = [
-  { img: "comind.jpg", name: "CoMind (Real)", sub: "Indoor collaboration · L0", lvl: "L0", cat: "real" },
-  { img: "egohumans.jpg", name: "EgoHumans (Real)", sub: "Multi-person sports · L2", lvl: "L2", cat: "real" },
-  { img: "v2xreal.jpg", name: "V2X-Real (Real)", sub: "Autonomous vehicles · L3", lvl: "L3", cat: "real" },
-  { img: "droid.jpg", name: "DROID (Real)", sub: "Robot arm · CC BY 4.0 · L3", lvl: "L3", cat: "real" },
-  { img: "miluv.jpg", name: "MILUV (Real)", sub: "Flying drones · CC BY 4.0 · L3", lvl: "L3", cat: "real" },
-  { img: "indoor.jpg", name: "Indoor Humans", sub: "269 Blender rooms · L1", lvl: "L1", cat: "humans" },
-  { img: "city.jpg", name: "Urban City", sub: "100 city layouts · L1", lvl: "L1", cat: "humans" },
-  { img: "football.jpg", name: "Sports Arenas", sub: "Football, Hockey, Rugby, Volley · L2", lvl: "L2", cat: "humans" },
-  { img: "thermal.jpg", name: "Thermal IR ↔ RGB", sub: "Cross-modal night rooms · L1", lvl: "L1", cat: "humans" },
-  { img: "unreal.jpg", name: "Unreal Crowds", sub: "36 realistic Unreal maps · L2", lvl: "L2", cat: "humans" },
-  { img: "vacuum.jpg", name: "Robot Vacuums", sub: "59 floor-level rooms · L3", lvl: "L3", cat: "beyond" },
-  { img: "pets.jpg", name: "Household Pets", sub: "Collar-cam cats & dogs · L3", lvl: "L3", cat: "beyond" },
-  { img: "wild.jpg", name: "Wild Animals", sub: "128 savanna & herd scenes · L3", lvl: "L3", cat: "beyond" },
-  { img: "fish.jpg", name: "Sharks & Fish", sub: "Underwater marine life · L3", lvl: "L3", cat: "beyond" },
-  { img: "rov.jpg", name: "Underwater ROVs", sub: "Submersible robots · L3", lvl: "L3", cat: "beyond" },
-  { img: "birds.jpg", name: "Perched & Flying Birds", sub: "Canopy & open-sky views · L3", lvl: "L3", cat: "beyond" },
+  { img: "comind.jpg", name: "CoMind", sub: "Real · indoor collaboration", lvl: "L0", cat: "real" },
+  { img: "egohumans.jpg", name: "EgoHumans", sub: "Real · multi-person sports", lvl: "L2", cat: "real" },
+  { img: "v2xreal.jpg", name: "V2X-Real", sub: "Real · vehicles", lvl: "L3", cat: "real" },
+  { img: "droid.jpg", name: "DROID", sub: "Real · robot arm · CC BY 4.0", lvl: "L3", cat: "real" },
+  { img: "miluv.jpg", name: "MILUV", sub: "Real · drones · CC BY 4.0", lvl: "L3", cat: "real" },
+  { img: "indoor.jpg", name: "Indoor rooms", sub: "Simulated · Blender rooms", lvl: "L1", cat: "humans" },
+  { img: "city.jpg", name: "City streets", sub: "Simulated · city layouts", lvl: "L1", cat: "humans" },
+  { img: "football.jpg", name: "Sports arenas", sub: "Simulated · football, hockey, rugby, volleyball", lvl: "L2", cat: "humans" },
+  { img: "thermal.jpg", name: "Thermal", sub: "Simulated · thermal exo, RGB ego", lvl: "L1", cat: "humans" },
+  { img: "unreal.jpg", name: "Unreal crowds", sub: "Simulated · Unreal maps", lvl: "L2", cat: "humans" },
+  { img: "vacuum.jpg", name: "Robot vacuums", sub: "Simulated · floor-level rooms", lvl: "L3", cat: "beyond" },
+  { img: "pets.jpg", name: "Pets", sub: "Simulated · collar cameras", lvl: "L3", cat: "beyond" },
+  { img: "wild.jpg", name: "Wild animals", sub: "Simulated · savanna herds", lvl: "L3", cat: "beyond" },
+  { img: "fish.jpg", name: "Fish", sub: "Simulated · underwater", lvl: "L3", cat: "beyond" },
+  { img: "rov.jpg", name: "Underwater ROVs", sub: "Simulated · submersible robots", lvl: "L3", cat: "beyond" },
+  { img: "birds.jpg", name: "Birds", sub: "Simulated · canopy and open sky", lvl: "L3", cat: "beyond" },
 ];
 
 const LENS_ITEMS = [
-  { img: "v1_pinhole.jpg", label: "v1 Pinhole" },
-  { img: "aria_fisheye.jpg", label: "Aria Fisheye" },
-  { img: "gopro_wide.jpg", label: "GoPro Wide" },
-  { img: "smart_glasses.jpg", label: "XR Headset" },
-  { img: "animal_collar.jpg", label: "Animal Collar" },
-  { img: "underwater_dome.jpg", label: "Underwater Dome" },
+  { img: "v1_pinhole.jpg", label: "Pinhole (v1)" },
+  { img: "aria_fisheye.jpg", label: "Aria fisheye" },
+  { img: "gopro_wide.jpg", label: "GoPro wide" },
+  { img: "smart_glasses.jpg", label: "XR headset" },
+  { img: "animal_collar.jpg", label: "Animal collar" },
+  { img: "underwater_dome.jpg", label: "Underwater dome" },
   { img: "drone_fpv.jpg", label: "Drone FPV" },
-  { img: "vacuum_floor.jpg", label: "Vacuum Floor" },
+  { img: "vacuum_floor.jpg", label: "Vacuum" },
 ];
 
 function initDatasetSection() {
-  const mosaic = document.getElementById("datasetMosaic");
+  const mosaic = $("datasetMosaic");
   const filterBtns = document.querySelectorAll("#datasetFilters .filter-pill");
   if (mosaic) {
-    mosaic.innerHTML = DATASET_ITEMS.map((d) => {
-      const lvlCls = d.lvl === "L0" ? "lvl-l0" : d.lvl === "L1" ? "lvl-l1" : d.lvl === "L2" ? "lvl-l2" : "lvl-l3";
-      return `
-        <div class="dom-tile" data-cat="${d.cat}" data-lightbox="./assets/dataset/${d.img}" data-lb-title="FindEgo-1M · ${d.name}" data-lb-sub="${d.sub} · Green mask = camera wearer, inset = synchronized ego view">
-          <img src="./assets/dataset/${d.img}" alt="${d.name}" loading="lazy">
-          <div class="dom-tile-cap">
-            <div>${d.name}<span class="dom-tile-sub">${d.sub}</span></div>
-            <span class="lvl-badge ${lvlCls}">${d.lvl}</span>
-          </div>
-        </div>
-      `;
-    }).join("");
+    mosaic.innerHTML = DATASET_ITEMS.map((d) => `
+      <figure class="dom-tile" data-cat="${d.cat}" data-lightbox="./assets/dataset/${d.img}" data-lb-title="FindEgo-1M · ${d.name}" data-lb-sub="${d.sub}">
+        <img src="./assets/dataset/${d.img}" alt="${d.name}" loading="lazy">
+        <figcaption><span>${d.name}</span><span class="lvl-badge lvl-${d.lvl.toLowerCase()}">${d.lvl}</span></figcaption>
+      </figure>
+    `).join("");
 
     filterBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -1152,45 +964,44 @@ function initDatasetSection() {
     });
   }
 
-  const lensGrid = document.getElementById("lensGrid");
+  const lensGrid = $("lensGrid");
   if (lensGrid) {
     lensGrid.innerHTML = LENS_ITEMS.map((l) => `
-      <div class="lens-item" data-lightbox="./assets/lens/${l.img}" data-lb-title="FindEgo-1M Lens Profile · ${l.label}" data-lb-sub="Simulated v2 real-device lens profile matching commercial wearable, underwater, animal collar, and drone optics.">
+      <figure class="lens-item" data-lightbox="./assets/lens/${l.img}" data-lb-title="Ego lens · ${l.label}">
         <img src="./assets/lens/${l.img}" alt="${l.label}" loading="lazy">
-        <span>${l.label}</span>
-      </div>
+        <figcaption>${l.label}</figcaption>
+      </figure>
     `).join("");
   }
 }
 
 /* ============================================================
-   6. IMAGE-LEVEL QUALITATIVE RESULTS (TRACKS A, B & C)
+   QUALITATIVE RESULTS
 ============================================================ */
 const QUAL_ITEMS = [
-  { img: "real_gym.jpg", title: "Real Humans · Indoor Gym", sub: "EgoHumans · Fisheye Aria ego", badge: "REAL · L2", cls: "real", cat: "real" },
-  { img: "real_trail.jpg", title: "Real Humans · Outdoor Trail", sub: "EgoHumans · Multi-person", badge: "REAL · L2", cls: "real", cat: "real" },
-  { img: "v2x_rsu.jpg", title: "Real Vehicles · Roadside", sub: "V2X-Real · 7 cars at intersection", badge: "REAL · L3", cls: "real", cat: "real" },
-  { img: "v2x_v2v.jpg", title: "Real Vehicles · Car-to-Car", sub: "V2X-Real · Peer vehicle ego", badge: "REAL · L3", cls: "real", cat: "real" },
-  { img: "droid_arm.jpg", title: "Real Robot Arm · Bench", sub: "DROID (CC BY 4.0) · Wrist cam", badge: "REAL · L3", cls: "real", cat: "real" },
-  { img: "thermal_rgb2ir.jpg", title: "Cross-Modal RGB → Thermal", sub: "26.6% → 94.9% Acc · 1.7° med err", badge: "IR · L1", cls: "ir", cat: "extreme" },
-  { img: "thermal_ir2ir.jpg", title: "Thermal → Thermal Night", sub: "Zero visible light · 89.1% Acc", badge: "IR · L1", cls: "ir", cat: "extreme" },
-  { img: "sports_football.jpg", title: "Football Stadium", sub: "Long-range stadium · 85.7 κ-Acc", badge: "L2", cls: "", cat: "extreme" },
-  { img: "sports_hockey.jpg", title: "Ice Hockey Arena", sub: "Identical jerseys & helmets", badge: "L2", cls: "", cat: "extreme" },
-  { img: "indoor_humans.jpg", title: "Indoor Multi-Person", sub: "Close-range room · 97.3 κ-Acc", badge: "L1", cls: "", cat: "humans" },
-  { img: "nature_forest.jpg", title: "Nature Forest Group", sub: "7 candidates · 93.6 κ-Acc", badge: "L1", cls: "", cat: "humans" },
-  { img: "city_street.jpg", title: "City Street", sub: "Urban sidewalk · 93.1 κ-Acc", badge: "L1", cls: "", cat: "humans" },
-  { img: "unreal_scene.jpg", title: "Unreal Outdoor Scene", sub: "Unseen engine · 88.6 κ-Acc", badge: "L2", cls: "", cat: "humans" },
-  { img: "robot_vacuum.jpg", title: "Robot Vacuum Fleet", sub: "Floor-level wide view · 94.1 κ-Acc", badge: "L3", cls: "", cat: "l3" },
-  { img: "pets_home.jpg", title: "Household Pets", sub: "Collar camera · 98.7 κ-Acc", badge: "L3", cls: "", cat: "l3" },
-  { img: "wild_savanna.jpg", title: "Wild Savanna Herd", sub: "Near-identical animals · L3", badge: "L3", cls: "", cat: "l3" },
-  { img: "underwater_rov.jpg", title: "Underwater ROVs", sub: "Turbid water · Unseen robot", badge: "L3", cls: "", cat: "l3" },
-  { img: "underwater_divers.jpg", title: "Scuba Divers", sub: "Underwater dome optics · L1", badge: "L1", cls: "", cat: "l3" },
-  { img: "birds_flock.jpg", title: "Flying Bird Flock", sub: "Tiny sky silhouettes · L3", badge: "L3", cls: "", cat: "l3" },
-  { img: "drones_air.jpg", title: "Aerial Drones", sub: "High-altitude flight · L3", badge: "L3", cls: "", cat: "l3" },
+  { img: "real_gym.jpg", title: "EgoHumans · gym", badge: "Real", cls: "real", cat: "real" },
+  { img: "real_trail.jpg", title: "EgoHumans · trail", badge: "Real", cls: "real", cat: "real" },
+  { img: "v2x_rsu.jpg", title: "V2X-Real · roadside", badge: "Real", cls: "real", cat: "real" },
+  { img: "v2x_v2v.jpg", title: "V2X-Real · car to car", badge: "Real", cls: "real", cat: "real" },
+  { img: "droid_arm.jpg", title: "DROID · robot arm", badge: "Real", cls: "real", cat: "real" },
+  { img: "thermal_rgb2ir.jpg", title: "RGB ego → thermal exo", badge: "IR", cls: "ir", cat: "extreme" },
+  { img: "thermal_ir2ir.jpg", title: "Thermal → thermal", badge: "IR", cls: "ir", cat: "extreme" },
+  { img: "sports_football.jpg", title: "Football", badge: "L2", cls: "", cat: "extreme" },
+  { img: "sports_hockey.jpg", title: "Ice hockey", badge: "L2", cls: "", cat: "extreme" },
+  { img: "indoor_humans.jpg", title: "Indoor room", badge: "L1", cls: "", cat: "humans" },
+  { img: "nature_forest.jpg", title: "Forest", badge: "L1", cls: "", cat: "humans" },
+  { img: "city_street.jpg", title: "City street", badge: "L1", cls: "", cat: "humans" },
+  { img: "unreal_scene.jpg", title: "Unreal scene", badge: "L2", cls: "", cat: "humans" },
+  { img: "robot_vacuum.jpg", title: "Robot vacuums", badge: "L3", cls: "", cat: "l3" },
+  { img: "pets_home.jpg", title: "Pets", badge: "L3", cls: "", cat: "l3" },
+  { img: "wild_savanna.jpg", title: "Savanna herd", badge: "L3", cls: "", cat: "l3" },
+  { img: "underwater_rov.jpg", title: "Underwater ROVs", badge: "L3", cls: "", cat: "l3" },
+  { img: "underwater_divers.jpg", title: "Divers", badge: "L1", cls: "", cat: "l3" },
+  { img: "birds_flock.jpg", title: "Bird flock", badge: "L3", cls: "", cat: "l3" },
+  { img: "drones_air.jpg", title: "Drones", badge: "L3", cls: "", cat: "l3" },
 ];
 
 function initQualitative(extraManifest) {
-  // Tab switching
   const qBtns = document.querySelectorAll("#qualTabBar .tab-btn");
   const qPanels = document.querySelectorAll("#qualitative .tab-panel");
   qBtns.forEach((btn) => {
@@ -1201,19 +1012,16 @@ function initQualitative(extraManifest) {
     });
   });
 
-  // Track A 20-card grid
-  const grid = document.getElementById("qualGrid");
+  const grid = $("qualGrid");
   if (grid) {
     grid.innerHTML = QUAL_ITEMS.map((item) => `
-      <div class="qual-card" data-qcat="${item.cat}" data-lightbox="./assets/qual/${item.img}" data-lb-title="Track A · ${item.title}" data-lb-sub="${item.sub} · Green = EgoRay wearer, Cyan + = predicted epipole, Yellow ○ = true epipole">
+      <figure class="qual-card" data-qcat="${item.cat}" data-lightbox="./assets/qual/${item.img}" data-lb-title="Track A · ${item.title}">
         <div class="qual-img-wrap">
           <img src="./assets/qual/${item.img}" alt="${item.title}" loading="lazy">
           <span class="qual-chip ${item.cls}">${item.badge}</span>
         </div>
-        <div class="qual-body">
-          <div><strong>${item.title}</strong><span>${item.sub}</span></div>
-        </div>
-      </div>
+        <figcaption>${item.title}</figcaption>
+      </figure>
     `).join("");
 
     const fBtns = document.querySelectorAll("#qualFilters .filter-pill");
@@ -1228,102 +1036,63 @@ function initQualitative(extraManifest) {
     });
   }
 
-  // Track B cards (real rendered cards if present + Present/Absent pair)
-  const tbGrid = document.getElementById("trackBGrid");
+  const tbGrid = $("trackBGrid");
   if (tbGrid) {
-    const cards = [];
-    const tbList = extraManifest?.track_b || [];
-    for (const item of tbList) {
-      const isAbs = item.gt_absent;
+    const names = {
+      trackb_present_fencing: "EgoHumans · fencing",
+      trackb_present_droid: "DROID · robot arm",
+      trackb_absent_egohumans: "EgoHumans · wearer out of view",
+      trackb_absent_comind: "CoMind · wearer out of view",
+    };
+    const cards = (extraManifest?.track_b || []).map((item) => {
+      const title = names[item.name] || item.name;
       const badge = item.pred_present
-        ? `<span class="tag-pill">PRESENT · θ=${item.best_near}°</span>`
-        : `<span class="tag-pill red">ABSENT · ${item.behind ? "Behind Exo" : `θ=${item.best_near}°`}</span>`;
-      const niceTitle = item.name
-        .replace("trackb_present_fencing", "Real Fencing · Open-Vocab Wearer Present")
-        .replace("trackb_present_droid", "Real Robot Arm (DROID) · Open-Vocab Present")
-        .replace("trackb_absent_egohumans", "Real Humans (EgoHumans) · Wearer Absent")
-        .replace("trackb_absent_comind", "Real Indoor (CoMind) · Wearer Absent");
-      const niceSub = isAbs
-        ? `SAM 3 proposes ${item.props} visible candidates; EgoRay places the ego camera outside all proposals and predicts ABSENT.`
-        : `No pre-given masks: SAM 3 proposes ${item.props} instances from category words, and EgoRay segments the exact wearer.`;
-      cards.push(`
-        <div class="tbc-card" data-lightbox="./assets/tracks/${item.name}.jpg" data-lb-title="Track B · ${niceTitle}" data-lb-sub="${niceSub}">
-          <img src="./assets/tracks/${item.name}.jpg" alt="${niceTitle}" loading="lazy">
-          <div class="tbc-meta">
-            <div><strong>${niceTitle}</strong><p>${niceSub}</p></div>
-            ${badge}
-          </div>
-        </div>
-      `);
-    }
-    // Always include clean Present vs Absent illustration from FindEgo-1M simulated rooms
+        ? `<span class="tag-pill green">present</span>`
+        : `<span class="tag-pill red">absent</span>`;
+      return `
+        <figure class="tbc-card" data-lightbox="./assets/tracks/${item.name}.jpg" data-lb-title="Track B · ${title}">
+          <img src="./assets/tracks/${item.name}.jpg" alt="${title}" loading="lazy">
+          <figcaption><span>${title}</span>${badge}</figcaption>
+        </figure>`;
+    });
     cards.push(`
-      <div class="tbc-card" data-lightbox="./assets/tracks/dc_q_present.jpg" data-lb-title="Track B · Present Query (Wearer Visible in Exo)" data-lb-sub="All visible humans are proposed as candidates; the predicted ego epipole falls directly on the green wearer mask.">
+      <figure class="tbc-card" data-lightbox="./assets/tracks/dc_q_present.jpg" data-lb-title="Track B · simulated room, wearer visible">
         <div class="pa-pair-grid">
-          <img src="./assets/tracks/dc_q_present.jpg" alt="Present exo view" loading="lazy">
-          <img src="./assets/tracks/dc_q_ego.jpg" alt="Present ego view" loading="lazy">
+          <img src="./assets/tracks/dc_q_present.jpg" alt="Exo view, wearer visible" loading="lazy">
+          <img src="./assets/tracks/dc_q_ego.jpg" alt="Ego view" loading="lazy">
         </div>
-        <div class="tbc-meta">
-          <div><strong>FindEgo-1M Room · Wearer Present</strong><p>Left: Exo view with candidate masks &amp; wearer epipole. Right: Synchronized Ego view.</p></div>
-          <span class="tag-pill">PRESENT</span>
-        </div>
-      </div>
-    `);
+        <figcaption><span>Simulated room · exo / ego</span><span class="tag-pill green">present</span></figcaption>
+      </figure>`);
     cards.push(`
-      <div class="tbc-card" data-lightbox="./assets/tracks/dc_q_absent.jpg" data-lb-title="Track B · Absent Query (Wearer Outside Exo FOV)" data-lb-sub="The ego wearer is facing the bathroom sink outside the exo view; EgoRay rejects the visible bystander and outputs ABSENT.">
+      <figure class="tbc-card" data-lightbox="./assets/tracks/dc_q_absent.jpg" data-lb-title="Track B · simulated room, wearer out of view">
         <div class="pa-pair-grid">
-          <img src="./assets/tracks/dc_q_absent.jpg" alt="Absent exo view" loading="lazy">
-          <img src="./assets/tracks/dc_q_absent_ego.jpg" alt="Absent ego view" loading="lazy">
+          <img src="./assets/tracks/dc_q_absent.jpg" alt="Exo view, wearer not visible" loading="lazy">
+          <img src="./assets/tracks/dc_q_absent_ego.jpg" alt="Ego view" loading="lazy">
         </div>
-        <div class="tbc-meta">
-          <div><strong>FindEgo-1M Room · Wearer Absent</strong><p>Left: Only a bystander appears in exo view. Right: Ego camera is in an adjacent corner &rarr; ABSENT.</p></div>
-          <span class="tag-pill red">ABSENT</span>
-        </div>
-      </div>
-    `);
+        <figcaption><span>Simulated room · exo / ego</span><span class="tag-pill red">absent</span></figcaption>
+      </figure>`);
     tbGrid.innerHTML = cards.join("");
   }
 
-  // Track C Mutual Camera Localization cards
-  const tcGrid = document.getElementById("trackCGrid");
+  const tcGrid = $("trackCGrid");
   if (tcGrid) {
-    const tcItems = [
-      ...(extraManifest?.track_c || []),
-      {
-        src: "./assets/cards/egohumans_poster.jpg",
-        title: "Real Humans (EgoHumans) · Mutual Exo ↔ Ego Epipoles",
-        sub: "Left panel shows Exo view with amber Ego-camera crosshair and Ego fisheye view with blue Exo-camera crosshair, synchronized in 3D.",
-        badge: "Real · L2 · 0.07°",
-      },
-      {
-        src: "./assets/cards/wild_animals_poster.jpg",
-        title: "Wild Animals (Lions) · Mutual Pose Under Occlusion",
-        sub: "Simultaneously predicts the collar camera inside the lion herd and the third-person camera direction from the lion's perspective.",
-        badge: "L3 · 0.06°",
-      },
-    ];
-    tcGrid.innerHTML = tcItems.map((it) => `
-      <div class="tbc-card" data-lightbox="${it.src}" data-lb-title="Track C · ${it.title}" data-lb-sub="${it.sub}">
-        <img src="${it.src}" alt="${it.title}" loading="lazy">
-        <div class="tbc-meta">
-          <div><strong>${it.title}</strong><p>${it.sub}</p></div>
-          <span class="tag-pill amber">${it.badge}</span>
-        </div>
-      </div>
+    const short = (t) => t.replace(" · Mutual Exo ↔ Ego Epipoles", "");
+    tcGrid.innerHTML = (extraManifest?.track_c || []).map((it) => `
+      <figure class="tbc-card" data-lightbox="${it.src}" data-lb-title="Track C · ${short(it.title)}" data-lb-sub="${it.sub}">
+        <img src="${it.src}" alt="${short(it.title)}" loading="lazy">
+        <figcaption><span>${short(it.title)}</span><span class="tag-pill amber">exo ↔ ego</span></figcaption>
+      </figure>
     `).join("");
   }
 
-  // Interactive Raw <-> EgoRay Wipe Curtain
-  const wipeRange = document.getElementById("wipeRange");
-  const wipeClip = document.getElementById("wipeExoClip");
-  const wipeHandle = document.getElementById("wipeHandle");
-  const wipeRaw = document.getElementById("wipeExoRaw");
-  const wipeAnn = document.getElementById("wipeExoAnn");
-  const wipeEgo = document.getElementById("wipeEgoImg");
-  const wipeTitle = document.getElementById("wipeTitle");
-  const wipeBadge = document.getElementById("wipeBadge");
-  const wipeNote = document.getElementById("wipeNote");
-  const wipeThumbs = document.getElementById("wipeThumbs");
+  const wipeRange = $("wipeRange");
+  const wipeClip = $("wipeExoClip");
+  const wipeHandle = $("wipeHandle");
+  const wipeRaw = $("wipeExoRaw");
+  const wipeAnn = $("wipeExoAnn");
+  const wipeEgo = $("wipeEgoImg");
+  const wipeTitle = $("wipeTitle");
+  const wipeThumbs = $("wipeThumbs");
   if (wipeRange && wipeThumbs) {
     const setPos = (pct) => {
       wipeClip.style.clipPath = `inset(0 ${(100 - pct).toFixed(1)}% 0 0)`;
@@ -1332,15 +1101,13 @@ function initQualitative(extraManifest) {
     wipeRange.addEventListener("input", () => setPos(Number(wipeRange.value)));
     setPos(Number(wipeRange.value));
 
-    const wBtns = buildThumbDock(wipeThumbs, (idx) => selectWipe(idx));
+    const wBtns = buildSceneStrip(wipeThumbs, (idx) => selectWipe(idx));
     function selectWipe(idx) {
       const sc = SCENES[idx];
       wipeRaw.src = `./assets/cards/${sc.tag}_exo_raw.jpg`;
       wipeAnn.src = `./assets/cards/${sc.tag}_exo_ann.jpg`;
       wipeEgo.src = `./assets/cards/${sc.tag}_ego_ann.jpg`;
-      if (wipeTitle) wipeTitle.textContent = sc.title;
-      if (wipeBadge) wipeBadge.textContent = sc.badge;
-      if (wipeNote) wipeNote.textContent = sc.note;
+      if (wipeTitle) wipeTitle.textContent = sceneInfo(sc).name;
       wBtns.forEach((b, i) => {
         const on = i === idx;
         b.classList.toggle("active", on);
@@ -1352,7 +1119,7 @@ function initQualitative(extraManifest) {
 }
 
 /* ============================================================
-   7. INTERACTIVE 13-DOMAIN UNSEEN RADAR CHART
+   UNSEEN-DOMAIN RADAR
 ============================================================ */
 const RADAR_DOMAINS = [
   "Real (L2)", "Top", "Sports", "Unreal", "Vehicles", "Legged", "Arms",
@@ -1360,22 +1127,22 @@ const RADAR_DOMAINS = [
 ];
 
 const RADAR_MODELS = [
-  { name: "EgoRay (Ours)", mean: 77.7, color: "#059669", fill: "rgba(5,150,105,0.20)", width: 2.8, primary: true,
+  { name: "EgoRay (Ours)", mean: 77.7, color: "#059669", fill: "rgba(5,150,105,0.18)", width: 2.4, primary: true,
     vals: [96.4, 99.7, 85.7, 88.6, 84.9, 90.3, 64.6, 94.1, 98.7, 55.9, 46.4, 49.5, 55.0] },
-  { name: "EgoRay-ZS", mean: 58.7, color: "#d97706", fill: "rgba(217,119,6,0.10)", width: 2.0, primary: false,
+  { name: "EgoRay-ZS", mean: 58.7, color: "#d97706", fill: "rgba(217,119,6,0.08)", width: 1.7, primary: false,
     vals: [91.1, 83.9, 60.6, 70.5, 50.5, 81.2, 47.1, 88.4, 95.5, 28.3, 14.7, 25.8, 25.4] },
-  { name: "Pi3X", mean: 50.1, color: "#7c3aed", fill: "rgba(124,58,237,0.06)", width: 1.7, primary: false,
+  { name: "Pi3X", mean: 50.1, color: "#7c3aed", fill: "rgba(124,58,237,0.05)", width: 1.4, primary: false,
     vals: [83.9, 90.9, 39.4, 58.4, 39.2, 69.7, 23.7, 88.7, 92.8, 23.0, 13.1, 21.5, 7.3] },
-  { name: "MapAnything", mean: 49.6, color: "#0284c7", fill: "rgba(2,132,199,0.06)", width: 1.7, primary: false,
+  { name: "MapAnything", mean: 49.6, color: "#0284c7", fill: "rgba(2,132,199,0.05)", width: 1.4, primary: false,
     vals: [79.7, 84.5, 48.9, 56.4, 51.6, 70.3, 29.9, 77.1, 89.8, 16.9, 9.1, 13.7, 17.6] },
-  { name: "VGGT", mean: 35.9, color: "#64748b", fill: "rgba(100,116,139,0.05)", width: 1.4, primary: false,
+  { name: "VGGT", mean: 35.9, color: "#64748b", fill: "rgba(100,116,139,0.04)", width: 1.2, primary: false,
     vals: [78.3, 44.5, 25.3, 42.8, 25.7, 58.7, 15.0, 69.1, 71.6, 7.9, 8.6, 10.5, 8.2] },
 ];
 
 function initRadar() {
-  const svg = document.getElementById("radarSvg");
-  const leg = document.getElementById("radarLegend");
-  const tip = document.getElementById("radarTooltip");
+  const svg = $("radarSvg");
+  const leg = $("radarLegend");
+  const tip = $("radarTooltip");
   if (!svg || !leg) return;
 
   const visible = RADAR_MODELS.map(() => true);
@@ -1391,21 +1158,18 @@ function initRadar() {
 
   function renderSvg() {
     let html = "";
-    // Concentric rings
     for (const lv of [20, 40, 60, 80, 100]) {
       const pts = RADAR_DOMAINS.map((_, i) => pt(i, lv).map((n) => n.toFixed(1)).join(",")).join(" ");
-      html += `<polygon points="${pts}" fill="none" stroke="#e2e8f0" stroke-width="${lv === 100 ? 1.4 : 1}"/>`;
-      if (lv === 40 || lv === 80 || lv === 100) {
-        html += `<text x="${cx + 4}" y="${(cy - (lv / 100) * R + 10).toFixed(1)}" font-size="9.5" fill="#94a3b8" font-family="monospace">${lv}</text>`;
+      html += `<polygon points="${pts}" fill="none" stroke="#e8edf3" stroke-width="${lv === 100 ? 1.2 : 1}"/>`;
+      if (lv === 40 || lv === 80) {
+        html += `<text x="${cx + 4}" y="${(cy - (lv / 100) * R + 10).toFixed(1)}" font-size="9.5" fill="#a3afbf" font-family="JetBrains Mono Variable, monospace">${lv}</text>`;
       }
     }
-    // Axes
     for (let i = 0; i < N; i++) {
       const [x2, y2] = pt(i, 100);
       const isH = i === hoverIdx;
-      html += `<line x1="${cx}" y1="${cy}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${isH ? "#0284c7" : "#e2e8f0"}" stroke-width="${isH ? 2 : 1}"/>`;
+      html += `<line x1="${cx}" y1="${cy}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${isH ? "#0284c7" : "#e8edf3"}" stroke-width="${isH ? 1.6 : 1}"/>`;
     }
-    // Polygons (draw in reverse so EgoRay is on top)
     for (let m = RADAR_MODELS.length - 1; m >= 0; m--) {
       if (!visible[m]) continue;
       const mod = RADAR_MODELS[m];
@@ -1414,18 +1178,17 @@ function initRadar() {
       if (m === 0) {
         for (let i = 0; i < N; i++) {
           const [px, py] = pt(i, mod.vals[i]);
-          html += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${i === hoverIdx ? 5 : 3}" fill="${mod.color}" stroke="#ffffff" stroke-width="1.2"/>`;
+          html += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${i === hoverIdx ? 4.5 : 2.6}" fill="${mod.color}" stroke="#ffffff" stroke-width="1.2"/>`;
         }
       }
     }
-    // Labels & interactive hit targets
     for (let i = 0; i < N; i++) {
       const a = -Math.PI / 2 + (i * 2 * Math.PI) / N;
       const lx = cx + (R + 24) * Math.cos(a);
       const ly = cy + (R + 20) * Math.sin(a);
       const anchor = Math.abs(Math.cos(a)) < 0.18 ? "middle" : Math.cos(a) > 0 ? "start" : "end";
       const isH = i === hoverIdx;
-      html += `<text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" text-anchor="${anchor}" font-size="${isH ? 12 : 11}" font-weight="${isH ? 800 : 700}" fill="${isH ? "#0284c7" : "#334155"}" style="cursor:pointer" data-axis="${i}">${RADAR_DOMAINS[i]}</text>`;
+      html += `<text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="${isH ? 700 : 600}" fill="${isH ? "#0284c7" : "#475569"}" style="cursor:pointer" data-axis="${i}">${RADAR_DOMAINS[i]}</text>`;
       const [hx, hy] = pt(i, 100);
       html += `<circle cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="16" fill="transparent" style="cursor:pointer" data-axis="${i}"/>`;
     }
@@ -1443,23 +1206,23 @@ function initRadar() {
   function updateTooltip() {
     if (!tip) return;
     if (hoverIdx < 0) {
-      tip.innerHTML = `<span class="rt-empty">Hover any domain axis on the radar to compare exact &kappa;-Acc scores.</span>`;
+      tip.innerHTML = `<span class="rt-empty">Hover an axis to compare.</span>`;
       return;
     }
-    const dom = RADAR_DOMAINS[hoverIdx];
     const chips = RADAR_MODELS.filter((_, i) => visible[i]).map((m) => {
       const label = m.name.replace(" (Ours)", "");
       return `<span class="rt-chip${m.primary ? " primary" : ""}"><i class="rt-dot" style="background:${m.color}"></i><span class="rt-name">${label}</span><strong>${m.vals[hoverIdx].toFixed(1)}</strong></span>`;
     }).join("");
-    tip.innerHTML = `<div class="rt-head"><span class="rt-dom">${dom}</span><span class="rt-unit">Unseen &kappa;-Acc</span></div><div class="rt-chips">${chips}</div>`;
+    tip.innerHTML = `<div class="rt-head"><span class="rt-dom">${RADAR_DOMAINS[hoverIdx]}</span></div><div class="rt-chips">${chips}</div>`;
   }
 
   leg.innerHTML = "";
   RADAR_MODELS.forEach((m, idx) => {
-    const row = document.createElement("div");
+    const row = document.createElement("button");
+    row.type = "button";
     row.className = `radar-leg-row${m.primary ? " primary" : ""}`;
     row.innerHTML = `
-      <div class="radar-leg-left"><span class="radar-swatch" style="background:${m.color}"></span><span>${m.name}</span></div>
+      <span class="radar-leg-left"><span class="radar-swatch" style="background:${m.color}"></span><span>${m.name}</span></span>
       <span class="radar-val">${m.mean.toFixed(1)}</span>
     `;
     row.addEventListener("click", () => {
@@ -1472,10 +1235,11 @@ function initRadar() {
   });
 
   renderSvg();
+  updateTooltip();
 }
 
 /* ============================================================
-   8. BENCHMARK TABS, SCROLL SPY & BIBTEX COPY
+   TABS, SCROLL SPY, BIBTEX, REVEAL
 ============================================================ */
 function initBenchmarkTabs() {
   const btns = document.querySelectorAll("#benchTabBar .tab-btn");
@@ -1508,23 +1272,21 @@ function initScrollSpy() {
 }
 
 function initCopyBibtex() {
-  const btn = document.getElementById("copyBibBtn");
-  const code = document.getElementById("bibtexCode");
+  const btn = $("copyBibBtn");
+  const code = $("bibtexCode");
   if (!btn || !code) return;
   btn.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(code.textContent.trim());
-      btn.textContent = "Copied!";
-      setTimeout(() => { btn.textContent = "Copy BibTeX"; }, 1800);
+      btn.textContent = "Copied";
     } catch (_) {
       btn.textContent = "Copy failed";
-      setTimeout(() => { btn.textContent = "Copy BibTeX"; }, 1800);
     }
+    setTimeout(() => { btn.textContent = "Copy"; }, 1600);
   });
 }
 
 function initScrollEffects() {
-  // 1. RoboScope-Kit sticky navbar border transition on scroll
   const nav = document.querySelector(".top-nav");
   if (nav) {
     const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 18);
@@ -1532,7 +1294,6 @@ function initScrollEffects() {
     window.addEventListener("scroll", onScroll, { passive: true });
   }
 
-  // 2. RoboScope-Kit smooth scroll-reveal (distance 28px, blur 4px, power3.out)
   const revealEls = Array.from(document.querySelectorAll(".reveal"));
   const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const showEl = (el) => {
@@ -1544,7 +1305,6 @@ function initScrollEffects() {
   if (reduced || !("IntersectionObserver" in window)) {
     revealEls.forEach(showEl);
   } else {
-    // Immediate mount reveal for above-the-fold Hero items
     revealEls.filter((el) => el.classList.contains("reveal-mount")).forEach((el) => {
       requestAnimationFrame(() => showEl(el));
     });
@@ -1561,7 +1321,6 @@ function initScrollEffects() {
     );
     const pending = revealEls.filter((el) => !el.classList.contains("reveal-mount"));
     pending.forEach((el) => obs.observe(el));
-    // Also immediately reveal anything already inside or above the viewport on programmatic jumps
     const sweepVisible = () => {
       const vh = window.innerHeight || 900;
       for (const el of pending) {
@@ -1574,7 +1333,6 @@ function initScrollEffects() {
     requestAnimationFrame(sweepVisible);
   }
 
-  // 3. RoboScope-Kit CountText ease-out-quartic count-up for KPI metrics
   const countEls = Array.from(document.querySelectorAll("[data-count]"));
   const animateCount = (el) => {
     const target = el.dataset.count;
@@ -1616,7 +1374,7 @@ function initScrollEffects() {
 }
 
 /* ============================================================
-   BOOT: Load Dynamic Manifest + Initialize Everything
+   BOOT
 ============================================================ */
 async function boot() {
   let extraManifest = null;
@@ -1631,16 +1389,15 @@ async function boot() {
   } catch (_) {}
 
   initLightbox();
-  initTeaser();
-  initInteractive3D();
+  initScrollEffects();
+  initDemo();
   initMethodExplorer();
-  initOcclusionLab();
+  initDepthCase();
   initDatasetSection();
   initQualitative(extraManifest);
   initRadar();
   initBenchmarkTabs();
   initScrollSpy();
-  initScrollEffects();
   initCopyBibtex();
 }
 
