@@ -1,0 +1,144 @@
+{
+  "scenes": [
+    {
+      "tag": "egohumans",
+      "title": "Real Humans \u00b7 Outdoor Tagging",
+      "short": "Real Humans",
+      "badge": "Real \u00b7 L2",
+      "group": "humans",
+      "isReal": true,
+      "n_views": 12,
+      "note": "EgoHumans real multi-person tagging \u00b7 4 candidates \u00b7 0.07\u00b0 epipole error"
+    },
+    {
+      "tag": "v2xreal",
+      "title": "Real Vehicles \u00b7 Urban Intersection",
+      "short": "Real Vehicles",
+      "badge": "Real \u00b7 L3",
+      "group": "robots",
+      "isReal": true,
+      "n_views": 7,
+      "note": "V2X-Real autonomous driving intersection \u00b7 5 vehicles \u00b7 0.10\u00b0 epipole error"
+    },
+    {
+      "tag": "droid",
+      "title": "Real Robot Arm \u00b7 Manipulation",
+      "short": "Real Robot Arm",
+      "badge": "Real \u00b7 L3",
+      "group": "robots",
+      "isReal": true,
+      "n_views": 3,
+      "note": "DROID (CC BY 4.0) real Franka arm with wrist camera \u00b7 3 candidates \u00b7 0.12\u00b0 error"
+    },
+    {
+      "tag": "egohumans_fencing",
+      "title": "Real Sports \u00b7 Indoor Fencing",
+      "short": "Real Fencing",
+      "badge": "Real \u00b7 L2",
+      "group": "humans",
+      "isReal": true,
+      "n_views": 12,
+      "note": "EgoHumans indoor fencing hall \u00b7 12 synchronized views \u00b7 4 candidates \u00b7 0.06\u00b0 error"
+    },
+    {
+      "tag": "aloha",
+      "title": "Real Dual Arms \u00b7 ALOHA",
+      "short": "Real Dual Arms",
+      "badge": "Real \u00b7 L3",
+      "group": "robots",
+      "isReal": true,
+      "n_views": 3,
+      "note": "ALOHA bimanual tabletop manipulation \u00b7 overhead + wrist cameras \u00b7 0.13\u00b0 error"
+    },
+    {
+      "tag": "wild_animals",
+      "title": "Wild Animals \u00b7 Lions Occlusion",
+      "short": "Wild Lions",
+      "badge": "Unseen Wearer \u00b7 L3",
+      "group": "nature",
+      "isReal": false,
+      "n_views": 12,
+      "note": "FindEgo-1M collar camera on lions \u00b7 5 candidates \u00b7 3D depth resolves collinear occluder #5 \u00b7 0.06\u00b0 error"
+    },
+    {
+      "tag": "indoor_humans",
+      "title": "Indoor Multi-Person",
+      "short": "Indoor Humans",
+      "badge": "Simulated \u00b7 L1",
+      "group": "humans",
+      "isReal": false,
+      "n_views": 7,
+      "note": "FindEgo-1M indoor room \u00b7 3 candidates \u00b7 0.16\u00b0 epipole error"
+    },
+    {
+      "tag": "robot_vacuum",
+      "title": "Robot Vacuums",
+      "short": "Robot Vacuums",
+      "badge": "Unseen Wearer \u00b7 L3",
+      "group": "robots",
+      "isReal": false,
+      "n_views": 7,
+      "note": "FindEgo-1M floor-level robot vacuum \u00b7 3 candidates \u00b7 0.20\u00b0 epipole error"
+    },
+    {
+      "tag": "outdoor_humans",
+      "title": "Outdoor Forest",
+      "short": "Outdoor Forest",
+      "badge": "Simulated \u00b7 L1",
+      "group": "humans",
+      "isReal": false,
+      "n_views": 11,
+      "note": "FindEgo-1M outdoor forest \u00b7 4 candidates \u00b7 0.05\u00b0 epipole error"
+    },
+    {
+      "tag": "underwater",
+      "title": "Underwater Sea Turtles",
+      "short": "Sea Turtles",
+      "badge": "Unseen Wearer \u00b7 L3",
+      "group": "nature",
+      "isReal": false,
+      "n_views": 2,
+      "note": "FindEgo-1M underwater coral reef \u00b7 5 sea turtles \u00b7 0.07\u00b0 epipole error"
+    }
+  ],
+  "track_b": [
+    {
+      "name": "trackb_present_fencing",
+      "props": 4,
+      "best_near": 0.03,
+      "behind": false,
+      "pred_present": true,
+      "gt_absent": false
+    },
+    {
+      "name": "trackb_present_droid",
+      "props": 2,
+      "best_near": 0.28,
+      "behind": false,
+      "pred_present": true,
+      "gt_absent": false
+    },
+    {
+      "name": "trackb_absent_egohumans",
+      "props": 4,
+      "best_near": 16.25,
+      "behind": false,
+      "pred_present": false,
+      "gt_absent": true
+    }
+  ],
+  "track_c": [
+    {
+      "src": "./assets/tracks/trackc_v2xreal.jpg",
+      "title": "Real Urban Vehicles (V2X-Real) \u00b7 Mutual Exo \u2194 Ego Epipoles",
+      "sub": "Left: roadside camera locates the ego vehicle (amber +). Right: vehicle dashcam locates the roadside camera (blue +).",
+      "badge": "Real \u00b7 L3 \u00b7 0.10\u00b0"
+    },
+    {
+      "src": "./assets/tracks/trackc_egohumans_fencing.jpg",
+      "title": "Real Indoor Fencing (EgoHumans) \u00b7 Mutual Exo \u2194 Ego Epipoles",
+      "sub": "Left: studio camera locates fencer #3's Aria glasses (amber +). Right: fisheye Aria view locates the studio camera (blue +).",
+      "badge": "Real \u00b7 L2 \u00b7 0.06\u00b0"
+    }
+  ]
+}

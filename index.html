@@ -9,9 +9,8 @@
   <meta property="og:description" content="Scaling cross-view camera wearer identification and segmentation beyond humans via 3D epipole geometry.">
   <meta property="og:type" content="website">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="./assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./assets/fonts/jbmono-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="./style.css">
 
   <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js" crossorigin="anonymous"></script>
@@ -26,14 +25,37 @@
 </head>
 <body>
 
+  <!-- STICKY GLASS TOP NAV -->
+  <nav class="top-nav" aria-label="Primary navigation">
+    <div class="container container-wide nav-inner">
+      <a class="nav-brand" href="#top">
+        <span class="brand-orb"></span>
+        <span>Who Is Ego? &middot; EgoRay</span>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a class="nav-link active" href="#teaser">3D Teaser</a>
+        <a class="nav-link" href="#interactive-demos">Interactive 3D</a>
+        <a class="nav-link" href="#method">Method</a>
+        <a class="nav-link" href="#dataset">FindEgo-1M</a>
+        <a class="nav-link" href="#qualitative">Image Results</a>
+        <a class="nav-link" href="#speed">Benchmarks</a>
+        <a class="nav-link" href="#citation">BibTeX</a>
+      </div>
+      <div class="nav-actions">
+        <a class="nav-mini-btn" href="https://github.com/Travor278/EgoRay" target="_blank" rel="noopener">GitHub</a>
+        <a class="nav-mini-btn accent" href="https://huggingface.co/spaces/Travor278/FindEgo-1M" target="_blank" rel="noopener">Dataset Gallery &nearr;</a>
+      </div>
+    </div>
+  </nav>
+
   <!-- HERO -->
-  <header class="hero">
+  <header class="hero" id="top">
     <div class="container">
-      <h1 class="pub-title">
+      <h1 class="pub-title reveal reveal-mount">
         <span class="brand">Who Is Ego?</span> Scaling Cross-View Camera Wearer Identification and Segmentation beyond Humans
       </h1>
 
-      <div class="pub-authors">
+      <div class="pub-authors reveal reveal-mount" style="--rev-delay:70ms">
         <span class="author">Yifan Jin<sup>1*</sup>,</span>
         <span class="author">Zheng Zhang<sup>2*</sup>,</span>
         <span class="author">Tianwen Qian<sup>3</sup>,</span>
@@ -43,7 +65,7 @@
         <span class="author">Yuqian Fu<sup>7&dagger;</sup></span>
       </div>
 
-      <div class="pub-affils">
+      <div class="pub-affils reveal reveal-mount" style="--rev-delay:120ms">
         <span><sup>1</sup>Central South University</span>
         <span><sup>2</sup>Fudan University</span>
         <span><sup>3</sup>East China Normal University</span>
@@ -53,18 +75,14 @@
         <span><sup>7</sup>KAUST</span>
       </div>
 
-      <div class="pub-notes">
+      <div class="pub-notes reveal reveal-mount" style="--rev-delay:150ms">
         <sup>*</sup>Equal contribution &nbsp;&middot;&nbsp; <sup>&dagger;</sup>Corresponding author
       </div>
 
-      <div class="pub-links">
+      <div class="pub-links reveal reveal-mount" style="--rev-delay:190ms">
         <a class="pill-btn" href="https://arxiv.org/abs/2611.34489" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          <span>arXiv 2611.34489</span>
-        </a>
-        <a class="pill-btn" href="https://arxiv.org/pdf/2611.34489" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          <span>PDF</span>
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+          <span>Paper</span>
         </a>
         <a class="pill-btn" href="https://github.com/Travor278/EgoRay" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.79 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.7 5.4-5.27 5.68.42.36.79 1.07.79 2.16 0 1.56-.01 2.82-.01 3.2 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
@@ -72,7 +90,7 @@
         </a>
         <a class="pill-btn" href="https://huggingface.co/datasets/Travor278/FindEgo-1M" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-          <span>Dataset</span>
+          <span>FindEgo-1M</span>
         </a>
         <a class="pill-btn" href="https://huggingface.co/Travor278/EgoRay" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
@@ -82,49 +100,57 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           <span>Dataset Gallery</span>
         </a>
-        <a class="pill-btn" href="#interactive-demos">
+        <a class="pill-btn pill-outline" href="#interactive-demos">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-          <span>Interactive 3D</span>
+          <span>Try Interactive 3D</span>
         </a>
       </div>
     </div>
   </header>
 
-  <!-- TEASER 3D WALKTHROUGH (LIGHT STUDIO) -->
-  <section class="section teaser-section">
+  <!-- TEASER 3D WALKTHROUGH -->
+  <section class="section teaser-section" id="teaser">
     <div class="container container-wide">
+      <div class="filter-row" id="teaserFilters"></div>
       <div class="teaser-stage">
         <video id="teaserVideo" muted loop playsinline autoplay preload="auto"></video>
+        <button type="button" class="stage-nav prev" id="teaserPrev" aria-label="Previous demo">&lsaquo;</button>
+        <button type="button" class="stage-nav next" id="teaserNext" aria-label="Next demo">&rsaquo;</button>
         <div class="teaser-caption-bar">
           <span id="teaserTitle">EgoRay 3D Epipole Readout</span>
-          <span class="tag-pill" id="teaserBadge">Real · L2</span>
+          <div class="teaser-meta-right">
+            <button type="button" class="stage-play-btn" id="teaserSpeedToggle" title="Cycle playback speed">0.55&times;</button>
+            <button type="button" class="stage-play-btn" id="teaserPlayToggle">Pause</button>
+            <span class="tag-pill sky" id="teaserViews">12-View Dense 3D</span>
+            <span class="tag-pill" id="teaserBadge">Real · L2</span>
+          </div>
         </div>
       </div>
       <div class="thumb-dock" id="teaserThumbs" role="group" aria-label="Teaser scene selector"></div>
     </div>
   </section>
 
-  <!-- AT-A-GLANCE HIGHLIGHTS (SPEED + ACCURACY + SCALE) -->
-  <section class="section" style="padding-top:8px;padding-bottom:28px;">
+  <!-- AT-A-GLANCE KPI STRIP -->
+  <section class="section" style="padding-top:10px;padding-bottom:32px;">
     <div class="container container-wide">
-      <div class="kpi-strip">
+      <div class="kpi-strip reveal">
         <div class="kpi-card kpi-speed">
-          <div class="kpi-num">0.4s</div>
+          <div class="kpi-num tnum" data-count="0.4s">0.4s</div>
           <div class="kpi-title">18&times;&ndash;56&times; Faster than MLLMs</div>
           <div class="kpi-sub">vs. 7.2s Astra &middot; 13.4s Opus &middot; 22.4s Sol</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-num">87.1 / 77.7</div>
+          <div class="kpi-num tnum" data-count="87.1 / 77.7">87.1 / 77.7</div>
           <div class="kpi-title">Seen / Unseen &kappa;-Acc</div>
           <div class="kpi-sub">+31.6 / +21.3 over GPT-6 Astra</div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-num">78.0%</div>
-          <div class="kpi-title">Zero-Shot on TF2023</div>
+        <div class="kpi-card kpi-amber">
+          <div class="kpi-num tnum" data-count="78.0% → 81.8%">78.0% &rarr; 81.8%</div>
+          <div class="kpi-title">Zero-Shot &amp; Full TF2023</div>
           <div class="kpi-sub">vs. 52.9% dataset-trained PEN</div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-num">1.16M</div>
+        <div class="kpi-card kpi-violet">
+          <div class="kpi-num tnum" data-count="1.16M">1.16M</div>
           <div class="kpi-title">FindEgo-1M Pairs</div>
           <div class="kpi-sub">12 wearers &middot; 17 domains &middot; 111 settings</div>
         </div>
@@ -132,15 +158,21 @@
     </div>
   </section>
 
-  <!-- INTERACTIVE 3D EXPLORER (LIGHT STUDIO) -->
+  <!-- INTERACTIVE 3D MULTI-SCENARIO EXPLORER -->
   <section class="section section-alt" id="interactive-demos">
     <div class="container container-wide">
-      <h2 class="section-title">Interactive 3D Demos</h2>
-      <p class="section-sub">
-        Drag to orbit &middot; Scroll to zoom &middot; Right-drag to pan.
-        <span style="color:#059669;font-weight:700">Green = Wearer</span> &middot;
-        <span style="color:#dc2626;font-weight:700">Red = Other Candidates</span>.
-      </p>
+      <div class="sec-head reveal">
+        <span class="section-eyebrow"><span class="ey-idx">01</span><span class="ey-line"></span>Live WebGL Explorer</span>
+        <h2 class="section-title">Interactive 3D Multi-Scenario Demos</h2>
+        <p class="section-sub">
+          Orbit, zoom, snap to <strong>Exo POV / Bird&rsquo;s-Eye / Side Depth</strong> presets, or hover any candidate score on the left to inspect its 3D ray.
+          <span style="color:#059669;font-weight:700">Green = Wearer</span> &middot;
+          <span style="color:#dc2626;font-weight:700">Red = Other Candidates</span> &middot;
+          <span style="color:#d97706;font-weight:700">Gold = EgoRay</span>.
+        </p>
+      </div>
+
+      <div class="filter-row" id="i3dFilters"></div>
 
       <div class="i3d-shell">
         <aside class="i3d-sidebar">
@@ -154,6 +186,7 @@
           <div class="i3d-card">
             <div class="i3d-card-hdr ego">
               <span>EGO VIEW (1ST-PERSON)</span>
+              <span style="font-weight:600;color:#92400e;font-size:10px;">Blue + = Exo Cam</span>
             </div>
             <img id="i3dEgoImg" alt="Ego view">
           </div>
@@ -162,6 +195,7 @@
               <span>EGORAY READOUT (LOWER = BETTER)</span>
             </div>
             <div class="i3d-readout-list" id="i3dReadoutList"></div>
+            <div class="i3d-readout-hint">Hover a row or 3D badge to trace its ray</div>
           </div>
         </aside>
 
@@ -179,7 +213,14 @@
             </div>
           </div>
 
-          <div class="i3d-status" id="i3dStatus">Loading 3D point cloud…</div>
+          <div class="i3d-presets" aria-label="Camera viewpoint presets">
+            <button type="button" class="i3d-preset-btn" data-preset="default">3/4 Hero</button>
+            <button type="button" class="i3d-preset-btn" data-preset="exo">Exo POV</button>
+            <button type="button" class="i3d-preset-btn" data-preset="top">Bird&rsquo;s-Eye</button>
+            <button type="button" class="i3d-preset-btn" data-preset="side">Side Depth</button>
+          </div>
+
+          <div class="i3d-status" id="i3dStatus">Loading dense 3D point cloud…</div>
 
           <div class="i3d-controls">
             <button type="button" id="togRedDots" class="i3d-toggle on-red" aria-pressed="true">Red Dots</button>
@@ -191,9 +232,10 @@
             <button type="button" id="togDarkBg" class="i3d-toggle" aria-pressed="false">Dark Bg</button>
             <label class="i3d-slider-wrap">
               <span>Pts</span>
-              <input type="range" id="sliderPtSize" min="1.5" max="6" step="0.5" value="3.5">
+              <input type="range" id="sliderPtSize" min="1.5" max="6" step="0.5" value="3.8">
             </label>
             <button type="button" id="btnResetView" class="i3d-toggle">Reset</button>
+            <button type="button" id="btnFullscreen" class="i3d-toggle">Full</button>
           </div>
         </div>
       </div>
@@ -202,16 +244,856 @@
     </div>
   </section>
 
-  <!-- SPEED & ACCURACY VISUAL SPOTLIGHT -->
-  <section class="section" id="speed">
+  <!-- METHOD SPOTLIGHT: PAPER-FAITHFUL (A)-(E) ARCHITECTURE + INTERACTIVE 2D VS 3D LAB + TTA PROOF -->
+  <section class="section" id="method">
     <div class="container container-wide">
-      <h2 class="section-title">Blazing Fast &amp; Accurate</h2>
-      <p class="section-sub">
-        Single feed-forward geometric pass: <strong>0.4s / query</strong> (including amortized TTA) with SOTA generalization to unseen wearers.
-      </p>
+      <div class="sec-head reveal">
+        <span class="section-eyebrow"><span class="ey-idx">02</span><span class="ey-line"></span>Geometric Formulation</span>
+        <h2 class="section-title">How EgoRay Works</h2>
+        <p class="section-sub">
+          <strong>Core insight:</strong> the camera wearer is simply <em>where the ego camera is in 3D</em>.
+          In <strong>EgoRay-ZS</strong>, VGGT-&Omega; predicts relative pose and exo depth <strong>(A)</strong>, a training-free geometric readout scores every candidate <strong>(B)</strong>, and the lowest score answers all three tracks <strong>(C)</strong>. <strong>EgoRay</strong> further trains LoRA adapters via pose supervision <strong>(D)</strong> and label-free test-time adaptation <strong>(E)</strong>.
+        </p>
+      </div>
+
+      <!-- 5-Act Slow-Playing Cinematic Method Theater (RoboScope-Kit style) -->
+      <div class="theater-shell reveal" id="methodTheater" data-active-act="0">
+        <div class="theater-top">
+          <div class="theater-act-pill">
+            <span class="theater-dot" id="theaterDot"></span>
+            <span class="theater-act-num" id="theaterActNum">ACT 01 / 05</span>
+            <span class="theater-act-name" id="theaterActName">(A) VGGT-&Omega; &middot; Dual-View 3D Lifting</span>
+          </div>
+          <div class="theater-controls">
+            <button type="button" class="th-btn" id="thPrev" aria-label="Previous act">&lsaquo;</button>
+            <button type="button" class="th-btn th-play" id="thPlayPause" aria-label="Pause or play animation">Pause</button>
+            <button type="button" class="th-btn" id="thNext" aria-label="Next act">&rsaquo;</button>
+          </div>
+        </div>
+
+        <div class="theater-stage" id="theaterStage">
+          <!-- ACT 0: (A) VGGT-Omega Dual-View 3D Lifting -->
+          <div class="theater-act active" data-act="0">
+            <svg id="actASvg" viewBox="0 0 1120 440" style="width:100%;height:auto;display:block;" role="img" aria-label="Animated VGGT-Omega dual-view 3D lifting to camera extrinsics, intrinsics, and dense depth">
+              <defs>
+                <marker id="aArr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+                  <path d="M0 1 L10 5 L0 9z" fill="#64748b"/>
+                </marker>
+                <marker id="aArrB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+                  <path d="M0 1 L10 5 L0 9z" fill="#0284c7"/>
+                </marker>
+                <marker id="aArrG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+                  <path d="M0 1 L10 5 L0 9z" fill="#059669"/>
+                </marker>
+                <marker id="aArrV" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M0 1 L10 5 L0 9z" fill="#7c3aed"/>
+                </marker>
+                <clipPath id="clipExo"><rect x="26" y="42" width="172" height="110" rx="10"/></clipPath>
+                <clipPath id="clipEgo"><rect x="26" y="226" width="172" height="110" rx="10"/></clipPath>
+                <clipPath id="clipDepth"><rect id="actADepthReveal" x="784" y="250" width="290" height="122" rx="9"/></clipPath>
+                <linearGradient id="actAGlow" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#f0f9ff"/><stop offset="100%" stop-color="#f8fafc"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Step Label Top -->
+              <text x="26" y="24" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" letter-spacing="0.08em" fill="#0284c7">1. INPUT PAIR</text>
+              <text x="256" y="24" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" letter-spacing="0.08em" fill="#475569">2. VGGT-&Omega; + RANK-64 LoRA (0.4s)</text>
+              <text x="768" y="24" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" letter-spacing="0.08em" fill="#059669">3. GEOMETRIC OUTPUTS &rarr; (B)</text>
+
+              <!-- Input Cards -->
+              <g id="actAInExo">
+                <rect x="24" y="40" width="176" height="142" rx="13" fill="#ffffff" stroke="#0284c7" stroke-width="2.4"/>
+                <image href="./assets/method/in_exo.jpg" x="26" y="42" width="172" height="110" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipExo)"/>
+                <text x="112" y="171" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="#0369a1">I<tspan baseline-shift="sub" font-size="10.5">exo</tspan> (3rd-Person)</text>
+              </g>
+
+              <g id="actAInEgo">
+                <rect x="24" y="224" width="176" height="142" rx="13" fill="#ffffff" stroke="#d97706" stroke-width="2.4"/>
+                <image href="./assets/cards/egohumans_ego_raw.jpg" x="26" y="226" width="172" height="110" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipEgo)"/>
+                <text x="112" y="355" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="#b45309">I<tspan baseline-shift="sub" font-size="10.5">ego</tspan> (1st-Person)</text>
+              </g>
+
+              <!-- Backbone Enclosure -->
+              <rect x="252" y="40" width="462" height="378" rx="16" fill="url(#actAGlow)" stroke="#bfdbfe" stroke-width="1.8"/>
+
+              <!-- Connector tracks (Input -> Tokens) -->
+              <path d="M202 108 L266 108" stroke="#cbd5e1" stroke-width="2.4" marker-end="url(#aArr)"/>
+              <path d="M202 288 L266 288" stroke="#cbd5e1" stroke-width="2.4" marker-end="url(#aArr)"/>
+              <!-- Animated sparks (Input -> Tokens) -->
+              <circle id="actASparkIn1" cx="202" cy="108" r="6" fill="#0284c7" opacity="0"/>
+              <circle id="actASparkIn2" cx="202" cy="288" r="6" fill="#d97706" opacity="0"/>
+
+              <!-- Token Groups -->
+              <g id="actATokens">
+                <!-- Exo tokens -->
+                <rect x="274" y="84" width="48" height="44" rx="8" fill="#0284c7"/>
+                <text x="298" y="111" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13.5" font-weight="700" fill="#ffffff">cam</text>
+                <g fill="#94a3b8">
+                  <rect x="330" y="88" width="7" height="36" rx="3"/>
+                  <rect x="341" y="88" width="7" height="36" rx="3"/>
+                  <rect x="352" y="88" width="7" height="36" rx="3"/>
+                </g>
+                <g fill="#bae6fd" stroke="#0284c7" stroke-width="1.3">
+                  <rect x="368" y="88" width="22" height="36" rx="5"/>
+                  <rect x="395" y="88" width="22" height="36" rx="5"/>
+                </g>
+                <text x="346" y="148" text-anchor="middle" font-family="Inter,sans-serif" font-size="12.5" font-weight="600" fill="#64748b">reg. &nbsp;&nbsp; patches</text>
+
+                <!-- Ego tokens -->
+                <rect x="274" y="264" width="48" height="44" rx="8" fill="#d97706"/>
+                <text x="298" y="291" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13.5" font-weight="700" fill="#ffffff">cam</text>
+                <g fill="#94a3b8">
+                  <rect x="330" y="268" width="7" height="36" rx="3"/>
+                  <rect x="341" y="268" width="7" height="36" rx="3"/>
+                  <rect x="352" y="268" width="7" height="36" rx="3"/>
+                </g>
+                <g fill="#fde68a" stroke="#d97706" stroke-width="1.3">
+                  <rect x="368" y="268" width="22" height="36" rx="5"/>
+                  <rect x="395" y="268" width="22" height="36" rx="5"/>
+                </g>
+                <text x="346" y="328" text-anchor="middle" font-family="Inter,sans-serif" font-size="12.5" font-weight="600" fill="#64748b">reg. &nbsp;&nbsp; patches</text>
+              </g>
+
+              <!-- Arrows Tokens -> Transformer -->
+              <path d="M422 108 L452 108" stroke="#94a3b8" stroke-width="2" marker-end="url(#aArr)"/>
+              <path d="M422 288 L452 288" stroke="#94a3b8" stroke-width="2" marker-end="url(#aArr)"/>
+
+              <!-- Alternating Frame / Global Attention Layers -->
+              <text x="572" y="66" text-anchor="middle" font-family="Inter,sans-serif" font-size="13.5" font-weight="700" fill="#334155">Alternating Frame / Global Attention</text>
+
+              <!-- Layer 1: Frame -->
+              <g id="actALayer0">
+                <rect x="460" y="82" width="36" height="86" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/>
+                <rect x="466" y="90" width="24" height="12" rx="3" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1"/>
+                <rect x="460" y="232" width="36" height="86" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/>
+                <rect x="466" y="240" width="24" height="12" rx="3" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1"/>
+                <text x="478" y="204" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" font-weight="700" fill="#64748b">Frame</text>
+              </g>
+
+              <!-- Layer 2: Global -->
+              <g id="actALayer1">
+                <rect x="514" y="82" width="38" height="236" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/>
+                <rect x="520" y="90" width="26" height="12" rx="3" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1"/>
+                <rect x="520" y="298" width="26" height="12" rx="3" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1"/>
+                <text x="533" y="204" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" font-weight="700" fill="#4f46e5" transform="rotate(-90 533 204)">Global Cross-View</text>
+              </g>
+
+              <text x="572" y="205" text-anchor="middle" font-family="Inter,sans-serif" font-size="20" font-weight="700" fill="#94a3b8">&hellip;</text>
+
+              <!-- Layer 3: Frame -->
+              <g id="actALayer2">
+                <rect x="592" y="82" width="36" height="86" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/>
+                <rect x="598" y="90" width="24" height="12" rx="3" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1"/>
+                <rect x="592" y="232" width="36" height="86" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/>
+                <rect x="598" y="240" width="24" height="12" rx="3" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1"/>
+                <text x="610" y="204" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" font-weight="700" fill="#64748b">Frame</text>
+              </g>
+
+              <!-- Layer 4: Global -->
+              <g id="actALayer3">
+                <rect x="646" y="82" width="38" height="236" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/>
+                <rect x="652" y="90" width="26" height="12" rx="3" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1"/>
+                <rect x="652" y="298" width="26" height="12" rx="3" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1"/>
+                <text x="665" y="204" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" font-weight="700" fill="#4f46e5" transform="rotate(-90 665 204)">Global Cross-View</text>
+              </g>
+
+              <!-- LoRA Bar -->
+              <g id="actALora">
+                <rect x="462" y="348" width="222" height="48" rx="11" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5 4"/>
+                <text x="573" y="370" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="800" fill="#6d28d9">Rank-64 LoRA (EgoRay)</text>
+                <text x="573" y="388" text-anchor="middle" font-family="Inter,sans-serif" font-size="11.5" font-weight="500" fill="#7c3aed">Off = Zero-Shot &middot; On = Pose-Tuned</text>
+                <line x1="533" y1="348" x2="533" y2="323" stroke="#7c3aed" stroke-width="1.6" stroke-dasharray="3 2" marker-end="url(#aArrV)"/>
+                <line x1="665" y1="348" x2="665" y2="323" stroke="#7c3aed" stroke-width="1.6" stroke-dasharray="3 2" marker-end="url(#aArrV)"/>
+              </g>
+
+              <!-- Output Split Branches -> Camera Head + Depth Head -->
+              <path d="M686 122 L758 122" stroke="#0284c7" stroke-width="2.6" marker-end="url(#aArrB)"/>
+              <path d="M686 286 L758 286" stroke="#059669" stroke-width="2.6" marker-end="url(#aArrG)"/>
+              <circle id="actASparkOut1" cx="686" cy="122" r="6" fill="#0284c7" opacity="0"/>
+              <circle id="actASparkOut2" cx="686" cy="286" r="6" fill="#059669" opacity="0"/>
+
+              <!-- OUTPUT HEAD 1: Camera Head (Extrinsics + Intrinsics) -->
+              <g id="actACamHead">
+                <rect x="766" y="40" width="328" height="176" rx="15" fill="#ffffff" stroke="#0284c7" stroke-width="2.2"/>
+                <rect x="780" y="52" width="116" height="24" rx="12" fill="#e0f2fe"/>
+                <text x="838" y="68" text-anchor="middle" font-family="Inter,sans-serif" font-size="12.5" font-weight="800" fill="#0369a1">Camera Head</text>
+                <text x="1080" y="68" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="700" fill="#0284c7">Extrinsics + Intrinsics</text>
+
+                <!-- Animated Frustums inside Camera Head -->
+                <g transform="translate(788, 86)">
+                  <polygon points="8,36 44,12 44,60" fill="#0284c7" fill-opacity="0.16" stroke="#0284c7" stroke-width="2.2"/>
+                  <circle cx="8" cy="36" r="4.5" fill="#0284c7"/>
+                  <text x="28" y="75" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="700" fill="#0369a1">K&#770;exo (f&#770;exo)</text>
+
+                  <line x1="48" y1="36" x2="108" y2="28" stroke="#334155" stroke-width="2" stroke-dasharray="4 3"/>
+                  <text x="78" y="20" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12.5" font-weight="800" fill="#0f172a">R&#770;, t&#770;</text>
+
+                  <g id="actAEgoFrustum" transform="translate(152, 26)">
+                    <polygon points="0,0 -38,-18 -38,20" fill="#f59e0b" fill-opacity="0.22" stroke="#d97706" stroke-width="2.2"/>
+                    <circle cx="0" cy="0" r="4.5" fill="#d97706"/>
+                  </g>
+                  <text x="134" y="75" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="700" fill="#b45309">K&#770;ego (f&#770;ego)</text>
+
+                  <!-- Right text summary -->
+                  <text x="180" y="24" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" fill="#b45309">c&#770; = &minus;R&#770;&#7488; t&#770;</text>
+                  <text x="180" y="45" font-family="Inter,sans-serif" font-size="12.5" font-weight="600" fill="#334155">Ego pose in exo</text>
+                  <text x="180" y="64" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#059669">e&#770;exo, e&#770;ego &rarr; (B)</text>
+                </g>
+
+                <rect x="780" y="182" width="300" height="24" rx="7" fill="#f0f9ff" stroke="#bae6fd"/>
+                <text x="930" y="198" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#0369a1">Passes camera pose &amp; intrinsics &rarr; (B) 3D Readout</text>
+              </g>
+
+              <!-- OUTPUT HEAD 2: Dense Depth Head -->
+              <g id="actADepthHead">
+                <rect x="766" y="234" width="328" height="184" rx="15" fill="#ffffff" stroke="#059669" stroke-width="2.2"/>
+                <rect x="780" y="244" width="144" height="24" rx="12" fill="#ecfdf5"/>
+                <text x="852" y="260" text-anchor="middle" font-family="Inter,sans-serif" font-size="12.5" font-weight="800" fill="#047857">Dense Depth Head</text>
+                <text x="1080" y="260" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#059669">D(u) &isin; &#8477;&#x02B0;&times;&#x02B7;</text>
+
+                <!-- Depth image with animated scanline reveal -->
+                <rect x="784" y="276" width="290" height="104" rx="9" fill="#f1f5f9"/>
+                <image href="./assets/method/depth_viridis.jpg" x="784" y="276" width="290" height="104" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipDepth)"/>
+                <line id="actADepthScan" x1="784" y1="276" x2="784" y2="380" stroke="#34d399" stroke-width="3" opacity="0.9"/>
+
+                <rect x="780" y="387" width="300" height="23" rx="7" fill="#ecfdf5" stroke="#a7f3d0"/>
+                <text x="930" y="402.5" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#047857">Lifts every mask M<tspan baseline-shift="sub" font-size="9.5">i</tspan> into 3D &rarr; (B) 3D Readout</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- ACT 1: (B) Dynamic Orbiting 3D Point-Cloud Geometric Readout -->
+          <div class="theater-act" data-act="1">
+            <div class="actb-grid">
+              <div class="actb-cloud-wrap">
+                <canvas id="actBPointCanvas" width="760" height="440" aria-label="Dynamic orbiting 3D point cloud demonstrating EgoRay epipole readout"></canvas>
+                <div class="actb-cloud-hud">
+                  <span class="actb-pill">LIVE DYNAMIC 3D POINT CLOUD</span>
+                  <span class="actb-pill subtle" id="actBPhaseLbl">Lifting Exo + Ego Camera Pose&hellip;</span>
+                </div>
+              </div>
+
+              <div class="actb-side">
+                <div class="actb-hdr">
+                  <div>
+                    <h4>(B) Training-Free 3D Readout</h4>
+                    <p>Uses <strong>(R&#770;, t&#770;, K&#770;, D)</strong> from (A) directly &mdash; zero learned classifier heads.</p>
+                  </div>
+                </div>
+
+                <div class="actb-table" id="actBScoreTable">
+                  <div class="actb-th">
+                    <span>Candidate</span>
+                    <span style="color:#be185d;">Angular &theta;<sub>i</sub></span>
+                    <span>Score s<sub>i</sub></span>
+                  </div>
+                  <div class="actb-row" data-cand="1">
+                    <span class="actb-id">1</span>
+                    <span class="actb-ang">51.4&deg;</span>
+                    <div class="actb-bar-t"><div class="actb-bar-f" data-w="95"></div></div>
+                    <span class="actb-sc">3.13</span>
+                  </div>
+                  <div class="actb-row" data-cand="2">
+                    <span class="actb-id">2</span>
+                    <span class="actb-ang">5.8&deg;</span>
+                    <div class="actb-bar-t"><div class="actb-bar-f" data-w="34"></div></div>
+                    <span class="actb-sc">1.00</span>
+                  </div>
+                  <div class="actb-row" data-cand="3">
+                    <span class="actb-id">3</span>
+                    <span class="actb-ang">9.0&deg;</span>
+                    <div class="actb-bar-t"><div class="actb-bar-f" data-w="38"></div></div>
+                    <span class="actb-sc">1.06</span>
+                  </div>
+                  <div class="actb-row win" data-cand="4" id="actBWinRow">
+                    <span class="actb-id">4</span>
+                    <span class="actb-ang">0.1&deg;</span>
+                    <div class="actb-bar-t"><div class="actb-bar-f" data-w="6"></div></div>
+                    <span class="actb-sc">0.06</span>
+                  </div>
+                </div>
+
+                <div class="actb-eq-card">
+                  <div class="actb-eq-line"><span class="eq-k">&theta;<sub>i</sub></span> = min<sub>u&isin;M<sub>i</sub></sub> <span class="eq-p">&phi;<sub>u</sub></span> <span class="eq-note">angular offset</span></div>
+                  <div class="actb-eq-line"><span class="eq-k">s<sub>i</sub></span> = min<sub>u&isin;M<sub>i</sub></sub> ( <span class="eq-t">d<sub>u</sub></span> / &#8214;<span class="eq-a">c&#770;</span>&#8214; + 3 sin <span class="eq-p">&phi;<sub>u</sub></span> )</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACT 2: (C) Unified Three-Track Answers -->
+          <div class="theater-act" data-act="2">
+            <div class="actc-wrap">
+              <div class="actc-banner">
+                <span>One 0.4s geometric readout from <strong>(B)</strong> answers all three cross-view tasks simultaneously</span>
+              </div>
+              <div class="actc-grid">
+                <div class="actc-card" id="actCCard0">
+                  <div class="actc-img-wrap">
+                    <img src="./assets/method/ans_id.jpg" alt="Track A wearer identification">
+                    <span class="actc-eq">Track A &middot; argmin s<sub>i</sub></span>
+                  </div>
+                  <div class="actc-body">
+                    <h4>Wearer Identification</h4>
+                    <p>Ranks given candidate masks by lowest combined geometric score <strong>s<sub>i</sub></strong> &mdash; locking directly onto Wearer #4.</p>
+                    <div class="actc-stat">87.1 Seen &middot; 77.7 Unseen &kappa;-Acc</div>
+                  </div>
+                </div>
+
+                <div class="actc-card" id="actCCard1">
+                  <div class="actc-img-wrap">
+                    <img src="./assets/method/ans_seg.jpg" alt="Track B open-vocabulary wearer segmentation">
+                    <span class="actc-eq">Track B &middot; min s<sub>i</sub>, &theta;<sub>i</sub> &le; &theta;<sup>&star;</sup></span>
+                  </div>
+                  <div class="actc-body">
+                    <h4>Wearer Segmentation &amp; Absence</h4>
+                    <p>Scores open-vocab SAM 3 proposals from category words &mdash; or declares <strong>ABSENT</strong> if &theta;<sub>min</sub> &gt; &theta;<sup>&star;</sup> or behind exo camera.</p>
+                    <div class="actc-stat green">67.8 Seen &middot; 55.2 Unseen gIoU@20</div>
+                  </div>
+                </div>
+
+                <div class="actc-card" id="actCCard2">
+                  <div class="actc-img-wrap">
+                    <img src="./assets/method/ans_mutual.jpg" alt="Track C mutual camera localization">
+                    <span class="actc-eq">Track C &middot; e&#770;<sub>exo</sub> &harr; e&#770;<sub>ego</sub></span>
+                  </div>
+                  <div class="actc-body">
+                    <h4>Mutual Camera Localization</h4>
+                    <p>Directly reads out both unit epipoles: ego camera in exo view (amber +) and exo camera in ego view (blue +).</p>
+                    <div class="actc-stat amber">83.7% Seen &middot; 72.9% Unseen MA@15</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACT 3: (D) Pose-Supervised LoRA Fine-Tuning -->
+          <div class="theater-act" data-act="3">
+            <svg id="actDSvg" viewBox="0 0 1120 440" style="width:100%;height:auto;display:block;" role="img" aria-label="Animated pose-supervised LoRA fine-tuning converging predicted camera frustum onto ground-truth pose">
+              <defs>
+                <marker id="dArrV" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+                  <path d="M0 1 L10 5 L0 9z" fill="#7c3aed"/>
+                </marker>
+                <marker id="dArrG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+                  <path d="M0 1 L10 5 L0 9z" fill="#059669"/>
+                </marker>
+              </defs>
+
+              <text x="26" y="26" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" letter-spacing="0.08em" fill="#6d28d9">1. PARAMETER-EFFICIENT LoRA</text>
+              <text x="336" y="26" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" letter-spacing="0.08em" fill="#0f172a">2. POSE-SUPERVISED ALIGNMENT ON FINDEGO-1M (HUMANS L0&ndash;L1)</text>
+              <text x="824" y="26" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" letter-spacing="0.08em" fill="#059669">3. ZERO-SHOT L3 TRANSFER</text>
+
+              <!-- Left: Frozen VGGT + Trainable LoRA -->
+              <rect x="24" y="44" width="276" height="368" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.8"/>
+              <rect x="44" y="64" width="236" height="128" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="1.6"/>
+              <text x="162" y="96" text-anchor="middle" font-family="Inter,sans-serif" font-size="16" font-weight="800" fill="#334155">VGGT-&Omega; Backbone</text>
+              <rect x="92" y="110" width="140" height="28" rx="14" fill="#f1f5f9" stroke="#cbd5e1"/>
+              <text x="162" y="128.5" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#64748b">&#10052; Frozen Weights</text>
+              <text x="162" y="168" text-anchor="middle" font-family="Inter,sans-serif" font-size="12.5" fill="#64748b">Preserves 3D geometric priors</text>
+
+              <rect id="actDLoraCard" x="44" y="218" width="236" height="172" rx="13" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.4" stroke-dasharray="6 4"/>
+              <text x="162" y="252" text-anchor="middle" font-family="Inter,sans-serif" font-size="16.5" font-weight="800" fill="#6d28d9">Rank-64 LoRA</text>
+              <text x="162" y="276" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12.5" font-weight="700" fill="#7c3aed">Q, K, V, Out Projections</text>
+              <rect x="64" y="294" width="196" height="36" rx="9" fill="#ffffff" stroke="#ddd6fe"/>
+              <text x="162" y="317" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="#5b21b6">Trained ONLY on Geometry</text>
+              <text x="162" y="362" text-anchor="middle" font-family="Inter,sans-serif" font-size="12.5" font-weight="600" fill="#6d28d9">No appearance memorization</text>
+
+              <!-- Backprop gradient arrow (Loss -> LoRA) -->
+              <path id="actDGradPath" d="M336 330 C316 330, 314 312, 286 312" fill="none" stroke="#7c3aed" stroke-width="3" stroke-dasharray="6 4" marker-end="url(#dArrV)"/>
+              <circle id="actDGradSpark" cx="336" cy="330" r="6.5" fill="#7c3aed" opacity="0"/>
+
+              <!-- Center: Animated 3D Pose Alignment Canvas + 3 Loss Pills -->
+              <rect x="334" y="44" width="456" height="368" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"/>
+
+              <!-- Top alignment stage -->
+              <rect x="352" y="60" width="420" height="170" rx="12" fill="#f8fafc" stroke="#e2e8f0"/>
+              <text x="368" y="82" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="700" fill="#64748b">LIVE POSE CONVERGENCE</text>
+              <text id="actDErrReadout" x="756" y="82" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12.5" font-weight="800" fill="#d97706">pose err: 18.4&deg;</text>
+
+              <!-- Fixed Exo Cam -->
+              <polygon points="392,158 430,136 430,180" fill="#0284c7" fill-opacity="0.16" stroke="#0284c7" stroke-width="2"/>
+              <circle cx="392" cy="158" r="5" fill="#0284c7"/>
+              <text x="408" y="202" text-anchor="middle" font-family="Inter,sans-serif" font-size="12.5" font-weight="700" fill="#0369a1">Exo Cam</text>
+
+              <!-- GT Target Ray + GT Ego Frustum (fixed solid emerald) -->
+              <line x1="392" y1="158" x2="672" y2="146" stroke="#059669" stroke-width="2.4" stroke-dasharray="5 4" opacity="0.55"/>
+              <g transform="translate(672, 146)">
+                <polygon points="0,0 -44,-22 -44,22" fill="#10b981" fill-opacity="0.16" stroke="#059669" stroke-width="2.4"/>
+                <circle cx="0" cy="0" r="5.5" fill="#059669"/>
+                <text x="10" y="-18" font-family="Inter,sans-serif" font-size="12.5" font-weight="800" fill="#047857">GT Pose</text>
+                <text x="10" y="0" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="700" fill="#059669">(R, t, f)</text>
+              </g>
+
+              <!-- Animated Predicted Ego Frustum (converges onto GT!) -->
+              <line id="actDPredRay" x1="392" y1="158" x2="612" y2="106" stroke="#d97706" stroke-width="2.6"/>
+              <g id="actDPredFrustum" transform="translate(612, 106) rotate(-22)">
+                <polygon points="0,0 -38,-17 -38,17" fill="#f59e0b" fill-opacity="0.22" stroke="#d97706" stroke-width="2.4" stroke-dasharray="4 3"/>
+                <circle cx="0" cy="0" r="5" fill="#d97706"/>
+                <text x="-20" y="-24" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#b45309">Pred (R&#770;, t&#770;, f&#770;)</text>
+              </g>
+
+              <!-- 3 Supervision Loss Cards -->
+              <g id="actDLoss0">
+                <rect x="352" y="244" width="420" height="44" rx="10" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.6"/>
+                <text x="366" y="271" font-family="Inter,sans-serif" font-size="13" font-weight="800" fill="#0369a1">1. Epipole &amp; Rotation</text>
+                <text x="758" y="271" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#0f172a">&#x2113;(e&#770;exo, e) + &#x2113;(e&#770;ego, e) + &ang;(R&#770;, R)</text>
+              </g>
+              <g id="actDLoss1">
+                <rect x="352" y="298" width="420" height="44" rx="10" fill="#fffbeb" stroke="#fcd34d" stroke-width="1.6"/>
+                <text x="366" y="325" font-family="Inter,sans-serif" font-size="13" font-weight="800" fill="#b45309">2. Focal-Length Anchor</text>
+                <text x="758" y="325" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#92400e">&Sigma; |log(f&#770;v / fv)| &middot; no shortcut</text>
+              </g>
+              <g id="actDLoss2">
+                <rect x="352" y="352" width="420" height="44" rx="10" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.6"/>
+                <text x="366" y="379" font-family="Inter,sans-serif" font-size="13" font-weight="800" fill="#047857">3. Wearer Ranking Loss</text>
+                <text x="758" y="379" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#065f46">CE over scores (&minus;si / &tau;)</text>
+              </g>
+
+              <!-- Arrow Center -> Zero-Shot L3 -->
+              <path d="M792 228 L818 228" stroke="#059669" stroke-width="3" marker-end="url(#dArrG)"/>
+
+              <!-- Right: Zero-Shot Transfer Badges -->
+              <rect x="824" y="44" width="272" height="368" rx="16" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.8"/>
+              <text x="960" y="76" text-anchor="middle" font-family="Inter,sans-serif" font-size="15.5" font-weight="800" fill="#065f46">Never Seen in Training</text>
+              <text x="960" y="97" text-anchor="middle" font-family="Inter,sans-serif" font-size="12.5" font-weight="600" fill="#047857">Zero-Shot L3 Generalization</text>
+
+              <g id="actDTransferGrid" font-family="Inter,sans-serif">
+                <rect x="844" y="118" width="232" height="40" rx="10" fill="#ffffff" stroke="#a7f3d0"/><text x="860" y="143" font-size="13.5" font-weight="700" fill="#0f172a">Vehicles (V2X)</text><text x="1060" y="143" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#059669">84.9</text>
+                <rect x="844" y="168" width="232" height="40" rx="10" fill="#ffffff" stroke="#a7f3d0"/><text x="860" y="193" font-size="13.5" font-weight="700" fill="#0f172a">Robot Arms</text><text x="1060" y="193" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#059669">64.6</text>
+                <rect x="844" y="218" width="232" height="40" rx="10" fill="#ffffff" stroke="#a7f3d0"/><text x="860" y="243" font-size="13.5" font-weight="700" fill="#0f172a">Robot Vacuums</text><text x="1060" y="243" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#059669">94.1</text>
+                <rect x="844" y="268" width="232" height="40" rx="10" fill="#ffffff" stroke="#a7f3d0"/><text x="860" y="293" font-size="13.5" font-weight="700" fill="#0f172a">Pets (Collar Cam)</text><text x="1060" y="293" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="14" font-weight="800" fill="#059669">98.7</text>
+                <rect x="844" y="324" width="232" height="68" rx="11" fill="#d1fae5" stroke="#10b981" stroke-width="1.8"/>
+                <text x="960" y="351" text-anchor="middle" font-size="12.5" font-weight="700" fill="#047857">Cross-Modal RGB &rarr; Thermal</text>
+                <text x="960" y="376" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15.5" font-weight="800" fill="#064e3b">26.6% &rarr; 94.9%</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- ACT 4: (E) Label-Free Test-Time Adaptation -->
+          <div class="theater-act" data-act="4">
+            <svg id="actESvg" viewBox="0 0 1120 440" style="width:100%;height:auto;display:block;" role="img" aria-label="Animated label-free test-time adaptation pulling stray epipole onto the true wearer candidate">
+              <defs>
+                <marker id="eArr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+                  <path d="M0 1 L10 5 L0 9z" fill="#0284c7"/>
+                </marker>
+              </defs>
+
+              <text x="26" y="26" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" letter-spacing="0.08em" fill="#0284c7">1. UNLABELED TEST QUERY BAG</text>
+              <text x="478" y="26" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" letter-spacing="0.08em" fill="#b45309">2. TRANSDUCTIVE GEOMETRIC OBJECTIVE</text>
+              <text x="854" y="26" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" letter-spacing="0.08em" fill="#059669">3. ZERO-LABEL GAIN</text>
+
+              <!-- Left: Live Epipole Pull Visualization -->
+              <rect x="24" y="44" width="424" height="368" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.8"/>
+              <text x="44" y="74" font-family="Inter,sans-serif" font-size="15" font-weight="800" fill="#0f172a">Stray Epipole Pulled Onto Candidate Set</text>
+              <text x="44" y="96" font-family="Inter,sans-serif" font-size="12.5" fill="#64748b">No wearer labels &mdash; only candidate masks M<tspan baseline-shift="sub" font-size="9.5">1..K</tspan> are given</text>
+
+              <!-- Stylized scene frame -->
+              <rect x="44" y="114" width="384" height="234" rx="13" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.6"/>
+              <!-- Sky & Horizon -->
+              <rect x="45" y="115" width="382" height="108" rx="12" fill="#f0f9ff"/>
+              <line x1="45" y1="223" x2="427" y2="223" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+              <!-- Unlabeled Candidate Silhouettes -->
+              <g transform="translate(120, 265)">
+                <ellipse cx="0" cy="0" rx="28" ry="44" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3"/>
+                <text x="0" y="5" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="#64748b">M<tspan baseline-shift="sub" font-size="10">1</tspan></text>
+              </g>
+              <g transform="translate(260, 256)">
+                <ellipse id="actETargetMask" cx="0" cy="0" rx="48" ry="54" fill="#ecfdf5" stroke="#10b981" stroke-width="2.6"/>
+                <circle cx="0" cy="-18" r="14" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+                <text x="0" y="22" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="800" fill="#047857">M<tspan baseline-shift="sub" font-size="9.5">2</tspan> (Wearer)</text>
+              </g>
+              <g transform="translate(366, 272)">
+                <ellipse cx="0" cy="0" rx="26" ry="40" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3"/>
+                <text x="0" y="5" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="#64748b">M<tspan baseline-shift="sub" font-size="10">3</tspan></text>
+              </g>
+
+              <!-- Start marker: Red X in empty sky -->
+              <g transform="translate(132, 154)">
+                <line x1="-9" y1="-9" x2="9" y2="9" stroke="#dc2626" stroke-width="3.2" stroke-linecap="round"/>
+                <line x1="9" y1="-9" x2="-9" y2="9" stroke="#dc2626" stroke-width="3.2" stroke-linecap="round"/>
+                <text x="0" y="-17" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="800" fill="#dc2626">Before TTA (sky miss)</text>
+              </g>
+
+              <!-- Animated trajectory curve + moving epipole marker -->
+              <path id="actETraj" d="M132 154 Q212 162 260 240" fill="none" stroke="#0284c7" stroke-width="3" stroke-dasharray="220" stroke-dashoffset="220" stroke-linecap="round"/>
+              <g id="actEMarker" transform="translate(132, 154)">
+                <circle cx="0" cy="0" r="11" fill="#0284c7" fill-opacity="0.18" stroke="#0284c7" stroke-width="2.2"/>
+                <line x1="-6" y1="0" x2="6" y2="0" stroke="#0284c7" stroke-width="2.6" stroke-linecap="round"/>
+                <line x1="0" y1="-6" x2="0" y2="6" stroke="#0284c7" stroke-width="2.6" stroke-linecap="round"/>
+              </g>
+
+              <!-- Legend strip under scene -->
+              <text x="236" y="384" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="600" fill="#475569">
+                <tspan fill="#dc2626" font-weight="800">&times; Before</tspan> &nbsp;&rarr;&nbsp;
+                <tspan fill="#0284c7" font-weight="800">+ After TTA</tspan> &nbsp;&middot;&nbsp;
+                <tspan fill="#d97706" font-weight="800">&#9675; True Epipole</tspan>
+              </text>
+
+              <!-- Center: 2 Objective Cards -->
+              <g id="actECard0">
+                <rect x="476" y="44" width="348" height="174" rx="16" fill="#fffbeb" stroke="#fcd34d" stroke-width="2"/>
+                <text x="498" y="78" font-family="Inter,sans-serif" font-size="16" font-weight="800" fill="#b45309">1. Candidate-Bag Constraint (L<tspan baseline-shift="sub" font-size="11">cand</tspan>)</text>
+                <text x="498" y="106" font-family="Inter,sans-serif" font-size="13.5" fill="#475569">Visible wearers must lie inside some</text>
+                <text x="498" y="126" font-family="Inter,sans-serif" font-size="13.5" fill="#475569">candidate mask &mdash; pulling stray rays in:</text>
+                <rect x="496" y="144" width="308" height="54" rx="10" fill="#ffffff" stroke="#fde68a" stroke-width="1.5"/>
+                <text x="650" y="168" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12.5" font-weight="700" fill="#047857">&minus;log &Sigma;<tspan baseline-shift="sub" font-size="9">i</tspan> exp(&minus;&theta;<tspan baseline-shift="sub" font-size="9">i</tspan>/&tau;<tspan baseline-shift="sub" font-size="9">a</tspan>) &minus; log &Sigma;<tspan baseline-shift="sub" font-size="9">i</tspan> exp(&minus;s&#772;<tspan baseline-shift="sub" font-size="9">i</tspan>/&tau;<tspan baseline-shift="sub" font-size="9">m</tspan>)</text>
+                <text x="650" y="188" text-anchor="middle" font-family="Inter,sans-serif" font-size="11.5" font-weight="600" fill="#64748b">Shared LoRA across unlabeled query bag</text>
+              </g>
+
+              <g id="actECard1">
+                <rect x="476" y="236" width="348" height="176" rx="16" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="2"/>
+                <text x="498" y="270" font-family="Inter,sans-serif" font-size="16" font-weight="800" fill="#0369a1">2. Frozen-Copy Anchor (L<tspan baseline-shift="sub" font-size="11">anchor</tspan> &#10052;)</text>
+                <text x="498" y="298" font-family="Inter,sans-serif" font-size="13.5" fill="#475569">Prevents drift by locking rotation R&#770;<tspan baseline-shift="super" font-size="9.5">0</tspan>,</text>
+                <text x="498" y="318" font-family="Inter,sans-serif" font-size="13.5" fill="#475569">focal length f&#770;<tspan baseline-shift="super" font-size="9.5">0</tspan>, and confident &lt;1&deg; hits:</text>
+                <rect x="496" y="336" width="308" height="56" rx="10" fill="#ffffff" stroke="#bae6fd" stroke-width="1.5"/>
+                <text x="650" y="360" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12.5" font-weight="700" fill="#b45309">&#8214;R&#770; &minus; R&#770;<tspan baseline-shift="super" font-size="9">0</tspan>&#8214;<tspan baseline-shift="sub" font-size="9">F</tspan> + &Sigma; |log(f&#770; / f&#770;<tspan baseline-shift="super" font-size="9">0</tspan>)|</text>
+                <text x="650" y="381" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#0369a1">+ &#x1D7D9;[min &theta;<tspan baseline-shift="sub" font-size="9">i</tspan><tspan baseline-shift="super" font-size="9">0</tspan> &lt; 1&deg;] &middot; &#x2113;(e&#770;<tspan baseline-shift="sub" font-size="9">exo</tspan>, e&#770;<tspan baseline-shift="sub" font-size="9">exo</tspan><tspan baseline-shift="super" font-size="9">0</tspan>)</text>
+              </g>
+
+              <!-- Right: Impact Card -->
+              <rect x="852" y="44" width="244" height="368" rx="16" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="2"/>
+              <text x="974" y="84" text-anchor="middle" font-family="Inter,sans-serif" font-size="15.5" font-weight="800" fill="#065f46">Test-Time Impact</text>
+
+              <rect x="872" y="106" width="204" height="72" rx="12" fill="#ffffff" stroke="#a7f3d0"/>
+              <text x="974" y="141" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="26" font-weight="800" fill="#059669">+5.5</text>
+              <text x="974" y="164" text-anchor="middle" font-family="Inter,sans-serif" font-size="12.5" font-weight="700" fill="#065f46">Unseen &kappa;-Acc Gain</text>
+
+              <rect x="872" y="194" width="204" height="62" rx="12" fill="#ffffff" stroke="#a7f3d0"/>
+              <text x="974" y="222" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="19" font-weight="800" fill="#0f172a">0 Labels</text>
+              <text x="974" y="244" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="600" fill="#64748b">Fully unsupervised TTA</text>
+
+              <rect x="872" y="272" width="204" height="62" rx="12" fill="#ffffff" stroke="#a7f3d0"/>
+              <text x="974" y="300" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="19" font-weight="800" fill="#0284c7">0.4s / query</text>
+              <text x="974" y="322" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="600" fill="#64748b">Amortized (200 steps)</text>
+
+              <text x="974" y="376" text-anchor="middle" font-family="Inter,sans-serif" font-size="12.5" font-weight="700" fill="#047857">Drones +29.6 &middot; Birds +27.6</text>
+              <text x="974" y="395" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="600" fill="#065f46">Wild Animals +16.1 &kappa;-Acc</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- RoboScope-Kit Style Progress-Bar Stepper -->
+        <div class="theater-stepper" id="theaterStepper" role="tablist" aria-label="Method animation chapters">
+          <button type="button" class="th-step active" data-act="0">
+            <span class="th-bar"><span class="th-fill"></span></span>
+            <span class="th-step-lbl">(A) VGGT-&Omega;</span>
+            <span class="th-step-sub">Pose, intrinsics &amp; depth</span>
+          </button>
+          <button type="button" class="th-step" data-act="1">
+            <span class="th-bar"><span class="th-fill"></span></span>
+            <span class="th-step-lbl">(B) Dynamic 3D Readout</span>
+            <span class="th-step-sub">Live point cloud &amp; scores</span>
+          </button>
+          <button type="button" class="th-step" data-act="2">
+            <span class="th-bar"><span class="th-fill"></span></span>
+            <span class="th-step-lbl">(C) Answers</span>
+            <span class="th-step-sub">Tracks A, B &amp; C</span>
+          </button>
+          <button type="button" class="th-step" data-act="3">
+            <span class="th-bar"><span class="th-fill"></span></span>
+            <span class="th-step-lbl">(D) LoRA Fine-Tuning</span>
+            <span class="th-step-sub">Pose-supervised training</span>
+          </button>
+          <button type="button" class="th-step" data-act="4">
+            <span class="th-bar"><span class="th-fill"></span></span>
+            <span class="th-step-lbl">(E) Label-Free TTA</span>
+            <span class="th-step-sub">Zero-label adaptation</span>
+          </button>
+        </div>
+        <div class="theater-caption" id="theaterCaption"></div>
+      </div>
+
+      <!-- Concrete Real-Scene Case Study: Why 3D Depth + Epipole Ray? -->
+      <div class="depth-case-card reveal" id="depthCaseCard">
+        <div class="depth-case-hdr">
+          <div>
+            <h3>Why 3D Depth Matters: Resolving Collinear Occlusion in Practice</h3>
+            <p>In this real FindEgo-1M savanna scene (<strong>Wild Animals &middot; Lions</strong>), foreground lion <strong>#5</strong> stands nearly along the exact same viewing ray as true collar-camera wearer <strong>#2</strong>. Toggle between 2D Angle Only and EgoRay (Angle + 3D Depth) to see how 3D camera distance resolves the tie.</p>
+          </div>
+          <div class="seg-switch" role="group" aria-label="Readout mode comparison">
+            <button type="button" class="seg-btn" id="labModeAngle">2D Angle Only</button>
+            <button type="button" class="seg-btn active green" id="labModeEgoRay">EgoRay (Angle + 3D Depth)</button>
+          </div>
+        </div>
+
+        <div class="depth-case-grid">
+          <div class="depth-case-visual">
+            <div class="depth-vis-stage" data-lightbox="./assets/cards/wild_animals_poster.jpg" data-lb-title="Wild Animals (Lions) · 3D Depth Disambiguation" data-lb-sub="Collinear foreground lion #5 sits only 1.1° from the epipole ray, yet 3D camera distance cleanly separates it from true wearer #2 (0.1°, score 0.19).">
+              <img src="./assets/cards/wild_animals_poster.jpg" alt="Wild Animals 3D scene showing foreground lion #5 collinear with true wearer #2">
+              <div class="depth-mode-banner ok" id="depthModeBanner">
+                <span class="dmb-dot"></span>
+                <span id="depthBannerText">EgoRay (Angle + 3D Depth) &rarr; Locks onto Wearer #2 (score 0.19 vs. #5 score 0.85)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="depth-case-side">
+            <div class="depth-side-head">
+              <span>Measured Scores on Wild Lions</span>
+              <span class="depth-eq-pill">s<sub>i</sub> = d<sub>i</sub>/&#8214;c&#770;&#8214; + 3 sin &theta;<sub>i</sub></span>
+            </div>
+            <div class="depth-score-rows" id="labScoreList"></div>
+            <div class="lab-verdict ok" id="labVerdict"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Label-Free TTA Before -> After Proof -->
+      <div class="reveal" style="margin-top:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--ink);">Visualizing Label-Free Test-Time Adaptation (Before &times; &rarr; After +)</h3>
+          <span style="font-size:12.5px;color:var(--ink-muted);">Red &times; = before TTA &middot; Cyan + = after TTA &middot; Yellow &#9675; = ground-truth epipole &middot; Click to enlarge</span>
+        </div>
+        <div class="tta-strip">
+          <div class="tta-card" data-lightbox="./assets/adapt/drones.jpg" data-lb-title="Label-Free TTA · Aerial Balloons / Drones (L3)" data-lb-sub="Zero-label transductive adaptation pulls the epipole from empty sky (red ×) straight onto the true camera-carrying balloon (yellow ○).">
+            <img src="./assets/adapt/drones.jpg" alt="TTA on aerial balloons and drones" loading="lazy">
+            <div class="tta-cap">
+              <div><strong>Aerial Balloons &amp; Drones</strong><span>Unseen L3 &middot; Sky scene</span></div>
+              <span class="tag-pill">+29.6 &kappa;-Acc</span>
+            </div>
+          </div>
+          <div class="tta-card" data-lightbox="./assets/adapt/birds.jpg" data-lb-title="Label-Free TTA · Flying Birds (L3)" data-lb-sub="Adapting on unlabeled queries shifts the predicted epipole cleanly onto the camera-carrying bird in mid-flight.">
+            <img src="./assets/adapt/birds.jpg" alt="TTA on flying birds" loading="lazy">
+            <div class="tta-cap">
+              <div><strong>Flying Birds</strong><span>Unseen L3 &middot; Small targets</span></div>
+              <span class="tag-pill">+23.7 &kappa;-Acc</span>
+            </div>
+          </div>
+          <div class="tta-card" data-lightbox="./assets/adapt/wild.jpg" data-lb-title="Label-Free TTA · Dense Wild Animal Herd (L3)" data-lb-sub="Among 12+ near-identical grazing animals, candidate-bag TTA snaps the epipole from off-body background onto the true collar wearer.">
+            <img src="./assets/adapt/wild.jpg" alt="TTA on dense wild animal herd" loading="lazy">
+            <div class="tta-cap">
+              <div><strong>Dense Wild Herds</strong><span>Unseen L3 &middot; 12+ look-alikes</span></div>
+              <span class="tag-pill">+27.6 &kappa;-Acc</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINDEGO-1M DATASET SHOWCASE -->
+  <section class="section section-alt" id="dataset">
+    <div class="container container-wide">
+      <div class="sec-head reveal">
+        <span class="section-eyebrow"><span class="ey-idx">03</span><span class="ey-line"></span>Benchmark &amp; Data Engine</span>
+        <h2 class="section-title">FindEgo-1M: Scaling Beyond Humans</h2>
+        <p class="section-sub">
+          The first million-scale cross-view benchmark spanning <strong>12 wearer embodiments</strong>, <strong>17 domains</strong>,
+          <strong>111 test settings</strong>, dual lens versions (pinhole &amp; real-device optics), and <strong>three unified tracks</strong>.
+        </p>
+      </div>
+
+      <!-- Real vs Simulated Scale Meter -->
+      <div class="scale-bar-card reveal">
+        <div class="scale-bar-top">
+          <h3>1,158,000+ Labeled Ego&ndash;Exo Pairs &middot; Unified Real + Simulated Pipeline</h3>
+          <div class="scale-pills">
+            <span class="tag-pill sky">876K Train Queries</span>
+            <span class="tag-pill">636K Test Queries</span>
+            <span class="tag-pill amber">0.3% Blind-Audit Error</span>
+          </div>
+        </div>
+        <div class="split-meter" role="img" aria-label="49 percent real recordings, 51 percent simulated">
+          <div class="split-seg real"></div>
+          <div class="split-seg sim"></div>
+        </div>
+        <div class="split-legend">
+          <span><strong style="color:#0284c7;">569K Real Pairs (49.1%)</strong> &mdash; Harmony4D, CoMind, EgoHumans, CORE4D, V2X family, DROID, ALOHA, TUMTraf-V2X, MILUV &amp; more</span>
+          <span><strong style="color:#059669;">589K Simulated Pairs (50.9%)</strong> &mdash; Blender, Unreal &amp; robotics sims with exact masks, depth, poses &amp; real lenses</span>
+        </div>
+      </div>
+
+      <!-- L0 - L3 Generalization Ladder -->
+      <div class="levels-grid">
+        <div class="lvl-card">
+          <div class="lvl-head"><span class="lvl-badge lvl-l0">L0</span><span class="lvl-tag">Seen Site</span></div>
+          <h4>New Recording, Seen Location</h4>
+          <p>Unseen sessions recorded in environments present during training (Harmony4D, CoMind, Ego-Exo4D).</p>
+        </div>
+        <div class="lvl-card">
+          <div class="lvl-head"><span class="lvl-badge lvl-l1">L1</span><span class="lvl-tag">Seen Domain</span></div>
+          <h4>Unseen Location, Seen Domain</h4>
+          <p>Brand-new indoor rooms, forests, city layouts, underwater divers, and cross-modal Thermal IR rooms.</p>
+        </div>
+        <div class="lvl-card">
+          <div class="lvl-head"><span class="lvl-badge lvl-l2">L2</span><span class="lvl-tag">Unseen Source</span></div>
+          <h4>New Capture Source &amp; Scenes</h4>
+          <p>Humans in completely new sources &amp; viewpoints: EgoHumans, CORE4D-Real, 4 Sports arenas, Unreal crowds &amp; top-view.</p>
+        </div>
+        <div class="lvl-card">
+          <div class="lvl-head"><span class="lvl-badge lvl-l3">L3</span><span class="lvl-tag">Zero-Shot Wearer</span></div>
+          <h4>Unseen Wearer Embodiments</h4>
+          <p>Wearer types <strong>never seen in training</strong>: vehicles, robot arms, vacuums, legged robots, pets, wild animals, fish, birds &amp; drones.</p>
+        </div>
+      </div>
+
+      <!-- Filterable 16-Domain Embodiment Mosaic -->
+      <div class="filter-row" id="datasetFilters">
+        <button type="button" class="filter-pill active" data-ds-filter="all">All Domains <span class="cnt">16</span></button>
+        <button type="button" class="filter-pill" data-ds-filter="real">Real-World <span class="cnt">5</span></button>
+        <button type="button" class="filter-pill" data-ds-filter="humans">Humans, Sports &amp; IR <span class="cnt">5</span></button>
+        <button type="button" class="filter-pill" data-ds-filter="beyond">Beyond Humans (L3) <span class="cnt">6</span></button>
+      </div>
+      <div class="domain-mosaic" id="datasetMosaic"></div>
+
+      <!-- Real-Device Lens Filmstrip -->
+      <div class="lens-panel">
+        <div class="lens-hdr">
+          <div>
+            <h3>Dual Lens Coverage: Pinhole (v1) vs. Real-Device Optics (v2)</h3>
+            <p>Real ego cameras are overwhelmingly fisheye or ultra-wide. Pose-supervised training closes the v1&ndash;v2 lens gap from <strong>&minus;6.8%</strong> down to <strong>&minus;0.5%</strong>.</p>
+          </div>
+          <span class="tag-pill violet">8 Real-Device Profiles</span>
+        </div>
+        <div class="lens-grid" id="lensGrid"></div>
+      </div>
+
+      <!-- Three Unified Tasks Trio -->
+      <div class="tracks-trio reveal">
+        <div class="track-card">
+          <span class="track-badge" style="background:#e0f2fe;color:#0369a1;">TRACK A</span>
+          <h4>Who Is Ego? (Identification)</h4>
+          <p>Given an ego&ndash;exo pair and candidate masks or boxes in the exo view, identify which candidate carries the ego camera.</p>
+          <div class="track-metric">Metric: Chance-corrected &kappa;-Acc</div>
+        </div>
+        <div class="track-card">
+          <span class="track-badge" style="background:#ecfdf5;color:#047857;">TRACK B</span>
+          <h4>Where Is Ego? (Open-Vocab Seg + Absence)</h4>
+          <p>No pre-given masks &mdash; only category words (e.g. &ldquo;person&rdquo;, &ldquo;robot arm&rdquo;). Segment the wearer&rsquo;s pixel mask or predict <em>absent</em>.</p>
+          <div class="track-metric">Metric: gIoU@20 &amp; Visibility Accuracy (VA)</div>
+        </div>
+        <div class="track-card">
+          <span class="track-badge" style="background:#fffbeb;color:#b45309;">TRACK C</span>
+          <h4>Mutual Camera Localization</h4>
+          <p>Predict both unit epipole directions &mdash; ego camera in the exo image (&alpha;<sub>exo</sub>) and exo camera in the ego image (&alpha;<sub>ego</sub>).</p>
+          <div class="track-metric">Metric: Angular Error &alpha;<sub>exo</sub> / &alpha;<sub>ego</sub>, BLE &amp; MA@5 / MA@15</div>
+        </div>
+      </div>
+
+      <div style="text-align:center;">
+        <a class="pill-btn pill-accent" href="https://huggingface.co/spaces/Travor278/FindEgo-1M" target="_blank" rel="noopener">
+          <span>Explore Full Interactive FindEgo-1M Gallery (20 Subsets &amp; Quiz Mode) &rarr;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMAGE-LEVEL QUALITATIVE RESULTS ACROSS SCENARIOS & TASKS -->
+  <section class="section" id="qualitative">
+    <div class="container container-wide">
+      <div class="sec-head reveal">
+        <span class="section-eyebrow"><span class="ey-idx">04</span><span class="ey-line"></span>Image-Level Predictions</span>
+        <h2 class="section-title">Qualitative Results Across Scenarios &amp; Tracks</h2>
+        <p class="section-sub">
+          Image-level EgoRay predictions across real-world captures, cross-modal Thermal IR, extreme sports, unseen L3 embodiments, open-vocabulary Track B segmentation (including <em>absent</em> verdicts), and Track C mutual camera localization. Click any card to inspect full resolution.
+        </p>
+      </div>
+
+      <div class="tab-bar" role="tablist" id="qualTabBar">
+        <button type="button" class="tab-btn active" data-qtab="qtab-track-a">Track A: 20 Multi-Scenario Results</button>
+        <button type="button" class="tab-btn" data-qtab="qtab-wipe">Interactive Raw &harr; EgoRay Reveal</button>
+        <button type="button" class="tab-btn" data-qtab="qtab-compare">vs. Prior 3D Models</button>
+        <button type="button" class="tab-btn" data-qtab="qtab-track-b">Track B: Open-Vocab &amp; Absent</button>
+        <button type="button" class="tab-btn" data-qtab="qtab-track-c">Track C: Mutual Localization</button>
+      </div>
+
+      <!-- QTAB 1: Track A 20 Scenarios -->
+      <div class="tab-panel active" id="qtab-track-a">
+        <div class="filter-row" id="qualFilters">
+          <button type="button" class="filter-pill active" data-qfilter="all">All Scenarios <span class="cnt">20</span></button>
+          <button type="button" class="filter-pill" data-qfilter="real">Real-World <span class="cnt">5</span></button>
+          <button type="button" class="filter-pill" data-qfilter="extreme">Thermal IR &amp; Sports <span class="cnt">4</span></button>
+          <button type="button" class="filter-pill" data-qfilter="humans">Indoor, Nature &amp; Urban <span class="cnt">4</span></button>
+          <button type="button" class="filter-pill" data-qfilter="l3">Unseen Wearers (L3) <span class="cnt">7</span></button>
+        </div>
+        <div class="qual-grid" id="qualGrid"></div>
+        <p class="table-note" style="text-align:center;">
+          Legend: <strong style="color:#059669;">Green mask</strong> = EgoRay predicted wearer &middot; <strong>White outline</strong> = other candidates &middot; <strong style="color:#0284c7;">Cyan +</strong> = predicted epipole &middot; <strong style="color:#d97706;">Yellow &#9675;</strong> = true epipole &middot; Inset = Ego 1st-person image.
+        </p>
+      </div>
+
+      <!-- QTAB 1B: Interactive Raw <-> EgoRay Wipe Slider -->
+      <div class="tab-panel" id="qtab-wipe">
+        <div class="wipe-shell">
+          <div class="wipe-hdr">
+            <div>
+              <h3 id="wipeTitle">Real Humans &middot; Outdoor Tagging</h3>
+              <p id="wipeSub">Drag the glowing divider left or right to reveal EgoRay&rsquo;s 2D masks &amp; projected epipole over the raw image.</p>
+            </div>
+            <span class="tag-pill" id="wipeBadge">Real &middot; L2</span>
+          </div>
+          <div class="wipe-grid">
+            <div class="wipe-box" id="wipeExoBox">
+              <img id="wipeExoRaw" alt="Raw exo image" class="wipe-img">
+              <div class="wipe-clip" id="wipeExoClip">
+                <img id="wipeExoAnn" alt="EgoRay prediction" class="wipe-img">
+              </div>
+              <div class="wipe-handle" id="wipeHandle"><span class="wipe-knob">&harr;</span></div>
+              <span class="wipe-lbl left">EGORAY PREDICTION</span>
+              <span class="wipe-lbl right">RAW EXO</span>
+              <input type="range" id="wipeRange" class="wipe-range" min="0" max="100" value="56" aria-label="Compare EgoRay prediction and raw exo image">
+            </div>
+            <div class="wipe-ego-card">
+              <div class="i3d-card-hdr ego"><span>SYNCHRONIZED EGO VIEW (1ST-PERSON)</span><span>Blue + = Exo Cam</span></div>
+              <img id="wipeEgoImg" alt="Synchronized ego image">
+              <div class="wipe-ego-foot" id="wipeNote"></div>
+            </div>
+          </div>
+          <div class="thumb-dock" id="wipeThumbs" style="margin-top:14px;"></div>
+        </div>
+      </div>
+
+      <!-- QTAB 2: Baseline Visual Comparison -->
+      <div class="tab-panel" id="qtab-compare">
+        <div class="compare-hero">
+          <div class="compare-hero-hdr">
+            <h3>Head-to-Head Image-Level Comparison: Prior 3D Models vs. EgoRay</h3>
+            <span class="tag-pill">Real Humans (EgoHumans) &amp; Real Vehicles (V2X-Real)</span>
+          </div>
+          <img src="./assets/qual/compare_baselines.jpg" alt="Comparison of Depth Anything 3 and MapAnything vs EgoRay on EgoHumans and V2X-Real" data-lightbox="./assets/qual/compare_baselines.jpg" data-lb-title="Prior 3D Models vs. EgoRay" data-lb-sub="Top: Depth Anything 3 picks a foreground passerby on EgoHumans while EgoRay places the epipole squarely on the true wearer. Bottom: MapAnything misses the camera-carrying car on V2X-Real while EgoRay nails it.">
+          <p class="table-note">
+            On real-world captures where foreground distractors or wide urban intersections confuse prior 3D foundation models (Depth Anything 3, MapAnything), EgoRay&rsquo;s pose-supervised geometry and epipole-plus-depth readout pinpoint the exact camera wearer.
+          </p>
+        </div>
+      </div>
+
+      <!-- QTAB 3: Track B Open-Vocab SAM 3 + Absent -->
+      <div class="tab-panel" id="qtab-track-b">
+        <div class="track-bc-grid" id="trackBGrid">
+          <!-- Populated dynamically + fallback present/absent room card -->
+        </div>
+        <p class="table-note" style="text-align:center;">
+          In Track B, EgoRay receives <strong>no ground-truth candidate masks</strong> &mdash; SAM 3 proposes instances from category words, and EgoRay either selects the wearer mask (&theta;<sub>min</sub> &le; &theta;<sup>&star;</sup>) or declares the wearer <strong>ABSENT</strong> when the predicted ego camera lies behind or outside all proposals.
+        </p>
+      </div>
+
+      <!-- QTAB 4: Track C Mutual Camera Localization -->
+      <div class="tab-panel" id="qtab-track-c">
+        <div class="track-bc-grid" id="trackCGrid">
+          <!-- Populated dynamically -->
+        </div>
+        <p class="table-note" style="text-align:center;">
+          Track C evaluates <strong>both</strong> viewing directions simultaneously: locating the ego camera in the exo image (&alpha;<sub>exo</sub>, amber crosshair) and locating the exo camera in the ego image (&alpha;<sub>ego</sub>, blue crosshair).
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPEED, UNSEEN RADAR & QUANTITATIVE BENCHMARKS -->
+  <section class="section section-alt" id="speed">
+    <div class="container container-wide">
+      <div class="sec-head reveal">
+        <span class="section-eyebrow"><span class="ey-idx">05</span><span class="ey-line"></span>Efficiency &amp; Generalization</span>
+        <h2 class="section-title">Blazing Fast, Globally Accurate</h2>
+        <p class="section-sub">
+          A single feed-forward geometric pass runs in <strong>0.4s / query</strong> (including amortized TTA) &mdash; <strong>18&times;&ndash;56&times; faster</strong> than frontier multimodal LLMs while leading across all 13 unseen domain groups.
+        </p>
+      </div>
 
       <div class="speed-grid">
-        <!-- SVG Pareto Scatter: Latency (log) vs Unseen Accuracy -->
+        <!-- SVG Pareto Scatter -->
         <div class="viz-card">
           <div>
             <h3 class="viz-card-title">Unseen Accuracy vs. Inference Time (log scale)</h3>
@@ -220,15 +1102,13 @@
           <svg viewBox="0 0 560 285" style="width:100%;height:auto;display:block;" role="img" aria-label="Accuracy vs inference latency chart">
             <defs>
               <linearGradient id="sweetSpot" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#10b981" stop-opacity="0.14"/>
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.16"/>
                 <stop offset="100%" stop-color="#0284c7" stop-opacity="0.02"/>
               </linearGradient>
             </defs>
-            <!-- Sweet spot corner -->
-            <rect x="64" y="18" width="140" height="82" rx="10" fill="url(#sweetSpot)"/>
-            <text x="74" y="34" font-size="10.5" font-weight="700" fill="#047857">FAST &amp; ACCURATE</text>
+            <rect x="64" y="18" width="144" height="84" rx="10" fill="url(#sweetSpot)"/>
+            <text x="74" y="34" font-size="10.5" font-weight="800" fill="#047857">FAST &amp; ACCURATE</text>
 
-            <!-- Grid lines Y (0, 20, 40, 60, 80) -->
             <g stroke="#e2e8f0" stroke-width="1">
               <line x1="64" y1="228" x2="536" y2="228"/>
               <line x1="64" y1="181" x2="536" y2="181"/>
@@ -236,65 +1116,43 @@
               <line x1="64" y1="87" x2="536" y2="87"/>
               <line x1="64" y1="40" x2="536" y2="40"/>
             </g>
-            <!-- Axes -->
             <line x1="64" y1="18" x2="64" y2="240" stroke="#94a3b8" stroke-width="1.3"/>
             <line x1="64" y1="240" x2="536" y2="240" stroke="#94a3b8" stroke-width="1.3"/>
 
-            <!-- Y labels -->
             <g font-size="11" fill="#64748b" text-anchor="end">
-              <text x="56" y="232">0</text>
-              <text x="56" y="185">20</text>
-              <text x="56" y="138">40</text>
-              <text x="56" y="91">60</text>
-              <text x="56" y="44">80</text>
+              <text x="56" y="232">0</text><text x="56" y="185">20</text>
+              <text x="56" y="138">40</text><text x="56" y="91">60</text><text x="56" y="44">80</text>
             </g>
-            <text x="18" y="132" font-size="11.5" font-weight="600" fill="#334155" transform="rotate(-90 18 132)" text-anchor="middle">Unseen &kappa;-Acc (%)</text>
+            <text x="18" y="132" font-size="11.5" font-weight="700" fill="#334155" transform="rotate(-90 18 132)" text-anchor="middle">Unseen &kappa;-Acc (%)</text>
 
-            <!-- X labels (log10: 0.3 -> 64, 30 -> 536; x = 64 + 472*(log10(t)-log10(0.3))/2) -->
-            <!-- 0.4s: 93.5 | 1s: 187.4 | 3s: 300 | 10s: 423.4 | 25s: 517.3 -->
             <g font-size="11" fill="#64748b" text-anchor="middle">
-              <text x="94" y="257">0.4s</text>
-              <text x="187" y="257">1s</text>
-              <text x="300" y="257">3s</text>
-              <text x="423" y="257">10s</text>
-              <text x="517" y="257">25s</text>
+              <text x="94" y="257">0.4s</text><text x="187" y="257">1s</text>
+              <text x="300" y="257">3s</text><text x="423" y="257">10s</text><text x="517" y="257">25s</text>
             </g>
-            <text x="300" y="277" font-size="11.5" font-weight="600" fill="#334155" text-anchor="middle">Median Inference Time per Query (seconds, log scale &larr; faster)</text>
+            <text x="300" y="277" font-size="11.5" font-weight="700" fill="#334155" text-anchor="middle">Median Inference Time per Query (seconds, log scale &larr; faster)</text>
 
-            <!-- Dashed guide from EgoRay to GPT-6 Astra -->
-            <line x1="94" y1="50" x2="390" y2="100" stroke="#059669" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.7"/>
-            <rect x="206" y="55" width="118" height="20" rx="10" fill="#ecfdf5" stroke="#a7f3d0"/>
-            <text x="265" y="69" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">18&times; faster · +21.3</text>
+            <line x1="94" y1="50" x2="390" y2="100" stroke="#059669" stroke-width="1.6" stroke-dasharray="4 4" opacity="0.75"/>
+            <rect x="200" y="54" width="128" height="22" rx="11" fill="#ecfdf5" stroke="#a7f3d0"/>
+            <text x="264" y="69" font-size="10.5" font-weight="800" fill="#047857" text-anchor="middle">18&times; faster · +21.3</text>
 
-            <!-- MLLM points (y = 228 - acc*2.35) -->
-            <!-- InternVL3.5-38B: 9.7s (x=420), -2.6 (y=234) -->
             <circle cx="420" cy="233" r="6" fill="#94a3b8"/>
             <text x="420" y="222" font-size="10.5" fill="#475569" text-anchor="middle">InternVL3.5-38B</text>
-
-            <!-- Qwen3-VL-32B: 3.0s (x=300), 3.9 (y=219) -->
             <circle cx="300" cy="219" r="6" fill="#94a3b8"/>
             <text x="300" y="208" font-size="10.5" fill="#475569" text-anchor="middle">Qwen3-VL-32B</text>
-
-            <!-- GPT-6.1 Sol: 22.4s (x=506), 49.1 (y=113) -->
             <circle cx="506" cy="113" r="6.5" fill="#64748b"/>
-            <text x="498" y="131" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">GPT-6.1 Sol</text>
-
-            <!-- GPT-6 Astra: 7.2s (x=390), 54.5 (y=100) -->
+            <text x="498" y="131" font-size="11" font-weight="700" fill="#334155" text-anchor="middle">GPT-6.1 Sol</text>
             <circle cx="390" cy="100" r="6.5" fill="#64748b"/>
-            <text x="390" y="118" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">GPT-6 Astra</text>
-
-            <!-- Claude Opus: 13.4s (x=453), 62.1 (y=82) -->
+            <text x="390" y="118" font-size="11" font-weight="700" fill="#334155" text-anchor="middle">GPT-6 Astra</text>
             <circle cx="453" cy="82" r="6.5" fill="#475569"/>
-            <text x="453" y="70" font-size="11" font-weight="600" fill="#1e293b" text-anchor="middle">Claude Opus</text>
+            <text x="453" y="70" font-size="11" font-weight="700" fill="#1e293b" text-anchor="middle">Claude Opus</text>
 
-            <!-- EgoRay (Ours): 0.4s (x=94), 75.8..78.6 (y=50) -->
-            <circle cx="94" cy="50" r="15" fill="#10b981" opacity="0.20"/>
+            <circle cx="94" cy="50" r="16" fill="#10b981" opacity="0.22"/>
             <circle cx="94" cy="50" r="8.5" fill="#059669" stroke="#ffffff" stroke-width="2.5"/>
-            <text x="111" y="54" font-size="13" font-weight="800" fill="#047857">EgoRay (Ours)</text>
+            <text x="112" y="54" font-size="13" font-weight="800" fill="#047857">EgoRay (Ours)</text>
           </svg>
         </div>
 
-        <!-- Speedup Comparison Bars -->
+        <!-- Latency Bars -->
         <div class="viz-card">
           <div>
             <h3 class="viz-card-title">Per-Query Latency Comparison</h3>
@@ -302,383 +1160,193 @@
           </div>
           <div class="speed-bars">
             <div class="sp-row ours">
-              <div class="sp-row-top">
-                <span class="sp-name">EgoRay (Ours)</span>
-                <span class="sp-meta">0.4s / query</span>
-              </div>
+              <div class="sp-row-top"><span class="sp-name">EgoRay (Ours)</span><span class="sp-meta">0.4s / query</span></div>
               <div class="sp-track"><div class="sp-fill" style="width:2.5%"></div></div>
             </div>
             <div class="sp-row">
-              <div class="sp-row-top">
-                <span class="sp-name">Qwen3-VL-32B</span>
-                <span class="sp-meta">3.0s <span class="sp-badge">7.5&times; slower</span></span>
-              </div>
+              <div class="sp-row-top"><span class="sp-name">Qwen3-VL-32B</span><span class="sp-meta">3.0s <span class="sp-badge">7.5&times; slower</span></span></div>
               <div class="sp-track"><div class="sp-fill" style="width:13.4%"></div></div>
             </div>
             <div class="sp-row">
-              <div class="sp-row-top">
-                <span class="sp-name">GPT-6 Astra</span>
-                <span class="sp-meta">7.2s <span class="sp-badge">18&times; slower</span></span>
-              </div>
+              <div class="sp-row-top"><span class="sp-name">GPT-6 Astra</span><span class="sp-meta">7.2s <span class="sp-badge">18&times; slower</span></span></div>
               <div class="sp-track"><div class="sp-fill" style="width:32.1%"></div></div>
             </div>
             <div class="sp-row">
-              <div class="sp-row-top">
-                <span class="sp-name">InternVL3.5-38B</span>
-                <span class="sp-meta">9.7s <span class="sp-badge">24&times; slower</span></span>
-              </div>
+              <div class="sp-row-top"><span class="sp-name">InternVL3.5-38B</span><span class="sp-meta">9.7s <span class="sp-badge">24&times; slower</span></span></div>
               <div class="sp-track"><div class="sp-fill" style="width:43.3%"></div></div>
             </div>
             <div class="sp-row">
-              <div class="sp-row-top">
-                <span class="sp-name">Claude Opus</span>
-                <span class="sp-meta">13.4s <span class="sp-badge">33.5&times; slower</span></span>
-              </div>
+              <div class="sp-row-top"><span class="sp-name">Claude Opus</span><span class="sp-meta">13.4s <span class="sp-badge">33.5&times; slower</span></span></div>
               <div class="sp-track"><div class="sp-fill" style="width:59.8%"></div></div>
             </div>
             <div class="sp-row">
-              <div class="sp-row-top">
-                <span class="sp-name">GPT-6.1 Sol</span>
-                <span class="sp-meta">22.4s <span class="sp-badge">56&times; slower</span></span>
-              </div>
+              <div class="sp-row-top"><span class="sp-name">GPT-6.1 Sol</span><span class="sp-meta">22.4s <span class="sp-badge">56&times; slower</span></span></div>
               <div class="sp-track"><div class="sp-fill" style="width:100%"></div></div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- FINDEGO-1M GALLERY VISUAL PREVIEW -->
-  <section class="section section-alt" id="gallery">
-    <div class="container container-wide">
-      <h2 class="section-title">FindEgo-1M Dataset Gallery</h2>
-      <p class="section-sub">
-        1.16M ego–exo pairs spanning 12 wearer types, 17 domains, and 4 generalization levels (L0–L3).
-      </p>
-
-      <div class="gal-strip">
-        <a class="gal-tile" href="https://huggingface.co/spaces/Travor278/FindEgo-1M" target="_blank" rel="noopener">
-          <img src="./assets/gallery/people_v1_01_gt.jpg" alt="Indoor Humans" loading="lazy">
-          <div class="gal-tile-cap"><span>Indoor Humans</span><span class="gal-lvl">L1</span></div>
-        </a>
-        <a class="gal-tile" href="https://huggingface.co/spaces/Travor278/FindEgo-1M" target="_blank" rel="noopener">
-          <img src="./assets/gallery/hockey_v1_01_gt.jpg" alt="Sports Ice Hockey" loading="lazy">
-          <div class="gal-tile-cap"><span>Sports &middot; Hockey</span><span class="gal-lvl">L2</span></div>
-        </a>
-        <a class="gal-tile" href="https://huggingface.co/spaces/Travor278/FindEgo-1M" target="_blank" rel="noopener">
-          <img src="./assets/gallery/wild_v1_01_gt.jpg" alt="Wild Animals" loading="lazy">
-          <div class="gal-tile-cap"><span>Wild Animals</span><span class="gal-lvl">L3</span></div>
-        </a>
-        <a class="gal-tile" href="https://huggingface.co/spaces/Travor278/FindEgo-1M" target="_blank" rel="noopener">
-          <img src="./assets/gallery/underwater_v1_01_gt.jpg" alt="Underwater Sea Life" loading="lazy">
-          <div class="gal-tile-cap"><span>Underwater</span><span class="gal-lvl">L3</span></div>
-        </a>
-      </div>
-
-      <div class="gal-cta-wrap">
-        <a class="pill-btn pill-accent" href="https://huggingface.co/spaces/Travor278/FindEgo-1M" target="_blank" rel="noopener">
-          <span>Open Interactive FindEgo-1M Gallery (20 Subsets &amp; Quiz Mode) &rarr;</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- HOW EGORAY WORKS (VISUAL DIAGRAM ONLY) -->
-  <section class="section" id="method">
-    <div class="container">
-      <h2 class="section-title">How EgoRay Works</h2>
-      <p class="section-sub">
-        The wearer is where the ego camera is: EgoRay lifts the pair into 3D and casts the epipole ray to rank candidates across all three tracks.
-      </p>
-
-      <div class="method-box">
-        <svg class="method-svg" viewBox="0 0 1040 236" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="EgoRay geometric readout pipeline">
-          <defs>
-            <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 1 L 10 5 L 0 9 z" fill="#475569"/>
-            </marker>
-            <marker id="arrGold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 1 L 10 5 L 0 9 z" fill="#d97706"/>
-            </marker>
-          </defs>
-          <rect x="8" y="18" width="195" height="196" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
-          <text x="105" y="43" text-anchor="middle" font-size="13" font-weight="700" fill="#0f3d68">1. Input Pair</text>
-          <rect x="26" y="58" width="159" height="58" rx="8" fill="#e0f2fe" stroke="#38bdf8"/>
-          <text x="105" y="83" text-anchor="middle" font-size="12.5" font-weight="700" fill="#0369a1">Exo Image (3rd-person)</text>
-          <text x="105" y="102" text-anchor="middle" font-size="11" fill="#0c4a6e">+ Masks or SAM 3</text>
-          <rect x="26" y="130" width="159" height="58" rx="8" fill="#fef3c7" stroke="#f59e0b"/>
-          <text x="105" y="155" text-anchor="middle" font-size="12.5" font-weight="700" fill="#b45309">Ego Image (1st-person)</text>
-          <text x="105" y="174" text-anchor="middle" font-size="11" fill="#78350f">Any wearer &middot; Any lens</text>
-
-          <line x1="205" y1="116" x2="246" y2="116" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
-
-          <rect x="252" y="18" width="236" height="196" rx="12" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.5"/>
-          <text x="370" y="43" text-anchor="middle" font-size="13" font-weight="700" fill="#0f3d68">2. VGGT-&Omega; + LoRA</text>
-          <rect x="272" y="60" width="196" height="48" rx="8" fill="#ffffff" stroke="#bae6fd"/>
-          <text x="370" y="81" text-anchor="middle" font-size="12" font-weight="600" fill="#1e293b">Pose-Supervised + TTA</text>
-          <text x="370" y="98" text-anchor="middle" font-size="11" fill="#64748b">Zero-shot or adapted</text>
-          <rect x="272" y="120" width="196" height="72" rx="8" fill="#ffffff" stroke="#bae6fd"/>
-          <text x="370" y="143" text-anchor="middle" font-size="12" font-weight="600" fill="#1e293b">3D Geometry (0.4s)</text>
-          <text x="370" y="161" text-anchor="middle" font-size="11" fill="#475569">Relative pose (R, t) + K</text>
-          <text x="370" y="178" text-anchor="middle" font-size="11" fill="#475569">Dense exo &amp; ego depth</text>
-
-          <line x1="490" y1="116" x2="531" y2="116" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
-
-          <rect x="537" y="18" width="256" height="196" rx="12" fill="#fffbeb" stroke="#fcd34d" stroke-width="1.5"/>
-          <text x="665" y="43" text-anchor="middle" font-size="13" font-weight="700" fill="#b45309">3. EgoRay Readout</text>
-          <circle cx="578" cy="142" r="7" fill="#0284c7"/>
-          <text x="578" y="166" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0369a1">Exo Cam</text>
-          <line x1="585" y1="139" x2="735" y2="89" stroke="#d97706" stroke-width="3" marker-end="url(#arrGold)"/>
-          <circle cx="710" cy="97" r="6" fill="#f59e0b"/>
-          <text x="706" y="80" text-anchor="middle" font-size="10.5" font-weight="600" fill="#b45309">Ego Cam</text>
-          <circle cx="745" cy="86" r="10" fill="#10b981" fill-opacity="0.22" stroke="#10b981" stroke-width="2"/>
-          <circle cx="745" cy="86" r="4.5" fill="#10b981"/>
-          <text x="745" y="112" text-anchor="middle" font-size="10.5" font-weight="700" fill="#047857">Wearer</text>
-          <circle cx="660" cy="152" r="5" fill="#dc2626"/>
-          <circle cx="732" cy="160" r="5" fill="#dc2626"/>
-          <text x="696" y="179" text-anchor="middle" font-size="10.5" fill="#b91c1c">Other candidates</text>
-          <text x="665" y="200" text-anchor="middle" font-size="11" font-family="monospace" fill="#78350f">angle(e, m) + &lambda; &middot; |d(m) &minus; d(ego)|</text>
-
-          <line x1="795" y1="116" x2="836" y2="116" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
-
-          <rect x="842" y="18" width="190" height="196" rx="12" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.5"/>
-          <text x="937" y="43" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">4. Three Tracks</text>
-          <rect x="858" y="59" width="158" height="42" rx="7" fill="#ffffff" stroke="#a7f3d0"/>
-          <text x="937" y="77" text-anchor="middle" font-size="11.5" font-weight="700" fill="#047857">Track A: Who Is Ego?</text>
-          <text x="937" y="93" text-anchor="middle" font-size="10.5" fill="#475569">Wearer identification</text>
-          <rect x="858" y="109" width="158" height="42" rx="7" fill="#ffffff" stroke="#a7f3d0"/>
-          <text x="937" y="127" text-anchor="middle" font-size="11.5" font-weight="700" fill="#047857">Track B: Where Is Ego?</text>
-          <text x="937" y="143" text-anchor="middle" font-size="10.5" fill="#475569">Mask + absence verdict</text>
-          <rect x="858" y="159" width="158" height="42" rx="7" fill="#ffffff" stroke="#a7f3d0"/>
-          <text x="937" y="177" text-anchor="middle" font-size="11.5" font-weight="700" fill="#047857">Track C: Mutual Pose</text>
-          <text x="937" y="193" text-anchor="middle" font-size="10.5" fill="#475569">Exo &harr; Ego directions</text>
-        </svg>
-      </div>
-    </div>
-  </section>
-
-  <!-- BENCHMARK RESULTS (COMPACT TABS) -->
-  <section class="section section-alt" id="results">
-    <div class="container container-wide">
-      <h2 class="section-title">Quantitative Results</h2>
-
-      <div class="tab-bar" role="tablist">
-        <button type="button" class="tab-btn active" data-tab="tab-track-a">Track A: FindEgo-1M</button>
-        <button type="button" class="tab-btn" data-tab="tab-llm">Speed &amp; MLLMs</button>
-        <button type="button" class="tab-btn" data-tab="tab-tf2023">TF2023 (PEN)</button>
-        <button type="button" class="tab-btn" data-tab="tab-bc">Tracks B &amp; C</button>
-      </div>
-
-      <!-- TAB 1: Track A -->
-      <div class="tab-panel active" id="tab-track-a">
-        <div class="table-scroll">
-          <table class="bench">
-            <thead>
-              <tr>
-                <th class="lalign" rowspan="2">Method</th>
-                <th colspan="6">Seen (L0–L1)</th>
-                <th colspan="4">Unseen Source (L2)</th>
-                <th colspan="9">Unseen Wearer (L3)</th>
-                <th colspan="2">Macro (&kappa;-Acc)</th>
-              </tr>
-              <tr>
-                <th>Real</th><th>Indoor</th><th>Nature</th><th>City</th><th>Divers</th><th>Therm.</th>
-                <th>Real</th><th>Top</th><th>Sports</th><th>Unreal</th>
-                <th>Veh.</th><th>Legged</th><th>Arm</th><th>Vac.</th><th>Pet</th><th>Wild</th><th>Fish</th><th>Bird</th><th>Drone</th>
-                <th>Seen</th><th>Unseen</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="lalign">Largest mask</td>
-                <td>34.8</td><td>1.1</td><td>0.2</td><td>1.8</td><td>0.7</td><td>0.4</td>
-                <td>2.9</td><td>7.0</td><td>0.4</td><td>&minus;4.1</td>
-                <td>7.9</td><td>0.2</td><td>0.4</td><td>0.0</td><td>0.3</td><td>0.2</td><td>&minus;3.2</td><td>&minus;0.1</td><td>0.2</td>
-                <td>6.5</td><td>0.9</td>
-              </tr>
-              <tr>
-                <td class="lalign">DUSt3R</td>
-                <td>59.8</td><td>57.0</td><td>14.4</td><td>23.5</td><td>0.9</td><td>3.3</td>
-                <td>54.1</td><td>27.7</td><td>18.9</td><td>27.4</td>
-                <td>20.7</td><td>47.6</td><td>2.7</td><td>49.6</td><td>61.8</td><td>2.0</td><td>0.8</td><td>2.8</td><td>3.5</td>
-                <td>26.5</td><td>24.6</td>
-              </tr>
-              <tr>
-                <td class="lalign">VGGT</td>
-                <td>84.2</td><td>69.5</td><td>17.2</td><td>37.3</td><td>5.6</td><td>16.4</td>
-                <td>78.3</td><td>44.5</td><td>25.3</td><td>42.8</td>
-                <td>25.7</td><td>58.7</td><td>15.0</td><td>69.1</td><td>71.6</td><td>7.9</td><td>8.6</td><td>10.5</td><td>8.2</td>
-                <td>38.4</td><td>35.9</td>
-              </tr>
-              <tr>
-                <td class="lalign">Pi3X</td>
-                <td>86.0</td><td>78.8</td><td>52.2</td><td>53.3</td><td>4.8</td><td>18.8</td>
-                <td>83.9</td><td>90.9</td><td>39.4</td><td>58.4</td>
-                <td>39.2</td><td>69.7</td><td>23.7</td><td>88.7</td><td>92.8</td><td>23.0</td><td>13.1</td><td>21.5</td><td>7.3</td>
-                <td>49.0</td><td>50.1</td>
-              </tr>
-              <tr>
-                <td class="lalign">Depth Anything 3</td>
-                <td>77.8</td><td>85.1</td><td>58.9</td><td>55.4</td><td>7.3</td><td>19.8</td>
-                <td>85.0</td><td>75.7</td><td>46.4</td><td>58.6</td>
-                <td>25.3</td><td>71.3</td><td>29.0</td><td>76.7</td><td>89.2</td><td>20.9</td><td>12.7</td><td>15.3</td><td>19.4</td>
-                <td>50.7</td><td>48.1</td>
-              </tr>
-              <tr>
-                <td class="lalign">MapAnything</td>
-                <td>85.3</td><td>80.0</td><td>48.5</td><td>59.4</td><td>6.0</td><td>28.8</td>
-                <td>79.7</td><td>84.5</td><td>48.9</td><td>56.4</td>
-                <td>51.6</td><td>70.3</td><td>29.9</td><td>77.1</td><td>89.8</td><td>16.9</td><td>9.1</td><td>13.7</td><td>17.6</td>
-                <td>51.3</td><td>49.6</td>
-              </tr>
-              <tr class="ours-zs">
-                <td class="lalign"><strong>EgoRay-ZS</strong> (Ours, zero-shot)</td>
-                <td>91.9</td><td>90.0</td><td>72.8</td><td>68.4</td><td>10.7</td><td>29.0</td>
-                <td>91.1</td><td>83.9</td><td>60.6</td><td>70.5</td>
-                <td>50.5</td><td>81.2</td><td>47.1</td><td>88.4</td><td>95.5</td><td>28.3</td><td>14.7</td><td>25.8</td><td>25.4</td>
-                <td><strong>60.5</strong></td><td><strong>58.7</strong></td>
-              </tr>
-              <tr class="ours-full">
-                <td class="lalign"><strong>EgoRay</strong> (Ours)</td>
-                <td>98.2</td><td>97.3</td><td>93.6</td><td>93.1</td><td>50.2</td><td>90.1</td>
-                <td>96.4</td><td>99.7</td><td>85.7</td><td>88.6</td>
-                <td>84.9</td><td>90.3</td><td>64.6</td><td>94.1</td><td>98.7</td><td>55.9</td><td>46.4</td><td>49.5</td><td>55.0</td>
-                <td><strong>87.1</strong></td><td><strong>77.7</strong></td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Interactive 13-Domain Unseen Radar Chart -->
+      <div class="radar-card">
+        <div>
+          <svg id="radarSvg" viewBox="0 0 460 390" style="width:100%;height:auto;display:block;" role="img" aria-label="13-domain unseen accuracy radar chart"></svg>
         </div>
-        <p class="table-note">Chance-corrected accuracy (&kappa;-Acc, Full tier) across 19 domain groups of FindEgo-1M.</p>
-      </div>
-
-      <!-- TAB 2: MLLMs & Speed -->
-      <div class="tab-panel" id="tab-llm">
-        <div class="table-scroll" style="max-width:840px;margin:0 auto;">
-          <table class="bench">
-            <thead>
-              <tr>
-                <th class="lalign" rowspan="2">Multimodal LLM</th>
-                <th rowspan="2">Matched</th>
-                <th colspan="3">Baseline Model</th>
-                <th colspan="3">EgoRay (Ours, same items)</th>
-              </tr>
-              <tr>
-                <th>Seen &kappa;-Acc</th><th>Unseen &kappa;-Acc</th><th>Time (s)</th>
-                <th>Seen &kappa;-Acc</th><th>Unseen &kappa;-Acc</th><th>Time (s)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="lalign">Claude Opus</td><td>2,061</td>
-                <td>71.5</td><td>62.1</td><td>13.4</td>
-                <td style="background:var(--ours-strong);font-weight:700">92.4</td>
-                <td style="background:var(--ours-strong);font-weight:700">78.6</td>
-                <td style="background:var(--ours-strong);font-weight:700">0.4 (33.5&times;)</td>
-              </tr>
-              <tr>
-                <td class="lalign">GPT-6.1 Sol</td><td>14,802</td>
-                <td>50.5</td><td>49.1</td><td>22.4</td>
-                <td style="background:var(--ours-strong);font-weight:700">86.5</td>
-                <td style="background:var(--ours-strong);font-weight:700">75.9</td>
-                <td style="background:var(--ours-strong);font-weight:700">0.4 (56&times;)</td>
-              </tr>
-              <tr>
-                <td class="lalign">GPT-6 Astra</td><td>14,181</td>
-                <td>55.4</td><td>54.5</td><td>7.2</td>
-                <td style="background:var(--ours-strong);font-weight:700">87.0</td>
-                <td style="background:var(--ours-strong);font-weight:700">75.8</td>
-                <td style="background:var(--ours-strong);font-weight:700">0.4 (18&times;)</td>
-              </tr>
-              <tr>
-                <td class="lalign">Qwen3-VL-32B</td><td>5,445</td>
-                <td>11.5</td><td>3.9</td><td>3.0</td>
-                <td style="background:var(--ours-strong);font-weight:700">87.6</td>
-                <td style="background:var(--ours-strong);font-weight:700">73.9</td>
-                <td style="background:var(--ours-strong);font-weight:700">0.4 (7.5&times;)</td>
-              </tr>
-              <tr>
-                <td class="lalign">InternVL3.5-38B</td><td>5,445</td>
-                <td>9.6</td><td>&minus;2.6</td><td>9.7</td>
-                <td style="background:var(--ours-strong);font-weight:700">87.6</td>
-                <td style="background:var(--ours-strong);font-weight:700">73.9</td>
-                <td style="background:var(--ours-strong);font-weight:700">0.4 (24&times;)</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="table-note" style="text-align:center;">Matched Gold queries. Time is median seconds/item (including amortized TTA for EgoRay).</p>
-      </div>
-
-      <!-- TAB 3: TF2023 -->
-      <div class="tab-panel" id="tab-tf2023">
-        <div class="table-scroll" style="max-width:740px;margin:0 auto;">
-          <table class="bench">
-            <thead>
-              <tr>
-                <th class="lalign" rowspan="2">Method</th>
-                <th colspan="3">0.9 Confidence Pool</th>
-                <th colspan="2">0.5 Confidence Pool</th>
-              </tr>
-              <tr>
-                <th>Acc (orig.)</th><th>Acc (corr.)</th><th>mIoU</th>
-                <th>Acc (corr.)</th><th>mIoU</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td class="lalign">PEN (dataset-trained)</td><td>52.9</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-              <tr><td class="lalign">Depth Anything 3</td><td>76.9</td><td>80.6</td><td>69.3</td><td>86.0</td><td>73.8</td></tr>
-              <tr class="ours-zs"><td class="lalign"><strong>EgoRay-ZS</strong> (zero-shot)</td><td>78.0</td><td>81.8</td><td>70.3</td><td>87.8</td><td>75.3</td></tr>
-              <tr class="ours-full"><td class="lalign"><strong>EgoRay</strong> (Ours)</td><td><strong>81.8</strong></td><td><strong>85.6</strong></td><td><strong>73.5</strong></td><td><strong>91.6</strong></td><td><strong>78.5</strong></td></tr>
-              <tr><td class="lalign" style="color:var(--ink-muted)">Mask R-CNN Pool Ceiling</td><td style="color:var(--ink-muted)">86.0</td><td style="color:var(--ink-muted)">86.0</td><td style="color:var(--ink-muted)">73.8</td><td style="color:var(--ink-muted)">92.8</td><td style="color:var(--ink-muted)">79.3</td></tr>
-            </tbody>
-          </table>
+        <div>
+          <h3 class="viz-card-title" style="font-size:18px;">Unseen Domain Profile (&kappa;-Acc across 13 Unseen Domains)</h3>
+          <p class="viz-card-sub">Click a model to toggle visibility, or hover any domain axis on the radar to compare exact scores.</p>
+          <div class="radar-legend" id="radarLegend"></div>
+          <div class="radar-tooltip" id="radarTooltip">Hover any domain axis on the radar to inspect per-domain &kappa;-Acc.</div>
         </div>
       </div>
 
-      <!-- TAB 4: Tracks B & C -->
-      <div class="tab-panel" id="tab-bc">
-        <div class="table-scroll" style="margin-bottom:14px;">
-          <table class="bench">
-            <thead>
-              <tr>
-                <th class="lalign" rowspan="2">Track B: Wearer Segmentation</th>
-                <th colspan="4">Seen</th>
-                <th colspan="4">Unseen</th>
-              </tr>
-              <tr>
-                <th>gIoU&uarr;</th><th>mIoU-P&uarr;</th><th>Pr@0.5&uarr;</th><th>VA&uarr;</th>
-                <th>gIoU&uarr;</th><th>mIoU-P&uarr;</th><th>Pr@0.5&uarr;</th><th>VA&uarr;</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td class="lalign">Pi3X</td><td>49.2</td><td>43.7</td><td>49.9</td><td>74.5</td><td>42.3</td><td>34.8</td><td>38.7</td><td>68.1</td></tr>
-              <tr><td class="lalign">Depth Anything 3</td><td>51.6</td><td>45.0</td><td>51.3</td><td>77.3</td><td>42.2</td><td>32.5</td><td>36.3</td><td>70.1</td></tr>
-              <tr class="ours-zs"><td class="lalign"><strong>EgoRay-ZS</strong></td><td>56.3</td><td>49.6</td><td>56.9</td><td>79.7</td><td>46.5</td><td>37.6</td><td>42.0</td><td>73.0</td></tr>
-              <tr class="ours-full"><td class="lalign"><strong>EgoRay</strong></td><td><strong>67.8</strong></td><td><strong>70.7</strong></td><td><strong>80.6</strong></td><td><strong>83.9</strong></td><td><strong>55.2</strong></td><td><strong>53.1</strong></td><td><strong>58.6</strong></td><td><strong>75.8</strong></td></tr>
-            </tbody>
-          </table>
+      <!-- Compact Tabbed Quantitative Tables -->
+      <div id="results" style="padding-top:6px;">
+        <div class="tab-bar" role="tablist" id="benchTabBar">
+          <button type="button" class="tab-btn active" data-tab="tab-track-a">Track A: 19 Domains</button>
+          <button type="button" class="tab-btn" data-tab="tab-llm">Speed &amp; MLLMs</button>
+          <button type="button" class="tab-btn" data-tab="tab-tf2023">TF2023 &amp; Locked Real Sets</button>
+          <button type="button" class="tab-btn" data-tab="tab-bc">Tracks B &amp; C</button>
+          <button type="button" class="tab-btn" data-tab="tab-thermal">Thermal IR &amp; Lenses</button>
         </div>
-        <div class="table-scroll">
-          <table class="bench">
-            <thead>
-              <tr>
-                <th class="lalign" rowspan="2">Track C: Mutual Camera Localization</th>
-                <th colspan="4">Seen</th>
-                <th colspan="4">Unseen</th>
-              </tr>
-              <tr>
-                <th>MA@5&uarr;</th><th>MA@15&uarr;</th><th>&alpha;<sub>exo</sub>&darr;</th><th>BLE&darr;</th>
-                <th>MA@5&uarr;</th><th>MA@15&uarr;</th><th>&alpha;<sub>exo</sub>&darr;</th><th>BLE&darr;</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td class="lalign">MapAnything</td><td>21.0</td><td>50.2</td><td>16.4&deg;</td><td>2.2</td><td>19.7</td><td>45.5</td><td>19.5&deg;</td><td>14.5</td></tr>
-              <tr><td class="lalign">Depth Anything 3</td><td>29.2</td><td>49.9</td><td>20.0&deg;</td><td>2.3</td><td>23.4</td><td>43.9</td><td>22.0&deg;</td><td>16.3</td></tr>
-              <tr class="ours-zs"><td class="lalign"><strong>EgoRay-ZS</strong></td><td>28.5</td><td>57.9</td><td>27.3&deg;</td><td>2.4</td><td>28.1</td><td>53.7</td><td>20.0&deg;</td><td>10.6</td></tr>
-              <tr class="ours-full"><td class="lalign"><strong>EgoRay</strong></td><td><strong>71.8</strong></td><td><strong>83.7</strong></td><td><strong>4.1&deg;</strong></td><td><strong>0.6</strong></td><td><strong>50.6</strong></td><td><strong>72.9</strong></td><td><strong>7.2&deg;</strong></td><td><strong>4.2</strong></td></tr>
-            </tbody>
-          </table>
+
+        <!-- TAB 1: Track A -->
+        <div class="tab-panel active" id="tab-track-a">
+          <div class="table-scroll">
+            <table class="bench">
+              <thead>
+                <tr>
+                  <th class="lalign" rowspan="2">Method</th>
+                  <th colspan="6">Seen (L0&ndash;L1)</th>
+                  <th colspan="4">Unseen Source (L2)</th>
+                  <th colspan="9">Unseen Wearer (L3)</th>
+                  <th colspan="2">Macro (&kappa;-Acc)</th>
+                </tr>
+                <tr>
+                  <th>Real</th><th>Indoor</th><th>Nature</th><th>City</th><th>Divers</th><th>Therm.</th>
+                  <th>Real</th><th>Top</th><th>Sports</th><th>Unreal</th>
+                  <th>Veh.</th><th>Legged</th><th>Arm</th><th>Vac.</th><th>Pet</th><th>Wild</th><th>Fish</th><th>Bird</th><th>Drone</th>
+                  <th>Seen</th><th>Unseen</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="lalign">Largest mask</td><td>34.8</td><td>1.1</td><td>0.2</td><td>1.8</td><td>0.7</td><td>0.4</td><td>2.9</td><td>7.0</td><td>0.4</td><td>&minus;4.1</td><td>7.9</td><td>0.2</td><td>0.4</td><td>0.0</td><td>0.3</td><td>0.2</td><td>&minus;3.2</td><td>&minus;0.1</td><td>0.2</td><td>6.5</td><td>0.9</td></tr>
+                <tr><td class="lalign">DUSt3R</td><td>59.8</td><td>57.0</td><td>14.4</td><td>23.5</td><td>0.9</td><td>3.3</td><td>54.1</td><td>27.7</td><td>18.9</td><td>27.4</td><td>20.7</td><td>47.6</td><td>2.7</td><td>49.6</td><td>61.8</td><td>2.0</td><td>0.8</td><td>2.8</td><td>3.5</td><td>26.5</td><td>24.6</td></tr>
+                <tr><td class="lalign">VGGT</td><td>84.2</td><td>69.5</td><td>17.2</td><td>37.3</td><td>5.6</td><td>16.4</td><td>78.3</td><td>44.5</td><td>25.3</td><td>42.8</td><td>25.7</td><td>58.7</td><td>15.0</td><td>69.1</td><td>71.6</td><td>7.9</td><td>8.6</td><td>10.5</td><td>8.2</td><td>38.4</td><td>35.9</td></tr>
+                <tr><td class="lalign">Pi3X</td><td>86.0</td><td>78.8</td><td>52.2</td><td>53.3</td><td>4.8</td><td>18.8</td><td>83.9</td><td>90.9</td><td>39.4</td><td>58.4</td><td>39.2</td><td>69.7</td><td>23.7</td><td>88.7</td><td>92.8</td><td>23.0</td><td>13.1</td><td>21.5</td><td>7.3</td><td>49.0</td><td>50.1</td></tr>
+                <tr><td class="lalign">Depth Anything 3</td><td>77.8</td><td>85.1</td><td>58.9</td><td>55.4</td><td>7.3</td><td>19.8</td><td>85.0</td><td>75.7</td><td>46.4</td><td>58.6</td><td>25.3</td><td>71.3</td><td>29.0</td><td>76.7</td><td>89.2</td><td>20.9</td><td>12.7</td><td>15.3</td><td>19.4</td><td>50.7</td><td>48.1</td></tr>
+                <tr><td class="lalign">MapAnything</td><td>85.3</td><td>80.0</td><td>48.5</td><td>59.4</td><td>6.0</td><td>28.8</td><td>79.7</td><td>84.5</td><td>48.9</td><td>56.4</td><td>51.6</td><td>70.3</td><td>29.9</td><td>77.1</td><td>89.8</td><td>16.9</td><td>9.1</td><td>13.7</td><td>17.6</td><td>51.3</td><td>49.6</td></tr>
+                <tr class="ours-zs"><td class="lalign"><strong>EgoRay-ZS</strong> (zero-shot)</td><td>91.9</td><td>90.0</td><td>72.8</td><td>68.4</td><td>10.7</td><td>29.0</td><td>91.1</td><td>83.9</td><td>60.6</td><td>70.5</td><td>50.5</td><td>81.2</td><td>47.1</td><td>88.4</td><td>95.5</td><td>28.3</td><td>14.7</td><td>25.8</td><td>25.4</td><td><strong>60.5</strong></td><td><strong>58.7</strong></td></tr>
+                <tr class="ours-full"><td class="lalign"><strong>EgoRay</strong> (Ours)</td><td>98.2</td><td>97.3</td><td>93.6</td><td>93.1</td><td>50.2</td><td>90.1</td><td>96.4</td><td>99.7</td><td>85.7</td><td>88.6</td><td>84.9</td><td>90.3</td><td>64.6</td><td>94.1</td><td>98.7</td><td>55.9</td><td>46.4</td><td>49.5</td><td>55.0</td><td><strong>87.1</strong></td><td><strong>77.7</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">Chance-corrected accuracy (&kappa;-Acc, Full tier: 636,194 test queries) across 19 domain groups of FindEgo-1M.</p>
+        </div>
+
+        <!-- TAB 2: Speed & MLLMs -->
+        <div class="tab-panel" id="tab-llm">
+          <div class="table-scroll" style="max-width:860px;margin:0 auto;">
+            <table class="bench">
+              <thead>
+                <tr>
+                  <th class="lalign" rowspan="2">Multimodal LLM</th><th rowspan="2">Matched</th>
+                  <th colspan="3">Baseline Model</th><th colspan="3">EgoRay (Ours, same items)</th>
+                </tr>
+                <tr><th>Seen &kappa;-Acc</th><th>Unseen &kappa;-Acc</th><th>Time (s)</th><th>Seen &kappa;-Acc</th><th>Unseen &kappa;-Acc</th><th>Time (s)</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="lalign">Claude Opus</td><td>2,061</td><td>71.5</td><td>62.1</td><td>13.4</td><td style="background:var(--ours-strong);font-weight:700">92.4</td><td style="background:var(--ours-strong);font-weight:700">78.6</td><td style="background:var(--ours-strong);font-weight:700">0.4 (33.5&times;)</td></tr>
+                <tr><td class="lalign">GPT-6.1 Sol</td><td>14,802</td><td>50.5</td><td>49.1</td><td>22.4</td><td style="background:var(--ours-strong);font-weight:700">86.5</td><td style="background:var(--ours-strong);font-weight:700">75.9</td><td style="background:var(--ours-strong);font-weight:700">0.4 (56&times;)</td></tr>
+                <tr><td class="lalign">GPT-6 Astra</td><td>14,181</td><td>55.4</td><td>54.5</td><td>7.2</td><td style="background:var(--ours-strong);font-weight:700">87.0</td><td style="background:var(--ours-strong);font-weight:700">75.8</td><td style="background:var(--ours-strong);font-weight:700">0.4 (18&times;)</td></tr>
+                <tr><td class="lalign">Qwen3-VL-32B</td><td>5,445</td><td>11.5</td><td>3.9</td><td>3.0</td><td style="background:var(--ours-strong);font-weight:700">87.6</td><td style="background:var(--ours-strong);font-weight:700">73.9</td><td style="background:var(--ours-strong);font-weight:700">0.4 (7.5&times;)</td></tr>
+                <tr><td class="lalign">InternVL3.5-38B</td><td>5,445</td><td>9.6</td><td>&minus;2.6</td><td>9.7</td><td style="background:var(--ours-strong);font-weight:700">87.6</td><td style="background:var(--ours-strong);font-weight:700">73.9</td><td style="background:var(--ours-strong);font-weight:700">0.4 (24&times;)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note" style="text-align:center;">Matched Gold queries. Time is median seconds/item (including amortized TTA for EgoRay).</p>
+        </div>
+
+        <!-- TAB 3: TF2023 & Locked Real Sets -->
+        <div class="tab-panel" id="tab-tf2023">
+          <div class="table-scroll" style="max-width:780px;margin:0 auto 14px;">
+            <table class="bench">
+              <thead>
+                <tr><th class="lalign" rowspan="2">TF2023 (PEN Protocol)</th><th colspan="3">0.9 Confidence Pool</th><th colspan="2">0.5 Confidence Pool</th></tr>
+                <tr><th>Acc (orig.)</th><th>Acc (corr.)</th><th>mIoU</th><th>Acc (corr.)</th><th>mIoU</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="lalign">PEN (dataset-trained)</td><td>52.9</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+                <tr><td class="lalign">Depth Anything 3</td><td>76.9</td><td>80.6</td><td>69.3</td><td>86.0</td><td>73.8</td></tr>
+                <tr class="ours-zs"><td class="lalign"><strong>EgoRay-ZS</strong> (zero-shot)</td><td>78.0</td><td>81.8</td><td>70.3</td><td>87.8</td><td>75.3</td></tr>
+                <tr class="ours-full"><td class="lalign"><strong>EgoRay</strong> (Ours)</td><td><strong>81.8</strong></td><td><strong>85.6</strong></td><td><strong>73.5</strong></td><td><strong>91.6</strong></td><td><strong>78.5</strong></td></tr>
+                <tr><td class="lalign" style="color:var(--ink-muted)">Mask R-CNN Pool Ceiling</td><td style="color:var(--ink-muted)">86.0</td><td style="color:var(--ink-muted)">86.0</td><td style="color:var(--ink-muted)">73.8</td><td style="color:var(--ink-muted)">92.8</td><td style="color:var(--ink-muted)">79.3</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-scroll" style="max-width:780px;margin:0 auto;">
+            <table class="bench">
+              <thead>
+                <tr><th class="lalign">Locked Real L3 Sets (Zero Design Leakage)</th><th>ALOHA (Arms)</th><th>TUMTraf-V2X (Vehicles)</th><th>MILUV (Drones)</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="lalign">Chance baseline</td><td>50.0%</td><td>8.5%</td><td>50.0%</td></tr>
+                <tr><td class="lalign">Depth Anything 3</td><td>86.8%</td><td>65.0%</td><td>79.4%</td></tr>
+                <tr class="ours-full"><td class="lalign"><strong>EgoRay (Ours)</strong></td><td><strong>93.6%</strong> (+9.4 vs Astra)</td><td><strong>81.1%</strong></td><td><strong>89.5%</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note" style="text-align:center;">Locked real L3 sets (ALOHA, TUMTraf-V2X, MILUV) were obtained and scored once after all hyperparameters were frozen.</p>
+        </div>
+
+        <!-- TAB 4: Tracks B & C -->
+        <div class="tab-panel" id="tab-bc">
+          <div class="table-scroll" style="margin-bottom:14px;">
+            <table class="bench">
+              <thead>
+                <tr><th class="lalign" rowspan="2">Track B: Wearer Segmentation</th><th colspan="4">Seen</th><th colspan="4">Unseen</th></tr>
+                <tr><th>gIoU&uarr;</th><th>mIoU-P&uarr;</th><th>Pr@0.5&uarr;</th><th>VA&uarr;</th><th>gIoU&uarr;</th><th>mIoU-P&uarr;</th><th>Pr@0.5&uarr;</th><th>VA&uarr;</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="lalign">Pi3X</td><td>49.2</td><td>43.7</td><td>49.9</td><td>74.5</td><td>42.3</td><td>34.8</td><td>38.7</td><td>68.1</td></tr>
+                <tr><td class="lalign">Depth Anything 3</td><td>51.6</td><td>45.0</td><td>51.3</td><td>77.3</td><td>42.2</td><td>32.5</td><td>36.3</td><td>70.1</td></tr>
+                <tr class="ours-zs"><td class="lalign"><strong>EgoRay-ZS</strong></td><td>56.3</td><td>49.6</td><td>56.9</td><td>79.7</td><td>46.5</td><td>37.6</td><td>42.0</td><td>73.0</td></tr>
+                <tr class="ours-full"><td class="lalign"><strong>EgoRay</strong></td><td><strong>67.8</strong></td><td><strong>70.7</strong></td><td><strong>80.6</strong></td><td><strong>83.9</strong></td><td><strong>55.2</strong></td><td><strong>53.1</strong></td><td><strong>58.6</strong></td><td><strong>75.8</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-scroll">
+            <table class="bench">
+              <thead>
+                <tr><th class="lalign" rowspan="2">Track C: Mutual Camera Localization</th><th colspan="4">Seen</th><th colspan="4">Unseen</th></tr>
+                <tr><th>MA@5&uarr;</th><th>MA@15&uarr;</th><th>&alpha;<sub>exo</sub>&darr;</th><th>BLE&darr;</th><th>MA@5&uarr;</th><th>MA@15&uarr;</th><th>&alpha;<sub>exo</sub>&darr;</th><th>BLE&darr;</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="lalign">MapAnything</td><td>21.0</td><td>50.2</td><td>16.4&deg;</td><td>2.2</td><td>19.7</td><td>45.5</td><td>19.5&deg;</td><td>14.5</td></tr>
+                <tr><td class="lalign">Depth Anything 3</td><td>29.2</td><td>49.9</td><td>20.0&deg;</td><td>2.3</td><td>23.4</td><td>43.9</td><td>22.0&deg;</td><td>16.3</td></tr>
+                <tr class="ours-zs"><td class="lalign"><strong>EgoRay-ZS</strong></td><td>28.5</td><td>57.9</td><td>27.3&deg;</td><td>2.4</td><td>28.1</td><td>53.7</td><td>20.0&deg;</td><td>10.6</td></tr>
+                <tr class="ours-full"><td class="lalign"><strong>EgoRay</strong></td><td><strong>71.8</strong></td><td><strong>83.7</strong></td><td><strong>4.1&deg;</strong></td><td><strong>0.6</strong></td><td><strong>50.6</strong></td><td><strong>72.9</strong></td><td><strong>7.2&deg;</strong></td><td><strong>4.2</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 5: Thermal & Lens Robustness -->
+        <div class="tab-panel" id="tab-thermal">
+          <div class="table-scroll" style="max-width:780px;margin:0 auto;">
+            <table class="bench">
+              <thead>
+                <tr><th class="lalign" rowspan="2">Cross-Modal Thermal Test Bed (12 Test Rooms)</th><th colspan="2">Accuracy (%)&uarr;</th><th colspan="2">Median &alpha;<sub>exo</sub>&darr;</th></tr>
+                <tr><th>Zero-Shot</th><th>Pose-Supervised (PST)</th><th>Zero-Shot</th><th>Pose-Supervised (PST)</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="lalign">Thermal Ego &rarr; Thermal Exo</td><td>60.8</td><td><strong>89.1</strong> (+28.3)</td><td>5.9&deg;</td><td><strong>1.8&deg;</strong></td></tr>
+                <tr class="ours-full"><td class="lalign"><strong>RGB Ego &rarr; Thermal Exo (Cross-Modal)</strong></td><td>26.6</td><td><strong>94.9</strong> (+68.3)</td><td>129.1&deg;</td><td><strong>1.7&deg;</strong></td></tr>
+                <tr><td class="lalign">RGB Ego &rarr; RGB Exo</td><td>94.5</td><td><strong>99.8</strong> (+5.3)</td><td>4.3&deg;</td><td><strong>1.3&deg;</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note" style="text-align:center;">Pose-supervised geometric training cuts cross-modal RGB&rarr;Thermal angular error from 129.1&deg; down to 1.7&deg;.</p>
         </div>
       </div>
     </div>
@@ -687,26 +1355,34 @@
   <!-- ABSTRACT -->
   <section class="section" id="abstract">
     <div class="container">
-      <h2 class="section-title">Abstract</h2>
-      <p class="abstract-body">
-        Given synchronized first-person (ego) and third-person (exo) images, camera wearer identification asks <em>who is ego</em>.
-        We extend the task beyond humans to robots, vehicles, animals, and drones, and broaden it to open-vocabulary wearer segmentation
-        with absence prediction and mutual camera localization. We introduce <strong>FindEgo-1M</strong> (1.16M ego–exo pairs, 12 wearer types,
-        17 domains, 111 test settings) and <strong>EgoRay</strong>, which lifts an ego–exo pair into 3D via VGGT-&Omega; and ranks candidates by
-        angular offset and distance to the predicted ego camera (the epipole). Without task-specific training, <strong>EgoRay-ZS</strong> reaches
-        <strong>78.0%</strong> on TF2023 (vs. 52.9% for dataset-trained PEN). With pose-supervised LoRA training and label-free test-time adaptation,
-        <strong>EgoRay</strong> achieves <strong>87.1 / 77.7</strong> seen/unseen &kappa;-Acc on FindEgo-1M—outperforming GPT-6 Astra by
-        <strong>+31.6 / +21.3</strong> points while running <strong>18&times;</strong> faster (0.4s/query).
-      </p>
+      <div class="sec-head reveal">
+        <span class="section-eyebrow"><span class="ey-idx">06</span><span class="ey-line"></span>Paper Summary</span>
+        <h2 class="section-title">Abstract</h2>
+      </div>
+      <div class="abstract-card">
+        <p class="abstract-body">
+          Given synchronized first-person (ego) and third-person (exo) images, camera wearer identification asks <em>who is ego</em>.
+          We extend the task beyond humans to robots, vehicles, animals, and drones, and broaden it to open-vocabulary wearer segmentation
+          with absence prediction and mutual camera localization. We introduce <strong>FindEgo-1M</strong> (1.16M ego&ndash;exo pairs, 12 wearer types,
+          17 domains, 111 test settings) and <strong>EgoRay</strong>, which lifts an ego&ndash;exo pair into 3D via VGGT-&Omega; and ranks candidates by
+          angular offset and distance to the predicted ego camera (the epipole). Without task-specific training, <strong>EgoRay-ZS</strong> reaches
+          <strong>78.0%</strong> on TF2023 (vs. 52.9% for dataset-trained PEN). With pose-supervised LoRA training and label-free test-time adaptation,
+          <strong>EgoRay</strong> achieves <strong>87.1 / 77.7</strong> seen/unseen &kappa;-Acc on FindEgo-1M&mdash;outperforming GPT-6 Astra by
+          <strong>+31.6 / +21.3</strong> points while running <strong>18&times;</strong> faster (0.4s/query).
+        </p>
+      </div>
     </div>
   </section>
 
   <!-- CITATION -->
   <section class="section section-alt" id="citation">
     <div class="container">
-      <h2 class="section-title">Citation</h2>
+      <div class="sec-head reveal">
+        <span class="section-eyebrow"><span class="ey-idx">07</span><span class="ey-line"></span>Reference</span>
+        <h2 class="section-title">Citation</h2>
+      </div>
       <div class="bib-wrap">
-        <button type="button" class="copy-btn" id="copyBibBtn">Copy</button>
+        <button type="button" class="copy-btn" id="copyBibBtn">Copy BibTeX</button>
         <pre><code id="bibtexCode">@article{jin2026whoego,
   title   = {Who Is Ego? Scaling Cross-View Camera Wearer Identification and Segmentation beyond Humans},
   author  = {Jin, Yifan and Zhang, Zheng and Qian, Tianwen and Wang, Dong and Zhao, Bo and Fu, Yanwei and Fu, Yuqian},
@@ -719,14 +1395,30 @@
 
   <footer>
     <div class="container">
-      Who Is Ego? &middot;
+      <strong>Who Is Ego?</strong> &middot;
       <a href="https://arxiv.org/abs/2611.34489" target="_blank" rel="noopener">arXiv:2611.34489</a> &middot;
       <a href="https://github.com/Travor278/EgoRay" target="_blank" rel="noopener">GitHub</a> &middot;
       <a href="https://huggingface.co/datasets/Travor278/FindEgo-1M" target="_blank" rel="noopener">FindEgo-1M</a> &middot;
       <a href="https://huggingface.co/Travor278/EgoRay" target="_blank" rel="noopener">Weights</a> &middot;
-      <a href="https://huggingface.co/spaces/Travor278/FindEgo-1M" target="_blank" rel="noopener">Dataset Gallery</a>
+      <a href="https://huggingface.co/spaces/Travor278/FindEgo-1M" target="_blank" rel="noopener">Gallery</a>
     </div>
   </footer>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Full resolution image viewer">
+    <div class="lightbox-inner">
+      <img id="lightboxImg" alt="Preview">
+      <div class="lightbox-bar">
+        <div>
+          <div class="lightbox-cap" id="lightboxTitle"></div>
+          <div class="lightbox-sub" id="lightboxSub"></div>
+        </div>
+        <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Close" title="Close (Esc)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="./main.js"></script>
 </body>
