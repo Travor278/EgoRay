@@ -401,38 +401,38 @@ function initInteractive3D() {
 const THEATER_ACTS = [
   {
     num: "ACT 01 / 05",
-    name: "(A) VGGT-Ω · Dual-View 3D Lifting",
+    name: "(A) VGGT-Ω",
     dot: "#0284c7",
     dur: 7.5,
-    caption: "VGGT-Ω encodes the exo and ego pair with alternating frame/global attention and rank-64 LoRA, outputting Camera Extrinsics (R̂, t̂) + Intrinsics (K̂) and Dense Exo Depth D to feed (B).",
+    caption: "VGGT-Ω predicts camera pose (R̂, t̂, K̂) and dense exo depth D in 0.4s.",
   },
   {
     num: "ACT 02 / 05",
-    name: "(B) Training-Free 3D Geometric Readout",
+    name: "(B) 3D Readout",
     dot: "#059669",
     dur: 9.5,
-    caption: "Using (R̂, t̂, K̂, D) directly with zero learned heads, EgoRay lifts masks into the dynamic 3D point cloud, casts the epipole ray ê_exo, and ranks every candidate by angular offset θᵢ and 3D distance d_u / ‖ĉ‖.",
+    caption: "Training-free 3D readout casts ê_exo into the point cloud and ranks candidates by θᵢ and d_u.",
   },
   {
     num: "ACT 03 / 05",
-    name: "(C) Unified Three-Track Answers",
+    name: "(C) Three Tracks",
     dot: "#10b981",
     dur: 7.5,
-    caption: "The lowest-score geometric readout answers Track A (identification), Track B (open-vocab SAM 3 segmentation + absent verdict), and Track C (mutual exo ↔ ego localization) in one 0.4s pass.",
+    caption: "One geometric readout answers Track A (ID), Track B (Seg + Absence), and Track C (Mutual Loc).",
   },
   {
     num: "ACT 04 / 05",
-    name: "(D) Pose-Supervised LoRA Fine-Tuning",
+    name: "(D) Pose-Supervised Training",
     dot: "#7c3aed",
     dur: 8.2,
-    caption: "Keeping VGGT-Ω frozen, rank-64 LoRA adapters align predicted camera pose (R̂, t̂, f̂) to ground-truth FindEgo-1M geometry (humans only) — transferring zero-shot to unseen vehicles, robots, animals, and Thermal IR.",
+    caption: "Rank-64 LoRA aligns (R̂, t̂, f̂) on human pairs and transfers zero-shot to unseen L3 wearers.",
   },
   {
     num: "ACT 05 / 05",
-    name: "(E) Label-Free Test-Time Adaptation",
+    name: "(E) Label-Free TTA",
     dot: "#d97706",
     dur: 8.0,
-    caption: "With zero wearer labels at test time, the candidate-bag constraint pulls stray epipoles onto the visible candidate set while a frozen-copy anchor preserves rotation, focal length, and <1° hits (+5.5 unseen κ-Acc).",
+    caption: "Test-time adaptation pulls stray epipoles onto unlabeled candidates while anchoring rotation and focal length.",
   },
 ];
 
@@ -887,7 +887,7 @@ function initMethodExplorer() {
       aEgoFrust.setAttribute("transform", `translate(152, 26) rotate(${ang.toFixed(1)})`);
     }
     if (aDepthClip && aDepthScan) {
-      const dw = 290 * Math.max(0.08, uHead);
+      const dw = 292 * Math.max(0.08, uHead);
       aDepthClip.setAttribute("width", dw.toFixed(1));
       aDepthScan.setAttribute("x1", (784 + dw).toFixed(1));
       aDepthScan.setAttribute("x2", (784 + dw).toFixed(1));
@@ -901,10 +901,10 @@ function initMethodExplorer() {
     actBCloud.render(p, globalT);
     if (actBPhaseLbl) {
       actBPhaseLbl.textContent =
-        p < 0.22 ? "1. Placing Exo + Ego Camera Pose from (A)…" :
-        p < 0.46 ? "2. Casting EgoRay Epipole ê_exo in 3D…" :
-        p < 0.68 ? "3. Scoring Angular Offset φ_u & 3D Distance d_u…" :
-                   "4. Lowest Score Locks Onto Wearer #4 (0.1° · 0.06)";
+        p < 0.22 ? "1. Camera Pose (R̂, t̂, K̂)" :
+        p < 0.46 ? "2. Epipole Ray ê_exo" :
+        p < 0.68 ? "3. Score φ_u & d_u" :
+                   "4. Wearer #4 (0.1° · 0.06)";
     }
     const barU = easeOut((p - 0.18) / 0.30);
     bBars.forEach((b) => {
@@ -926,16 +926,16 @@ function initMethodExplorer() {
   }
 
   function animateActD(p) {
-    // Smooth convergence of predicted Ego frustum (612, 106, -22deg) -> GT (672, 146, 0deg)
+    // Smooth convergence of predicted Ego frustum (612, 96, -22deg) -> GT (672, 136, 0deg)
     const conv = easeInOut((p - 0.14) / 0.58);
     const px = 612 + (672 - 612) * conv;
-    const py = 106 + (146 - 106) * conv;
+    const py = 96 + (136 - 96) * conv;
     const rot = -22 * (1 - conv);
     if (dPredFrust) dPredFrust.setAttribute("transform", `translate(${px.toFixed(1)}, ${py.toFixed(1)}) rotate(${rot.toFixed(1)})`);
     if (dPredRay) { dPredRay.setAttribute("x2", px.toFixed(1)); dPredRay.setAttribute("y2", py.toFixed(1)); }
     if (dErrText) {
       const err = (18.4 * Math.pow(1 - conv, 2.2) + 0.18).toFixed(1);
-      dErrText.textContent = `pose err: ${err}°`;
+      dErrText.textContent = `err: ${err}°`;
       dErrText.setAttribute("fill", conv > 0.8 ? "#059669" : "#d97706");
     }
     // Sequential highlight on 3 loss terms
@@ -948,7 +948,7 @@ function initMethodExplorer() {
     if (dGradSpark && dLoraCard) {
       const gU = (p * 2.4) % 1.0;
       const gx = 336 - 50 * gU;
-      const gy = 330 - 18 * gU;
+      const gy = 320 - 18 * gU;
       dGradSpark.setAttribute("cx", gx.toFixed(1));
       dGradSpark.setAttribute("cy", gy.toFixed(1));
       dGradSpark.setAttribute("opacity", p > 0.22 ? Math.sin(gU * Math.PI).toFixed(2) : "0");
@@ -957,13 +957,13 @@ function initMethodExplorer() {
   }
 
   function animateActE(p) {
-    // Pull epipole smoothly along quadratic Bezier M(132,154) Q(212,162) (260,240)
+    // Pull epipole smoothly along quadratic Bezier M(132,134) Q(210,144) (258,226)
     const u = easeInOut((p - 0.16) / 0.56);
     if (eTraj) eTraj.setAttribute("stroke-dashoffset", (220 * (1 - u)).toFixed(1));
     if (eMarker) {
       const t = u, mt = 1 - t;
-      const x = mt * mt * 132 + 2 * mt * t * 212 + t * t * 260;
-      const y = mt * mt * 154 + 2 * mt * t * 162 + t * t * 240;
+      const x = mt * mt * 132 + 2 * mt * t * 210 + t * t * 258;
+      const y = mt * mt * 134 + 2 * mt * t * 144 + t * t * 226;
       eMarker.setAttribute("transform", `translate(${x.toFixed(1)}, ${y.toFixed(1)})`);
     }
     if (eTarget) {
@@ -1117,7 +1117,7 @@ const LENS_ITEMS = [
   { img: "v1_pinhole.jpg", label: "v1 Pinhole" },
   { img: "aria_fisheye.jpg", label: "Aria Fisheye" },
   { img: "gopro_wide.jpg", label: "GoPro Wide" },
-  { img: "smart_glasses.jpg", label: "Smart Glasses" },
+  { img: "smart_glasses.jpg", label: "XR Headset" },
   { img: "animal_collar.jpg", label: "Animal Collar" },
   { img: "underwater_dome.jpg", label: "Underwater Dome" },
   { img: "drone_fpv.jpg", label: "Drone FPV" },
@@ -1443,12 +1443,15 @@ function initRadar() {
   function updateTooltip() {
     if (!tip) return;
     if (hoverIdx < 0) {
-      tip.textContent = "Hover any domain axis on the radar to inspect per-domain κ-Acc.";
+      tip.innerHTML = `<span class="rt-empty">Hover any domain axis on the radar to compare exact &kappa;-Acc scores.</span>`;
       return;
     }
     const dom = RADAR_DOMAINS[hoverIdx];
-    const parts = RADAR_MODELS.filter((_, i) => visible[i]).map((m) => `${m.name.split(" ")[0]}: ${m.vals[hoverIdx].toFixed(1)}`);
-    tip.textContent = `${dom}  →  ${parts.join("  |  ")}`;
+    const chips = RADAR_MODELS.filter((_, i) => visible[i]).map((m) => {
+      const label = m.name.replace(" (Ours)", "");
+      return `<span class="rt-chip${m.primary ? " primary" : ""}"><i class="rt-dot" style="background:${m.color}"></i><span class="rt-name">${label}</span><strong>${m.vals[hoverIdx].toFixed(1)}</strong></span>`;
+    }).join("");
+    tip.innerHTML = `<div class="rt-head"><span class="rt-dom">${dom}</span><span class="rt-unit">Unseen &kappa;-Acc</span></div><div class="rt-chips">${chips}</div>`;
   }
 
   leg.innerHTML = "";

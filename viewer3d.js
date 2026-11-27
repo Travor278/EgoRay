@@ -65,7 +65,7 @@ function makeFrustumGroup(camSpec, radius, colorHex) {
     if (t) g.add(t);
   }
   const sp = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * 2.5, 16, 16),
+    new THREE.SphereGeometry(radius * 2.1, 16, 16),
     new THREE.MeshBasicMaterial({ color: colorHex })
   );
   sp.position.set(...o);
@@ -396,10 +396,11 @@ export class EgoRay3DViewer {
     this._rebuildPointCloud();
 
     const rad = Math.max(meta.cam_d * 0.044, 0.0085);
+    const camRad = rad * 0.34;
 
     this.camGroup = new THREE.Group();
-    this.camGroup.add(makeFrustumGroup(meta.exo_cam, rad, COL_EXO));
-    this.camGroup.add(makeFrustumGroup(meta.ego_cam, rad, COL_EGO));
+    this.camGroup.add(makeFrustumGroup(meta.exo_cam, camRad, COL_EXO));
+    this.camGroup.add(makeFrustumGroup(meta.ego_cam, camRad, COL_EGO));
     root.add(this.camGroup);
 
     this.rayGroup = new THREE.Group();
