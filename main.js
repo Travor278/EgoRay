@@ -469,9 +469,9 @@ function createActBPointCloud(canvas) {
 
     const tag = (x, y, text, color, dx = 10, dy = -10) => {
       ctx.save();
-      ctx.font = '600 13px "Inter Variable", Inter, sans-serif';
+      ctx.font = '600 15px "Inter Variable", Inter, sans-serif';
       const tw = ctx.measureText(text).width;
-      const w = tw + 16, h = 24;
+      const w = tw + 18, h = 27;
       const bx = Math.max(6, Math.min(cssW - w - 6, x + dx));
       const by = Math.max(40, Math.min(cssH - h - 6, y + dy - h * 0.5));
       ctx.fillStyle = "rgba(255,255,255,0.94)";
@@ -532,7 +532,7 @@ function createActBPointCloud(canvas) {
         }
         ctx.restore();
         if (rayProg > 0.6) {
-          mathTag((ps[0] + pe[0]) * 0.5, (ps[1] + pe[1]) * 0.5, mathImgs.e, "#059669", 18, -62, 6, clamp((rayProg - 0.6) / 0.3));
+          mathTag((ps[0] + pe[0]) * 0.5, (ps[1] + pe[1]) * 0.5, mathImgs.e, "#059669", 22, -72, 6, clamp((rayProg - 0.6) / 0.3));
         }
       }
     }
@@ -568,7 +568,7 @@ function createActBPointCloud(canvas) {
           ctx.stroke();
           if (measProg > 0.7) {
             const am = a0 + da * 0.5;
-            mathTag(pExo[0] + (R_arc + 16) * Math.cos(am), pExo[1] + (R_arc + 16) * Math.sin(am), mathImgs.phi, "#be185d", 15.5, -14, -2);
+            mathTag(pExo[0] + (R_arc + 16) * Math.cos(am), pExo[1] + (R_arc + 16) * Math.sin(am), mathImgs.phi, "#be185d", 19, -16, -2);
           }
         }
       }
@@ -583,7 +583,7 @@ function createActBPointCloud(canvas) {
           ctx.lineTo(pEgo[0] + (pc3[0] - pEgo[0]) * measProg, pEgo[1] + (pc3[1] - pEgo[1]) * measProg);
           ctx.stroke();
           if (measProg > 0.7) {
-            mathTag((pEgo[0] + pc3[0]) * 0.5, (pEgo[1] + pc3[1]) * 0.5, mathImgs.d, "#0d9488", 18, -8, -24);
+            mathTag((pEgo[0] + pc3[0]) * 0.5, (pEgo[1] + pc3[1]) * 0.5, mathImgs.d, "#0d9488", 22, -10, -28);
           }
         }
       }
@@ -608,7 +608,7 @@ function createActBPointCloud(canvas) {
         ctx.fillStyle = "#059669";
         ctx.beginPath(); ctx.arc(pc[0], pc[1], 6.5, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2; ctx.stroke();
-        if (lockProg > 0.3) tag(pc[0], pc[1], "wearer #4", "#047857", -100, -6);
+        if (lockProg > 0.3) tag(pc[0], pc[1], "wearer #4", "#047857", -114, -6);
       } else if (measProg > 0.1) {
         ctx.save();
         ctx.globalAlpha = measProg;
@@ -620,7 +620,7 @@ function createActBPointCloud(canvas) {
       }
     }
     if (pExo) tag(pExo[0], pExo[1], "exo", "#0284c7", 12, 12);
-    if (pEgo && p > 0.14) mathTag(pEgo[0], pEgo[1], mathImgs.c, "#b45309", 18, -12, -28);
+    if (pEgo && p > 0.14) mathTag(pEgo[0], pEgo[1], mathImgs.c, "#b45309", 22, -14, -32);
   }
 
   return { render };
@@ -774,8 +774,8 @@ function initMethodExplorer() {
     if (dPred) dPred.setAttribute("transform", `translate(${px.toFixed(1)} ${py.toFixed(1)}) rotate(${(-24 * (1 - conv)).toFixed(1)})`);
     if (dPredRay) { dPredRay.setAttribute("x2", px.toFixed(1)); dPredRay.setAttribute("y2", py.toFixed(1)); }
     if (dPredLbl) {
-      dPredLbl.setAttribute("x", (px - 118).toFixed(1));
-      dPredLbl.setAttribute("y", (py - 44).toFixed(1));
+      dPredLbl.setAttribute("x", (px - 140).toFixed(1));
+      dPredLbl.setAttribute("y", (py - 50).toFixed(1));
       op(dPredLbl, 1 - clamp((conv - 0.7) / 0.25));
     }
     if (dErr) {
