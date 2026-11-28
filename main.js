@@ -124,18 +124,22 @@ async function initDemo() {
       return false;
     }
   })();
+  const ver = new URL(import.meta.url).search;
   let viewer = null;
   if (hasWebGL) {
     try {
-      const { EgoRay3DViewer } = await import("./viewer3d.js");
-      viewer = new EgoRay3DViewer(host, labels, status, onPin);
+      const mod = await Promise.race([
+        import(`./viewer3d.js${ver}`),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 10000)),
+      ]);
+      viewer = new mod.EgoRay3DViewer(host, labels, status, onPin);
     } catch (_) {
       host.innerHTML = "";
       viewer = null;
     }
   }
   if (!viewer) {
-    const { SoftCloudViewer } = await import("./softview.js");
+    const { SoftCloudViewer } = await import(`./softview.js${ver}`);
     viewer = new SoftCloudViewer(host, labels, status, onPin);
   }
 

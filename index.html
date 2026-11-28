@@ -14,7 +14,7 @@
 
   <link rel="preload" href="./assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./assets/fonts/jbmono-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=20261128c">
   <link rel="modulepreload" href="./vendor/three/three.module.min.js">
   <link rel="preload" href="./assets/scenes/egohumans.json" as="fetch" crossorigin>
   <link rel="preload" href="./assets/scenes/egohumans.bin" as="fetch" crossorigin>
@@ -218,10 +218,10 @@
                 <image href="./assets/math/I_ego.svg" x="85" y="377" width="62" height="38"/>
               </g>
 
-              <path class="wire" d="M212 119 H262" marker-end="url(#mWire)"/>
-              <path class="wire" d="M212 311 H262" marker-end="url(#mWire)"/>
-              <circle id="aDot0" class="flow-dot exo" r="3.6" cx="212" cy="119"/>
-              <circle id="aDot1" class="flow-dot ego" r="3.6" cx="212" cy="311"/>
+              <path class="wire" fill="none" stroke="#cbd5e1" stroke-width="1.4" d="M212 119 H262" marker-end="url(#mWire)"/>
+              <path class="wire" fill="none" stroke="#cbd5e1" stroke-width="1.4" d="M212 311 H262" marker-end="url(#mWire)"/>
+              <circle id="aDot0" class="flow-dot exo" opacity="0" fill="#0284c7" r="3.6" cx="212" cy="119"/>
+              <circle id="aDot1" class="flow-dot ego" opacity="0" fill="#d97706" r="3.6" cx="212" cy="311"/>
 
               <rect x="270" y="30" width="444" height="380" rx="18" fill="#f5f8fd" stroke="#dbe4f0"/>
               <text x="290" y="68" class="svg-h">VGGT-&Omega;</text>
@@ -242,30 +242,30 @@
                 <image href="./assets/cards/egohumans_ego_raw.jpg" x="422" y="293" width="22" height="36" preserveAspectRatio="xMaxYMid slice" clip-path="url(#aP6)"/>
               </g>
 
-              <path class="wire" d="M450 119 H482" marker-end="url(#mWire)"/>
-              <path class="wire" d="M450 311 H482" marker-end="url(#mWire)"/>
+              <path class="wire" fill="none" stroke="#cbd5e1" stroke-width="1.4" d="M450 119 H482" marker-end="url(#mWire)"/>
+              <path class="wire" fill="none" stroke="#cbd5e1" stroke-width="1.4" d="M450 311 H482" marker-end="url(#mWire)"/>
 
               <g class="a-col frame" id="aCol0">
-                <rect class="blk" x="490" y="86" width="30" height="66" rx="8"/>
-                <rect class="blk" x="490" y="278" width="30" height="66" rx="8"/>
-                <rect class="chip" x="495" y="93" width="20" height="7" rx="3"/>
-                <rect class="chip" x="495" y="285" width="20" height="7" rx="3"/>
+                <rect class="blk" fill="#eaf2ff" stroke="#c6d9f4" x="490" y="86" width="30" height="66" rx="8"/>
+                <rect class="blk" fill="#eaf2ff" stroke="#c6d9f4" x="490" y="278" width="30" height="66" rx="8"/>
+                <rect class="chip" fill="#ede9fe" stroke="#a78bfa" stroke-width="0.8" x="495" y="93" width="20" height="7" rx="3"/>
+                <rect class="chip" fill="#ede9fe" stroke="#a78bfa" stroke-width="0.8" x="495" y="285" width="20" height="7" rx="3"/>
               </g>
               <g class="a-col global" id="aCol1">
-                <rect class="blk" x="538" y="86" width="32" height="258" rx="8"/>
-                <rect class="chip" x="543" y="93" width="22" height="7" rx="3"/>
-                <rect class="chip" x="543" y="330" width="22" height="7" rx="3"/>
+                <rect class="blk" fill="#efedff" stroke="#d2cdf6" x="538" y="86" width="32" height="258" rx="8"/>
+                <rect class="chip" fill="#ede9fe" stroke="#a78bfa" stroke-width="0.8" x="543" y="93" width="22" height="7" rx="3"/>
+                <rect class="chip" fill="#ede9fe" stroke="#a78bfa" stroke-width="0.8" x="543" y="330" width="22" height="7" rx="3"/>
               </g>
               <g class="a-col frame" id="aCol2">
-                <rect class="blk" x="588" y="86" width="30" height="66" rx="8"/>
-                <rect class="blk" x="588" y="278" width="30" height="66" rx="8"/>
-                <rect class="chip" x="593" y="93" width="20" height="7" rx="3"/>
-                <rect class="chip" x="593" y="285" width="20" height="7" rx="3"/>
+                <rect class="blk" fill="#eaf2ff" stroke="#c6d9f4" x="588" y="86" width="30" height="66" rx="8"/>
+                <rect class="blk" fill="#eaf2ff" stroke="#c6d9f4" x="588" y="278" width="30" height="66" rx="8"/>
+                <rect class="chip" fill="#ede9fe" stroke="#a78bfa" stroke-width="0.8" x="593" y="93" width="20" height="7" rx="3"/>
+                <rect class="chip" fill="#ede9fe" stroke="#a78bfa" stroke-width="0.8" x="593" y="285" width="20" height="7" rx="3"/>
               </g>
               <g class="a-col global" id="aCol3">
-                <rect class="blk" x="636" y="86" width="32" height="258" rx="8"/>
-                <rect class="chip" x="641" y="93" width="22" height="7" rx="3"/>
-                <rect class="chip" x="641" y="330" width="22" height="7" rx="3"/>
+                <rect class="blk" fill="#efedff" stroke="#d2cdf6" x="636" y="86" width="32" height="258" rx="8"/>
+                <rect class="chip" fill="#ede9fe" stroke="#a78bfa" stroke-width="0.8" x="641" y="93" width="22" height="7" rx="3"/>
+                <rect class="chip" fill="#ede9fe" stroke="#a78bfa" stroke-width="0.8" x="641" y="330" width="22" height="7" rx="3"/>
               </g>
 
               <g id="aLora">
@@ -274,14 +274,14 @@
                 <text x="579" y="387" class="svg-lora" text-anchor="middle">LoRA</text>
               </g>
 
-              <path class="wire" d="M672 119 H688 C708 119 710 124 726 124 H730" marker-end="url(#mWire)"/>
-              <path class="wire" d="M672 311 H688 C708 311 710 322 726 322 H730" marker-end="url(#mWire)"/>
-              <circle id="aDot2" class="flow-dot exo" r="3.6" cx="672" cy="119"/>
-              <circle id="aDot3" class="flow-dot wear" r="3.6" cx="672" cy="311"/>
+              <path class="wire" fill="none" stroke="#cbd5e1" stroke-width="1.4" d="M672 119 H688 C708 119 710 124 726 124 H730" marker-end="url(#mWire)"/>
+              <path class="wire" fill="none" stroke="#cbd5e1" stroke-width="1.4" d="M672 311 H688 C708 311 710 322 726 322 H730" marker-end="url(#mWire)"/>
+              <circle id="aDot2" class="flow-dot exo" opacity="0" fill="#0284c7" r="3.6" cx="672" cy="119"/>
+              <circle id="aDot3" class="flow-dot wear" opacity="0" fill="#059669" r="3.6" cx="672" cy="311"/>
 
               <g id="aCamHead">
-                <rect class="head-card cam" x="734" y="24" width="370" height="194" rx="18"/>
-                <rect class="head-chip" x="750" y="38" width="150" height="36" rx="18"/>
+                <rect class="head-card cam" fill="#f4f9ff" stroke="#dbe9f8" x="734" y="24" width="370" height="194" rx="18"/>
+                <rect class="head-chip" fill="#ffffff" stroke="#d6dde8" x="750" y="38" width="150" height="36" rx="18"/>
                 <text x="825" y="62.5" class="svg-chip" text-anchor="middle">camera head</text>
                 <image id="aRt" href="./assets/math/Rt_hat.svg" x="930" y="36" width="58" height="36"/>
                 <g class="floor" stroke="#d6e4f3" stroke-width="1">
@@ -305,8 +305,8 @@
               </g>
 
               <g id="aDepthHead">
-                <rect class="head-card depth" x="734" y="228" width="370" height="188" rx="18"/>
-                <rect class="head-chip" x="750" y="240" width="140" height="36" rx="18"/>
+                <rect class="head-card depth" fill="#f3fbf7" stroke="#d3eee0" x="734" y="228" width="370" height="188" rx="18"/>
+                <rect class="head-chip" fill="#ffffff" stroke="#d6dde8" x="750" y="240" width="140" height="36" rx="18"/>
                 <text x="820" y="264.5" class="svg-chip" text-anchor="middle">depth head</text>
                 <image href="./assets/math/D.svg" x="900" y="245" width="29" height="26"/>
                 <rect x="750" y="284" width="248" height="124" rx="12" fill="#f1f5f9"/>
@@ -411,9 +411,9 @@
               </g>
               <image id="dPredLbl" href="./assets/math/pred_pose.svg" x="528" y="46" width="104" height="38"/>
 
-              <g class="loss-chip" id="dLoss0"><rect x="320" y="308" width="140" height="48" rx="24"/><circle cx="346" cy="332" r="5.5" fill="#0284c7"/><text x="364" y="339">pose</text></g>
-              <g class="loss-chip" id="dLoss1"><rect x="480" y="308" width="140" height="48" rx="24"/><circle cx="506" cy="332" r="5.5" fill="#d97706"/><text x="524" y="339">focal</text></g>
-              <g class="loss-chip" id="dLoss2"><rect x="640" y="308" width="140" height="48" rx="24"/><circle cx="666" cy="332" r="5.5" fill="#059669"/><text x="684" y="339">wearer</text></g>
+              <g class="loss-chip" id="dLoss0"><rect fill="#ffffff" stroke="#e2e8f0" x="320" y="308" width="140" height="48" rx="24"/><circle cx="346" cy="332" r="5.5" fill="#0284c7"/><text x="364" y="339">pose</text></g>
+              <g class="loss-chip" id="dLoss1"><rect fill="#ffffff" stroke="#e2e8f0" x="480" y="308" width="140" height="48" rx="24"/><circle cx="506" cy="332" r="5.5" fill="#d97706"/><text x="524" y="339">focal</text></g>
+              <g class="loss-chip" id="dLoss2"><rect fill="#ffffff" stroke="#e2e8f0" x="640" y="308" width="140" height="48" rx="24"/><circle cx="666" cy="332" r="5.5" fill="#059669"/><text x="684" y="339">wearer</text></g>
               <path id="dGradPath" d="M316 332 C292 332 296 300 276 300" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#mViolet)"/>
               <circle id="dGradDot" r="4" fill="#8b5cf6" cx="316" cy="332" opacity="0"/>
 
@@ -446,9 +446,9 @@
               <rect x="30" y="40" width="440" height="356" rx="16" fill="none" stroke="#e2e8f0"/>
               <text x="54" y="70" class="svg-cap">unlabeled test queries</text>
 
-              <g transform="translate(130 352)" class="person"><circle cx="0" cy="-60" r="13"/><path d="M-21 0V-16C-21-31-12-38 0-38C12-38 21-31 21-16V0Z"/></g>
-              <g transform="translate(250 352)" class="person wear" id="eWearer"><circle cx="0" cy="-60" r="13"/><path d="M-21 0V-16C-21-31-12-38 0-38C12-38 21-31 21-16V0Z"/></g>
-              <g transform="translate(370 352)" class="person"><circle cx="0" cy="-60" r="13"/><path d="M-21 0V-16C-21-31-12-38 0-38C12-38 21-31 21-16V0Z"/></g>
+              <g transform="translate(130 352)" class="person" fill="#eef2f7" stroke="#a3b1c4" stroke-width="1.3"><circle cx="0" cy="-60" r="13"/><path d="M-21 0V-16C-21-31-12-38 0-38C12-38 21-31 21-16V0Z"/></g>
+              <g transform="translate(250 352)" class="person wear" id="eWearer" fill="#dcfce7" stroke="#10b981" stroke-width="1.6"><circle cx="0" cy="-60" r="13"/><path d="M-21 0V-16C-21-31-12-38 0-38C12-38 21-31 21-16V0Z"/></g>
+              <g transform="translate(370 352)" class="person" fill="#eef2f7" stroke="#a3b1c4" stroke-width="1.3"><circle cx="0" cy="-60" r="13"/><path d="M-21 0V-16C-21-31-12-38 0-38C12-38 21-31 21-16V0Z"/></g>
               <circle cx="250" cy="292" r="19" fill="none" stroke="#f59e0b" stroke-width="1.6" stroke-dasharray="3 3"/>
 
               <g transform="translate(116 118)" stroke="#dc2626" stroke-width="2.4" stroke-linecap="round"><path d="M-7-7 7 7M7-7-7 7"/></g>
@@ -464,18 +464,18 @@
               </g>
 
               <g class="concept" id="eCard0">
-                <rect x="500" y="40" width="290" height="168" rx="16"/>
+                <rect fill="#ffffff" stroke="#e2e8f0" x="500" y="40" width="290" height="168" rx="16"/>
                 <g transform="translate(528 64) scale(1.4)">
-                  <g class="mini-person"><circle cx="9" cy="6" r="5"/><path d="M1 24v-5c0-5 3.6-8 8-8s8 3 8 8v5"/></g>
-                  <g class="mini-person wear" transform="translate(26 0)"><circle cx="9" cy="6" r="5"/><path d="M1 24v-5c0-5 3.6-8 8-8s8 3 8 8v5"/></g>
-                  <g class="mini-person" transform="translate(52 0)"><circle cx="9" cy="6" r="5"/><path d="M1 24v-5c0-5 3.6-8 8-8s8 3 8 8v5"/></g>
+                  <g class="mini-person" fill="none" stroke="#a3b1c4" stroke-width="1.5"><circle cx="9" cy="6" r="5"/><path d="M1 24v-5c0-5 3.6-8 8-8s8 3 8 8v5"/></g>
+                  <g class="mini-person wear" fill="none" stroke="#10b981" stroke-width="1.5" transform="translate(26 0)"><circle cx="9" cy="6" r="5"/><path d="M1 24v-5c0-5 3.6-8 8-8s8 3 8 8v5"/></g>
+                  <g class="mini-person" fill="none" stroke="#a3b1c4" stroke-width="1.5" transform="translate(52 0)"><circle cx="9" cy="6" r="5"/><path d="M1 24v-5c0-5 3.6-8 8-8s8 3 8 8v5"/></g>
                   <path d="M41 -6v8M37 -2h8" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
                 </g>
                 <text x="528" y="148" class="svg-h3">candidate constraint</text>
                 <image href="./assets/math/L_cand.svg" x="528" y="160" width="76" height="33"/>
               </g>
               <g class="concept" id="eCard1">
-                <rect x="500" y="228" width="290" height="168" rx="16"/>
+                <rect fill="#ffffff" stroke="#e2e8f0" x="500" y="228" width="290" height="168" rx="16"/>
                 <g transform="translate(528 250) scale(1.3)" fill="none" stroke-linejoin="round" stroke-linecap="round">
                   <path d="M20 6 L34 11 L34 29 L20 34 Z" fill="#94a3b8" fill-opacity="0.12" stroke="none"/>
                   <path d="M2 20 L20 6 M2 20 L34 11 M2 20 L34 29 M2 20 L20 34 M20 6 L34 11 L34 29 L20 34 Z" stroke="#94a3b8" stroke-width="1.5"/>
@@ -1016,6 +1016,6 @@
     </div>
   </div>
 
-  <script type="module" src="./main.js"></script>
+  <script type="module" src="./main.js?v=20261128c"></script>
 </body>
 </html>
