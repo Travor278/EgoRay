@@ -113,14 +113,30 @@ async function initDemo() {
   if (!host || !strip) return;
 
   const rows = new Map();
+  const onPin = (candId) => {
+    rows.forEach((el, id) => el.classList.toggle("active-hi", candId !== null && id === candId));
+  };
+  const hasWebGL = (() => {
+    try {
+      const c = document.createElement("canvas");
+      return !!(c.getContext("webgl2") || c.getContext("webgl"));
+    } catch (_) {
+      return false;
+    }
+  })();
   let viewer = null;
-  try {
-    const { EgoRay3DViewer } = await import("./viewer3d.js");
-    viewer = new EgoRay3DViewer(host, labels, status, (candId) => {
-      rows.forEach((el, id) => el.classList.toggle("active-hi", candId !== null && id === candId));
-    });
-  } catch (_) {
-    viewer = null;
+  if (hasWebGL) {
+    try {
+      const { EgoRay3DViewer } = await import("./viewer3d.js");
+      viewer = new EgoRay3DViewer(host, labels, status, onPin);
+    } catch (_) {
+      host.innerHTML = "";
+      viewer = null;
+    }
+  }
+  if (!viewer) {
+    const { SoftCloudViewer } = await import("./softview.js");
+    viewer = new SoftCloudViewer(host, labels, status, onPin);
   }
 
   let activeIdx = 0;
@@ -147,16 +163,14 @@ async function initDemo() {
         <div class="i3d-bar-track"><div class="i3d-bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
         <span class="val">${c.angle.toFixed(1)}° · ${c.score.toFixed(2)}</span>
       `;
-      if (viewer) {
-        row.addEventListener("mouseenter", () => {
-          row.classList.add("active-hi");
-          viewer.highlightCandidate(c.id);
-        });
-        row.addEventListener("mouseleave", () => {
-          row.classList.remove("active-hi");
-          viewer.highlightCandidate(null);
-        });
-      }
+      row.addEventListener("mouseenter", () => {
+        row.classList.add("active-hi");
+        viewer.highlightCandidate(c.id);
+      });
+      row.addEventListener("mouseleave", () => {
+        row.classList.remove("active-hi");
+        viewer.highlightCandidate(null);
+      });
       readoutList.appendChild(row);
       rows.set(c.id, row);
     }
@@ -178,17 +192,8 @@ async function initDemo() {
       b.setAttribute("aria-pressed", String(on));
     });
     document.querySelectorAll(".i3d-preset-btn").forEach((b) => b.classList.toggle("active", b.dataset.preset === "default"));
-    if (viewer) {
-      const meta = await viewer.loadScene(sc.tag);
-      if (meta) renderReadout(meta);
-    } else {
-      host.innerHTML = `<img class="s3-fallback" src="./assets/cards/${sc.tag}_poster.jpg" alt="">`;
-      status.classList.add("hidden");
-      try {
-        const meta = await (await fetch(`./assets/scenes/${sc.tag}.json`)).json();
-        renderReadout(meta);
-      } catch (_) {}
-    }
+    const meta = await viewer.loadScene(sc.tag);
+    if (meta) renderReadout(meta);
   }
 
   if (overlayBtn) {
@@ -202,7 +207,6 @@ async function initDemo() {
 
   document.querySelectorAll(".i3d-preset-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      if (!viewer) return;
       document.querySelectorAll(".i3d-preset-btn").forEach((b) => b.classList.toggle("active", b === btn));
       viewer.flyToPreset(btn.dataset.preset);
     });
@@ -216,7 +220,6 @@ async function initDemo() {
     const el = $(def.id);
     if (!el) continue;
     el.addEventListener("click", () => {
-      if (!viewer) return;
       const next = !viewer.state[def.key];
       viewer.setOption(def.key, next);
       el.classList.toggle("on", next);
@@ -227,7 +230,6 @@ async function initDemo() {
   const resetBtn = $("btnResetView");
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
-      if (!viewer) return;
       document.querySelectorAll(".i3d-preset-btn").forEach((b) => b.classList.toggle("active", b.dataset.preset === "default"));
       viewer.resetCamera();
     });
@@ -251,11 +253,11 @@ async function initDemo() {
    METHOD WALKTHROUGH (A)-(E)
 ============================================================ */
 const THEATER_ACTS = [
-  { dur: 8.5, caption: "VGGT-Ω turns the image pair into both camera poses and an exo depth map." },
-  { dur: 10.0, caption: "Training-free readout: cast the epipole ray into 3D and score each candidate by angle and distance." },
-  { dur: 7.0, caption: "The lowest score answers all three tracks." },
-  { dur: 8.5, caption: "LoRA adapters learn from pose labels and transfer zero-shot to unseen wearers." },
-  { dur: 8.0, caption: "At test time, unlabeled queries pull the epipole onto a candidate; a frozen copy anchors the pose." },
+  { dur: 8.5, title: "VGGT-Ω lifts the image pair to <b>3D</b>" },
+  { dur: 10.0, title: "A <b>training-free</b> readout finds the wearer" },
+  { dur: 7.0, title: "The lowest score answers <b>all three tracks</b>" },
+  { dur: 8.5, title: "<b>Pose labels</b> alone train the LoRA" },
+  { dur: 8.0, title: "Test-time adaptation needs <b>no labels</b>" },
 ];
 
 function loadMathImage(name) {
@@ -637,7 +639,7 @@ function initMethodExplorer() {
   const acts = Array.from(document.querySelectorAll("#theaterStage .theater-act"));
   const steps = Array.from(document.querySelectorAll("#theaterStepper .th-step"));
   const fills = steps.map((s) => s.querySelector(".th-fill"));
-  const capEl = $("theaterCaption");
+  const titleEl = $("theaterTitle");
   const playBtn = $("thPlayPause");
   const playIcon = $("thPlayIcon");
   if (!shell || !acts.length) return;
@@ -703,7 +705,7 @@ function initMethodExplorer() {
     activeAct = (idx + THEATER_ACTS.length) % THEATER_ACTS.length;
     elapsed = 0;
     shell.dataset.activeAct = String(activeAct);
-    if (capEl) capEl.textContent = THEATER_ACTS[activeAct].caption;
+    if (titleEl) titleEl.innerHTML = THEATER_ACTS[activeAct].title;
     acts.forEach((a, i) => a.classList.toggle("active", i === activeAct));
     steps.forEach((s, i) => {
       s.classList.toggle("active", i === activeAct);
@@ -735,12 +737,12 @@ function initMethodExplorer() {
     op(aFrEgo, 0.22 + 0.78 * easeOut((p - 0.74) / 0.12));
     op(aArc, 0.15 + 0.85 * easeOut((p - 0.78) / 0.1));
     aLabels.forEach((l) => op(l, 0.2 + 0.8 * easeOut((p - 0.8) / 0.1)));
-    const dw = 326 * easeInOut((p - 0.72) / 0.2);
+    const dw = 248 * easeInOut((p - 0.72) / 0.2);
     if (aDepthReveal) aDepthReveal.setAttribute("width", Math.max(0.01, dw).toFixed(1));
     if (aDepthScan) {
-      aDepthScan.setAttribute("x1", (764 + dw).toFixed(1));
-      aDepthScan.setAttribute("x2", (764 + dw).toFixed(1));
-      aDepthScan.setAttribute("opacity", dw > 2 && dw < 324 ? "0.95" : "0");
+      aDepthScan.setAttribute("x1", (750 + dw).toFixed(1));
+      aDepthScan.setAttribute("x2", (750 + dw).toFixed(1));
+      aDepthScan.setAttribute("opacity", dw > 2 && dw < 246 ? "0.95" : "0");
     }
   }
 
@@ -848,65 +850,140 @@ function initMethodExplorer() {
 }
 
 /* ============================================================
-   WHY DEPTH MATTERS (lion herd, numbers from the scene file)
+   WHY DEPTH MATTERS (lion herd, schematic top view)
 ============================================================ */
+// Each lion is placed where its readout terms put it: angle phi from the exo camera and
+// distance d (in units of |c|) from the predicted ego camera, recovered from s = d + 3 sin(phi).
 async function initDepthCase() {
-  const list = $("labScoreList");
+  const svg = $("caseSvg");
   const verdict = $("labVerdict");
-  const img = $("caseImg");
-  const cap = $("caseCap");
   const btnAngle = $("labModeAngle");
   const btnDepth = $("labModeEgoRay");
-  if (!list || !btnAngle || !btnDepth) return;
+  if (!svg || !btnAngle || !btnDepth) return;
 
-  let cands = [];
+  let meta;
   try {
-    const meta = await (await fetch("./assets/scenes/wild_animals.json")).json();
-    cands = (meta.candidates || []).slice().sort((a, b) => a.score - b.score).slice(0, 4);
+    meta = await (await fetch("./assets/scenes/wild_animals.json")).json();
   } catch (_) {
     return;
   }
-  const wearer = cands.find((c) => c.is_wearer);
-  const rival = cands.find((c) => !c.is_wearer);
-  let mode = "depth";
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs = {}, parent = svg) => {
+    const n = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    parent.appendChild(n);
+    return n;
+  };
+  const txt = (x, y, str, cls, parent = svg, anchor = "start") => {
+    const t = el("text", { x, y, class: cls, "text-anchor": anchor }, parent);
+    t.textContent = str;
+    return t;
+  };
 
-  function render() {
-    const depth = mode === "depth";
-    const key = depth ? "score" : "angle";
-    const maxV = Math.max(...cands.map((c) => c[key])) * 1.05;
-    list.innerHTML = cands.map((c) => {
-      const cls = c.is_wearer ? "wear" : c === rival ? "rival" : "";
-      const v = depth ? c.score.toFixed(2) : `${c.angle.toFixed(2)}°`;
-      const pct = Math.max(3, (c[key] / maxV) * 100);
-      return `
-        <div class="case-row ${cls}">
-          <span class="case-id">#${c.id}${c.is_wearer ? " · wearer" : ""}</span>
-          <span class="case-bar"><i style="width:${pct.toFixed(1)}%"></i></span>
-          <span class="case-val">${v}</span>
-        </div>`;
-    }).join("");
-    if (img) {
-      img.src = depth ? "./assets/cards/wild_animals_side.jpg" : "./assets/cards/wild_animals_exo_ann.jpg";
+  const E = meta.exo_cam.origin, C = meta.ego_cam.origin;
+  const ux = C[0] - E[0], uz = C[2] - E[2];
+  const Lw = Math.hypot(ux, uz);
+  const along = (p) => ((p[0] - E[0]) * ux + (p[2] - E[2]) * uz) / Lw;
+  const side = (p) => ((p[0] - E[0]) * -uz + (p[2] - E[2]) * ux) / Lw;
+
+  const X0 = 112, Y0 = 250, L = 520;
+  const place = (c) => {
+    const phi = (c.angle * Math.PI) / 180;
+    const d = Math.max(0.02, c.score - 3 * Math.sin(phi));
+    const root = Math.sqrt(Math.max(0, Math.cos(phi) ** 2 - 1 + d * d));
+    const behind = along(c.pos) > Lw;
+    const r = Math.cos(phi) + (behind ? root : -root);
+    const sgn = side(c.pos) < 0 ? -1 : 1;
+    return { ...c, d, x: X0 + r * L * Math.cos(phi), y: Y0 + sgn * r * L * Math.sin(phi) };
+  };
+  const cands = meta.candidates.map(place);
+  const wearer = cands.find((c) => c.is_wearer);
+  const rival = cands.filter((c) => !c.is_wearer).sort((a, b) => a.score - b.score)[0];
+  const cx = X0 + L;
+
+  svg.innerHTML = "";
+  const defs = el("defs");
+  const pat = el("pattern", { id: "caseGrid", width: 28, height: 28, patternUnits: "userSpaceOnUse" }, defs);
+  el("path", { d: "M28 0H0V28", fill: "none", stroke: "#eef2f6", "stroke-width": 1 }, pat);
+  const clip = el("clipPath", { id: "caseInsetClip" }, defs);
+  el("rect", { x: 20, y: 20, width: 224, height: 126, rx: 12 }, clip);
+  el("rect", { x: 0, y: 0, width: 1120, height: 420, rx: 18, fill: "url(#caseGrid)" });
+
+  // exo view inset
+  el("image", { href: "./assets/cards/wild_animals_exo_ann.jpg", x: 20, y: 20, width: 224, height: 126, preserveAspectRatio: "xMidYMid slice", "clip-path": "url(#caseInsetClip)" });
+  el("rect", { x: 20, y: 20, width: 224, height: 126, rx: 12, fill: "none", stroke: "#dbe3ee" });
+  txt(32, 168, "exo view", "case-cap");
+
+  // ray from the exo camera through the predicted ego camera
+  el("line", { x1: X0, y1: Y0, x2: cx, y2: Y0, class: "case-ray" });
+  el("line", { x1: cx, y1: Y0, x2: 1100, y2: Y0, class: "case-ray ext" });
+
+  // angle-only: the narrow cone that holds both lions
+  const half = ((Math.max(rival.angle, wearer.angle) + 0.35) * Math.PI) / 180;
+  const far = 1100 - X0;
+  el("path", { d: `M${X0} ${Y0} L${X0 + far} ${Y0 - far * Math.tan(half)} L${X0 + far} ${Y0 + far * Math.tan(half)} Z`, class: "case-wedge only-angle" });
+
+  // angle + depth: distances to the ego camera
+  const bracket = (c, y, cls) => {
+    const g = el("g", { class: `case-dist ${cls} only-depth` });
+    el("path", { d: `M${c.x} ${y - 7}V${y + 7}M${c.x} ${y}H${cx}M${cx} ${y - 7}V${y + 7}`, class: "case-dim" }, g);
+    el("line", { x1: c.x, y1: Y0 + 18, x2: c.x, y2: y - 9, class: "case-lead" }, g);
+    txt((c.x + cx) / 2, y + 27, `d = ${c.d.toFixed(2)}`, "case-dval", g, "middle");
+    return g;
+  };
+  bracket(wearer, Y0 + 72, "good");
+  bracket(rival, Y0 + 122, "bad");
+
+  // exo camera
+  const cam = el("g", { transform: `translate(${X0} ${Y0})` });
+  el("path", { d: "M0 0 L-34 -20 L-34 20 Z", class: "case-cam-fill" }, cam);
+  el("path", { d: "M0 0 L-34 -20 L-34 20 Z", class: "case-cam" }, cam);
+  el("circle", { r: 5, fill: "#0284c7" }, cam);
+  txt(X0 - 18, Y0 + 46, "exo camera", "case-label exo", svg, "middle");
+
+  // lions
+  for (const c of cands) {
+    const g = el("g", { class: `case-cand ${c.is_wearer ? "wear" : c === rival ? "rival" : "other"}`, transform: `translate(${c.x.toFixed(1)} ${c.y.toFixed(1)})` });
+    const big = c.is_wearer || c === rival;
+    el("circle", { r: big ? 24 : 0, class: "case-tie only-angle" }, g);
+    el("circle", { r: big ? 15 : 12, class: "case-dot" }, g);
+    let lx = 0, ly, anchor = "middle";
+    if (c.y < 80) {
+      lx = 26; ly = -2; anchor = "start";
+    } else if (c.y <= Y0 + 30) {
+      ly = big ? -54 : -46;
+    } else {
+      ly = 46;
     }
-    if (cap) {
-      cap.textContent = depth
-        ? `In 3D, lion #${rival.id} is far from the ego camera.`
-        : `In the image, lion #${rival.id} sits on almost the same ray.`;
-    }
-    if (verdict) {
-      const gap = depth ? (rival.score - wearer.score).toFixed(2) : `${(rival.angle - wearer.angle).toFixed(1)}°`;
-      verdict.className = `case-note ${depth ? "ok" : "warn"}`;
-      verdict.innerHTML = depth
-        ? `Score gap to #${rival.id}: <b>${gap}</b>, a clear margin.`
-        : `Angle gap to #${rival.id}: <b>${gap}</b>, easily flipped by pose error.`;
-    }
-    btnAngle.classList.toggle("active", !depth);
-    btnDepth.classList.toggle("active", depth);
+    txt(lx, ly, `#${c.id}`, "case-id", g, anchor);
+    txt(lx, ly + 21, `${c.angle < 10 ? c.angle.toFixed(2) : c.angle.toFixed(1)}°`, "case-val only-angle", g, anchor);
+    txt(lx, ly + 21, c.score.toFixed(2), "case-val only-depth", g, anchor);
   }
 
-  btnAngle.addEventListener("click", () => { mode = "angle"; render(); });
-  btnDepth.addEventListener("click", () => { mode = "depth"; render(); });
-  render();
+  // predicted ego camera
+  const eg = el("g", { transform: `translate(${cx} ${Y0})` });
+  el("circle", { r: 16, class: "case-halo" }, eg);
+  el("circle", { r: 7, fill: "#d97706", stroke: "#fff", "stroke-width": 3 }, eg);
+  el("image", { href: "./assets/math/c_hat.svg", x: 12, y: -42, width: 15, height: 20 }, eg);
+  txt(32, -27, "ego camera", "case-label ego", eg);
+
+  // legend for the value row
+  txt(1096, 402, "value: angle θ", "case-legend only-angle", svg, "end");
+  txt(1096, 402, "value: score s", "case-legend only-depth", svg, "end");
+
+  function render(mode) {
+    svg.dataset.mode = mode;
+    btnAngle.classList.toggle("active", mode === "angle");
+    btnDepth.classList.toggle("active", mode === "depth");
+    if (!verdict) return;
+    verdict.className = `case-note ${mode === "depth" ? "ok" : "warn"}`;
+    verdict.innerHTML = mode === "depth"
+      ? `#${rival.id} sits on the ray but far from the ego camera. Score gap <b>${(rival.score - wearer.score).toFixed(2)}</b>.`
+      : `#${rival.id} and the wearer #${wearer.id} are only <b>${(rival.angle - wearer.angle).toFixed(1)}°</b> apart. A small pose error flips the answer.`;
+  }
+  btnAngle.addEventListener("click", () => render("angle"));
+  btnDepth.addEventListener("click", () => render("depth"));
+  render("depth");
 }
 
 /* ============================================================

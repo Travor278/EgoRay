@@ -1,8 +1,8 @@
-import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { LineSegments2 } from "three/addons/lines/LineSegments2.js";
-import { LineSegmentsGeometry } from "three/addons/lines/LineSegmentsGeometry.js";
-import { LineMaterial } from "three/addons/lines/LineMaterial.js";
+import * as THREE from "./vendor/three/three.module.min.js";
+import { OrbitControls } from "./vendor/three/addons/controls/OrbitControls.js";
+import { LineSegments2 } from "./vendor/three/addons/lines/LineSegments2.js";
+import { LineSegmentsGeometry } from "./vendor/three/addons/lines/LineSegmentsGeometry.js";
+import { LineMaterial } from "./vendor/three/addons/lines/LineMaterial.js";
 
 const COL_EXO = 0x0284c7;
 const COL_EGO = 0xd97706;
